@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Agência BBold — Links</title>
+  <meta name="description" content="Design Estratégico & Presença Digital. Atendemos todo o Brasil."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --yellow: #F5C518;
+      --yellow-dark: #D4AA10;
+      --black: #0A0A0A;
+      --black-mid: #141414;
+      --black-light: #1E1E1E;
+      --off-white: #F0EFE8;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
+      font-family: 'Barlow', sans-serif;
+      background: var(--black);
+      color: var(--off-white);
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100svh;
+      padding: 48px 24px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Fundo com textura sutil */
+    body::before {
+      content: 'BBOLD';
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(180px, 50vw, 380px);
+      position: fixed;
+      bottom: -40px;
+      right: -20px;
+      color: rgba(245, 197, 24, 0.03);
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── ÍCONE ANIMADO ── */
+    .logo-wrap {
+      margin-bottom: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+    .logo-icon {
+      width: 100px;
+      height: 86px;
+      animation: float 3.2s ease-in-out infinite;
+      filter: drop-shadow(0 18px 24px rgba(245,197,24,0.18));
+    }
+    .logo-shadow {
+      width: 60px;
+      height: 8px;
+      background: radial-gradient(ellipse, rgba(245,197,24,0.25) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: shadow-pulse 3.2s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0px);
+        filter: drop-shadow(0 18px 24px rgba(245,197,24,0.18));
+      }
+      50% {
+        transform: translateY(-12px);
+        filter: drop-shadow(0 30px 32px rgba(245,197,24,0.08));
+      }
+    }
+    @keyframes shadow-pulse {
+      0%, 100% {
+        transform: scaleX(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scaleX(0.6);
+        opacity: 0.4;
+      }
+    }
+
+    /* ── HEADER TEXT ── */
+    .profile-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 0.08em;
+      color: var(--off-white);
+      margin-bottom: 4px;
+      text-align: center;
+    }
+    .profile-handle {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .profile-tag {
+      font-size: 13px;
+      color: rgba(240,239,232,0.45);
+      text-align: center;
+      line-height: 1.6;
+      margin-bottom: 36px;
+      max-width: 280px;
+    }
+
+    /* ── DIVISOR ── */
+    .divider {
+      width: 40px;
+      height: 2px;
+      background: var(--yellow);
+      border-radius: 2px;
+      margin-bottom: 36px;
+      opacity: 0.6;
+    }
+
+    /* ── BOTÕES ── */
+    .links {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 40px;
+    }
+
+    .link-btn {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      padding: 18px 24px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.02em;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+    }
+
+    .link-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* Efeito hover */
+    .link-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background 0.2s;
+    }
+    .link-btn:hover::after {
+      background: rgba(255,255,255,0.04);
+    }
+
+    /* Botão WhatsApp — principal (amarelo) */
+    .link-btn--primary {
+      background: var(--yellow);
+      color: var(--black);
+      box-shadow: 0 0 0 0 rgba(245,197,24,0.4);
+      animation: pulse 2.5s infinite;
+    }
+    .link-btn--primary:hover {
+      box-shadow: 0 8px 32px rgba(245,197,24,0.25);
+    }
+
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(245,197,24,0.35); }
+      70%  { box-shadow: 0 0 0 12px rgba(245,197,24,0); }
+      100% { box-shadow: 0 0 0 0 rgba(245,197,24,0); }
+    }
+
+    /* Botão Site */
+    .link-btn--secondary {
+      background: var(--black-light);
+      color: var(--off-white);
+      border: 1px solid rgba(240,239,232,0.1);
+    }
+    .link-btn--secondary:hover {
+      border-color: rgba(245,197,24,0.3);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    /* Botão Portfólio */
+    .link-btn--portfolio {
+      background: var(--black-mid);
+      color: var(--off-white);
+      border: 1px solid rgba(245,197,24,0.15);
+    }
+    .link-btn--portfolio:hover {
+      border-color: rgba(245,197,24,0.35);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    /* Ícone */
+    .btn-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .link-btn--primary .btn-icon {
+      background: rgba(0,0,0,0.15);
+    }
+    .link-btn--secondary .btn-icon,
+    .link-btn--portfolio .btn-icon {
+      background: rgba(245,197,24,0.08);
+    }
+
+    /* Texto do botão */
+    .btn-text {
+      flex: 1;
+    }
+    .btn-text__label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0.55;
+      margin-bottom: 2px;
+    }
+    .link-btn--primary .btn-text__label { opacity: 0.6; }
+    .btn-text__title {
+      display: block;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    /* Seta */
+    .btn-arrow {
+      font-size: 18px;
+      opacity: 0.4;
+      flex-shrink: 0;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .link-btn:hover .btn-arrow {
+      transform: translateX(4px);
+      opacity: 0.8;
+    }
+
+    /* ── SOCIAL STRIP ── */
+    .social {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .social-link {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--black-light);
+      border: 1px solid rgba(240,239,232,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-size: 16px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .social-link:hover {
+      border-color: rgba(245,197,24,0.4);
+      transform: translateY(-2px);
+    }
+
+    /* ── FOOTER ── */
+    .footer-text {
+      font-size: 11px;
+      color: rgba(240,239,232,0.2);
+      text-align: center;
+      letter-spacing: 1px;
+    }
+    .footer-text span {
+      color: rgba(245,197,24,0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <!-- Ícone animado -->
+    <div class="logo-wrap">
+      <svg class="logo-icon" viewBox="0 0 835.49 712.87" xmlns="http://www.w3.org/2000/svg" aria-label="Agência BBold">
+        <path fill="#F5C518" d="M10.18,355.51C10.18,130.42,132.44,22.98,417.74,22.98s407.57,108.37,407.57,332.53-123.19,334.39-407.57,334.39S10.18,581.53,10.18,355.51ZM584.48,355.51c0-67.62-16.11,2.52-158.76,2.52s-174.7-71.06-174.7-2.52,25.01,130.61,166.73,130.61,166.73-62.07,166.73-130.61Z"/>
+      </svg>
+      <div class="logo-shadow"></div>
+    </div>
+
+    <!-- Perfil -->
+    <div class="profile-name">Agência BBold</div>
+    <div class="profile-handle">@agencia.bbold</div>
+    <div class="profile-tag">Design Estratégico & Presença Digital<br/>Atendemos em todo o Brasil 🇧🇷</div>
+
+    <div class="divider"></div>
+
+    <!-- Botões -->
+    <div class="links">
+
+      <!-- WhatsApp -->
+      <a class="link-btn link-btn--primary" href="https://wa.me/5527997341557" target="_blank" rel="noopener">
+        <div class="btn-icon">💬</div>
+        <div class="btn-text">
+          <span class="btn-text__label">Atendimento</span>
+          <span class="btn-text__title">Fale conosco</span>
+        </div>
+        <span class="btn-arrow">→</span>
+      </a>
+
+      <!-- Site -->
+      <a class="link-btn link-btn--secondary" href="https://agenciabbold.com.br" target="_blank" rel="noopener">
+        <div class="btn-icon">🌐</div>
+        <div class="btn-text">
+          <span class="btn-text__label">Saiba mais</span>
+          <span class="btn-text__title">Conheça nosso site</span>
+        </div>
+        <span class="btn-arrow">→</span>
+      </a>
+
+      <!-- Portfólio Behance -->
+      <a class="link-btn link-btn--portfolio" href="https://behance.net/agenciabbold" target="_blank" rel="noopener">
+        <div class="btn-icon">🎨</div>
+        <div class="btn-text">
+          <span class="btn-text__label">Nossos projetos</span>
+          <span class="btn-text__title">Veja nosso portfólio</span>
+        </div>
+        <span class="btn-arrow">→</span>
+      </a>
+
+    </div>
+
+    <!-- Social -->
+    <div class="social">
+      <a class="social-link" href="https://www.instagram.com/agenciabbold" target="_blank" rel="noopener" title="Instagram">
+        📸
+      </a>
+      <a class="social-link" href="https://www.linkedin.com/company/agenciabbold" target="_blank" rel="noopener" title="LinkedIn">
+        💼
+      </a>
+      <a class="social-link" href="mailto:contato@agenciabbold.com.br" title="E-mail">
+        ✉️
+      </a>
+    </div>
+
+    <!-- Rodapé -->
+    <p class="footer-text">© 2026 <span>BBOLD Studio</span> · Serra, ES</p>
+
+  </div>
+
+</body>
+</html>

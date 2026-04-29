@@ -34,8 +34,9 @@ export async function generateStaticParams() {
   return posts.map((p: { slug: { current: string } }) => ({ slug: p.slug.current }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const post = await client.fetch(postBySlugQuery, { slug: params.slug });
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await client.fetch(postBySlugQuery, { slug });
   if (!post) return { title: "Post não encontrado" };
   return {
     title: `${post.title} — Blog BBold`,
@@ -85,8 +86,9 @@ const ptComponents = {
   },
 };
 
-export default async function PostPage({ params }: { params: { slug: string } }) {
-  const post = await client.fetch(postBySlugQuery, { slug: params.slug });
+export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = await client.fetch(postBySlugQuery, { slug });
   if (!post) notFound();
 
   return (

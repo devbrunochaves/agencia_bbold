@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-bebas: "Bebas Neue";
+  --font-barlow: "Barlow";
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: #0A0A0A;
+  color: #F0EFE8;
+  overflow-x: hidden;
+}
+
+::selection { background: #F5C518; color: #0A0A0A; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0A0A0A; }
+::-webkit-scrollbar-thumb { background: #F5C518; border-radius: 3px; }
+
+@layer utilities {
+  .section-tag {
+    @apply inline-block text-[0.72rem] font-bold tracking-[0.2em] uppercase text-yellow border border-yellow px-3 py-1 rounded-sm mb-5;
+  }
+  .section-title {
+    @apply font-display text-[clamp(2.2rem,5vw,4rem)] leading-[1.05] text-offwhite tracking-wide mb-5;
+  }
+  .section-title em {
+    font-style: normal;
+    color: #F5C518;
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

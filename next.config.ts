@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      { source: "/servicos", destination: "/servicos/index.html" },
+      { source: "/conteudos", destination: "/conteudos/index.html" },
+    ];
+  },
 };
 
 export default nextConfig;

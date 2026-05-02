@@ -3,6 +3,7 @@ import Numbers from "@/components/Numbers";
 import Services from "@/components/Services";
 import HowWeWork from "@/components/HowWeWork";
 import CustomProjects from "@/components/CustomProjects";
+import ProjectsPreview from "@/components/ProjectsPreview";
 import About from "@/components/About";
 import CtaBand from "@/components/CtaBand";
 import Contact from "@/components/Contact";
@@ -17,6 +18,7 @@ export default function Home() {
       <Services />
       <HowWeWork />
       <CustomProjects />
+      <ProjectsPreview />
       <About />
       <CtaBand />
       <Contact />

@@ -16,7 +16,7 @@ export default function Nav() {
 
   const links = [
     { href: "/#servicos", label: "Serviços" },
-    { href: "/#pacotes", label: "Pacotes" },
+    { href: "/projetos", label: "Projetos" },
     { href: "/blog", label: "Blog" },
     { href: "/#como-ajudamos", label: "Como Ajudamos" },
     { href: "/#quem-somos", label: "Quem Somos" },

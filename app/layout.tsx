@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Barlow } from "next/font/google";
 import "./globals.css";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
 import Script from "next/script";
 
 const bebasNeue = Bebas_Neue({
@@ -53,9 +51,7 @@ export default function RootLayout({
         </Script>
       </head>
       <body className="font-body bg-black text-offwhite">
-        <Nav />
         {children}
-        <Footer />
       </body>
     </html>
   );

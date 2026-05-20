@@ -3,9 +3,9 @@
 import { useEffect, useRef } from "react";
 
 const stats = [
-  { value: 15, suffix: "+", label: "Anos de experiência em design" },
-  { value: 100, suffix: "%", label: "Foco em resultado real" },
-  { value: 3, suffix: "x", label: "Mais visibilidade para seu negócio" },
+  { value: 15, suffix: "+", label: "Anos de experiência no mercado" },
+  { value: 100, suffix: "%", label: "Dedicação a resultados mensuráveis" },
+  { value: 3, suffix: "x", label: "Mais autoridade percebida no digital" },
 ];
 
 function Counter({ target }: { target: number }) {
@@ -43,7 +43,7 @@ function Counter({ target }: { target: number }) {
 
 export default function Numbers() {
   return (
-    <section className="bg-yellow py-12 px-10">
+    <section className="bg-yellow py-16 px-10">
       <div className="max-w-site mx-auto flex flex-col md:flex-row items-center justify-center">
         {stats.map((s, i) => (
           <div key={s.label} className="flex flex-col md:flex-row items-center w-full">

@@ -16,14 +16,14 @@ const barlow = Barlow({
 });
 
 export const metadata: Metadata = {
-  title: "Agência BBold — Marketing Digital que Impacta",
+  title: "BBOLD — Posicionamento Digital Empresarial",
   description:
-    "Design estratégico, tráfego pago e gestão de redes sociais para empresas que querem crescer de verdade.",
+    "Ajudamos empresas a transmitir autoridade, profissionalismo e confiança em todos os pontos da presença digital — identidade visual, sites, redes sociais e estratégia.",
   openGraph: {
-    title: "Agência BBold",
-    description: "Sua marca merece ser vista.",
+    title: "BBOLD — Posicionamento Digital Empresarial",
+    description: "Sua empresa precisa parecer do tamanho que ela é.",
     url: "https://agenciabbold.com.br",
-    siteName: "Agência BBold",
+    siteName: "BBOLD",
     locale: "pt_BR",
     type: "website",
   },

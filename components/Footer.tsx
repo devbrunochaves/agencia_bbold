@@ -14,7 +14,7 @@ export default function Footer() {
             className="h-10 w-auto mb-4"
           />
           <p className="text-sm text-offwhite/40 leading-relaxed">
-            Marketing digital que impacta.<br />
+            Posicionamento digital para empresas.<br />
             Serra, Espírito Santo — Brasil.
           </p>
         </div>

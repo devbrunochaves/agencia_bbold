@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>BBold — Estratégia de Crescimento 2026</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --yellow: #F5C518;
+      --black: #0A0A0A;
+      --dark: #141414;
+      --card: #1A1A1A;
+      --border: rgba(245,197,24,0.12);
+      --text: #F0EFE8;
+      --muted: rgba(240,239,232,0.5);
+    }
+
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: var(--black);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* HEADER */
+    .hero {
+      background: linear-gradient(180deg, #111 0%, var(--black) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 80px 24px 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: 'BBOLD';
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(120px, 30vw, 280px);
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(245,197,24,0.03);
+      line-height: 1;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .hero-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(36px, 6vw, 72px);
+      letter-spacing: 0.04em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .hero p {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* LAYOUT */
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* SECTION */
+    .section {
+      padding: 64px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing: 0.04em;
+      margin-bottom: 24px;
+      line-height: 1.1;
+    }
+    .section-intro {
+      font-size: 16px;
+      color: var(--muted);
+      margin-bottom: 40px;
+      max-width: 640px;
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 10px;
+    }
+    .card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .card p {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+    .card p:last-child { margin-bottom: 0; }
+
+    /* GRID 2 COL */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 600px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    /* PHASE CARDS */
+    .phase {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .phase::before {
+      content: attr(data-num);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 120px;
+      position: absolute;
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(245,197,24,0.04);
+      line-height: 1;
+      pointer-events: none;
+    }
+    .phase-num {
+      width: 32px;
+      height: 32px;
+      background: var(--yellow);
+      color: var(--black);
+      font-weight: 700;
+      font-size: 14px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .phase-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+    .phase-sub {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 20px;
+    }
+    .phase ul {
+      list-style: none;
+      padding: 0;
+    }
+    .phase ul li {
+      font-size: 15px;
+      color: var(--muted);
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      padding-left: 20px;
+      position: relative;
+    }
+    .phase ul li:last-child { border-bottom: none; }
+    .phase ul li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--yellow);
+      font-size: 12px;
+    }
+
+    /* SCRIPT BOXES */
+    .script-box {
+      background: #111;
+      border: 1px solid rgba(245,197,24,0.2);
+      border-radius: 10px;
+      padding: 24px 28px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .script-label {
+      position: absolute;
+      top: -10px;
+      left: 20px;
+      background: var(--yellow);
+      color: var(--black);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 4px;
+    }
+    .script-box p {
+      font-size: 14px;
+      line-height: 1.8;
+      color: rgba(240,239,232,0.75);
+      margin-bottom: 8px;
+    }
+    .script-box p:last-child { margin-bottom: 0; }
+    .script-box strong { color: var(--text); }
+
+    /* METRIC CARDS */
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    @media (max-width: 600px) {
+      .metric-row { grid-template-columns: 1fr 1fr; }
+    }
+    .metric {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px 20px;
+      text-align: center;
+    }
+    .metric-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      color: var(--yellow);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .metric-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* HIGHLIGHT BOX */
+    .highlight {
+      background: rgba(245,197,24,0.06);
+      border: 1px solid rgba(245,197,24,0.2);
+      border-left: 3px solid var(--yellow);
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin: 24px 0;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+    .highlight strong { color: var(--yellow); }
+
+    /* CONTENT CALENDAR */
+    .week {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .week-header {
+      background: rgba(245,197,24,0.06);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .week-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 13px;
+      letter-spacing: 2px;
+      color: var(--yellow);
+    }
+    .week-focus {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .week-posts {
+      padding: 16px 24px;
+    }
+    .post-item {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      align-items: start;
+    }
+    .post-item:last-child { border-bottom: none; }
+    .post-format {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--yellow);
+      padding-top: 3px;
+    }
+    .post-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .post-hook {
+      font-size: 13px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* DIVIDER */
+    .divider {
+      width: 40px;
+      height: 2px;
+      background: var(--yellow);
+      border-radius: 2px;
+      margin: 0 0 32px;
+      opacity: 0.6;
+    }
+
+    /* TABLE */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th {
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--yellow);
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: var(--muted);
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    td:first-child { color: var(--text); font-weight: 600; }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 48px 24px;
+      font-size: 12px;
+      color: rgba(240,239,232,0.2);
+      letter-spacing: 1px;
+    }
+    footer span { color: rgba(245,197,24,0.4); }
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="hero-tag">Documento Interno · Uso Restrito</div>
+    <h1>Estratégia de Crescimento<br>BBold 2026</h1>
+    <p>Plano completo: Instagram, captação de clientes, scripts e tráfego pago. Da base zero até autoridade regional.</p>
+  </div>
+
+  <div class="container">
+
+    <!-- 01. DIAGNÓSTICO -->
+    <section class="section">
+      <div class="section-label">01 · Onde estamos</div>
+      <h2 class="section-title">Diagnóstico Atual</h2>
+      <div class="divider"></div>
+
+      <div class="metric-row">
+        <div class="metric">
+          <div class="metric-val">2</div>
+          <div class="metric-label">Posts no feed</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val">7</div>
+          <div class="metric-label">Seguidores</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val">0</div>
+          <div class="metric-label">Clientes via Instagram</div>
+        </div>
+      </div>
+
+      <div class="highlight">
+        <strong>Isso não é um problema — é um ponto de partida limpo.</strong> Você tem o mais importante: posicionamento claro, filosofia sólida e um diferencial real. A Morro Alto levou 5 anos pra ter 125 clientes. Você vai fazer mais rápido porque vai começar com estratégia desde o dia 1 — algo que a maioria das agências não faz.
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">BBold hoje</div>
+          <p>2 posts. 7 seguidores. Site no ar. Manifesto com posicionamento forte. Marca visual consolidada (preto + amarelo). Nenhum cliente via Instagram ainda.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Morro Alto (referência)</div>
+          <p>5 anos de mercado. 125+ marcas. Posição de "escritório criativo da marca". Forte em ES. Serviços: conteúdo, tráfego, branding, sites, social.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02. POSICIONAMENTO -->
+    <section class="section">
+      <div class="section-label">02 · Quem somos</div>
+      <h2 class="section-title">Posicionamento Definitivo</h2>
+      <div class="divider"></div>
+      <p class="section-intro">A BBold já tem a frase certa. O que precisa agora é operacionalizar esse posicionamento em cada peça de conteúdo, em cada conversa e em cada proposta.</p>
+
+      <div class="highlight">
+        Tagline definitiva: <strong>"Empresas fortes precisam parecer fortes."</strong><br><br>
+        Use essa frase em todos os lugares — bio do Instagram, assinatura de e-mail, apresentações, propostas. Ela carrega a essência e diferencia imediatamente de qualquer agência genérica.
+      </div>
+
+      <div class="card">
+        <div class="card-title">Como se diferenciar da Morro Alto</div>
+        <h3>Não bata de frente. Escolha um ângulo diferente.</h3>
+        <p>Morro Alto é o "escritório criativo da sua marca" — mais amplo, mais criativo, mais artístico. A BBold é a agência de <strong>posicionamento digital e percepção de marca</strong> — mais estratégica, mais orientada a resultado, mais próxima do negócio do cliente.</p>
+        <p>Enquanto Morro Alto fala de estética e criação, a BBold fala de <strong>percepção, confiança e conversão</strong>. Essa diferença de ângulo permite que você coexista, capture um público diferente e até manche terreno onde eles não chegam.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Público-alvo primário</div>
+          <p>Donos de pequenas e médias empresas no ES (Serra, Vila Velha, Vitória, Cariacica) que já têm negócio funcionando mas presença digital amadora ou inexistente. 28–50 anos. Investem em resultado, não em arte.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Público-alvo secundário</div>
+          <p>Empresas de fora do ES que precisam de agência remota. Profissionais liberais (advogados, médicos, consultores) que precisam de presença premium mas não sabem por onde começar.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03. INSTAGRAM -->
+    <section class="section">
+      <div class="section-label">03 · Instagram</div>
+      <h2 class="section-title">Estratégia de Conteúdo</h2>
+      <div class="divider"></div>
+      <p class="section-intro">O Instagram da BBold não é vitrine — é funil de vendas. Cada post deve levar o empresário a se reconhecer, refletir e agir.</p>
+
+      <div class="card">
+        <div class="card-title">Frequência e ritmo</div>
+        <h3>3 posts/semana + Stories diários</h3>
+        <p><strong>Dias fixos:</strong> Terça, Quinta, Sábado. Consistência de 3x/semana é mais eficiente do que 5x irregular — o algoritmo favoriza consistência, e você evita burnout criativo.</p>
+        <p><strong>Stories:</strong> Todo dia útil, mínimo 2–3 stories. Bastidores, enquetes, frases de provocação, processo de trabalho. Stories humanizam sem precisar aparecer na câmera.</p>
+        <p><strong>Reels:</strong> 1–2x/semana dentro dos 3 posts. Reels têm alcance orgânico 3–5× maior que carrossel — use para topo de funil. Carrossel converte melhor quem já acompanha.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Mix de conteúdo</div>
+        <h3>A proporção que equilibra alcance e conversão</h3>
+        <p><strong>40% — Educação/Autoridade:</strong> Ensine algo que o empresário não sabia. Mostre que você entende de negócio, não só de design. Ex: "Por que sua marca não transmite confiança" / "5 sinais que seu site está afastando clientes".</p>
+        <p><strong>30% — Dor/Provocação:</strong> Posts que fazem o empresário se reconhecer desconfortavelmente. "Seu concorrente parece mais profissional que você — mesmo sendo menor." São os posts que geram comentário e compartilhamento.</p>
+        <p><strong>20% — Portfólio/Prova Social:</strong> Resultados de clientes, transformações visuais, depoimentos. Mostre o trabalho, nunca o processo pelo processo — mostre o antes/depois e o impacto no negócio.</p>
+        <p><strong>10% — Bastidores:</strong> Processo criativo, bastidores de reunião, construção de estratégia. Humaniza a agência sem precisar de rosto na câmera se você não quiser.</p>
+      </div>
+
+      <!-- CALENDÁRIO 4 SEMANAS -->
+      <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.04em; margin-bottom: 20px;">Plano de Conteúdo — Primeiras 4 Semanas</h3>
+      <p style="font-size: 14px; color: var(--muted); margin-bottom: 24px;">Os primeiros 12 posts definem como o mercado vai te perceber. Cada post foi pensado para construir autoridade progressivamente.</p>
+
+      <div class="week">
+        <div class="week-header">
+          <div class="week-num">SEMANA 01</div>
+          <div class="week-focus">Apresentação + Provocação</div>
+        </div>
+        <div class="week-posts">
+          <div class="post-item">
+            <div class="post-format">Carrossel</div>
+            <div>
+              <div class="post-title">Por que a maioria das empresas no ES perde clientes para o concorrente</div>
+              <div class="post-hook">"Não é produto. Não é preço. É como sua marca parece."</div>
+            </div>
+          </div>
+          <div class="post-item">
+            <div class="post-format">Reel</div>
+            <div>
+              <div class="post-title">Apresentação da BBold — o que fazemos e por que é diferente</div>
+              <div class="post-hook">"Não somos mais uma agência de post. Somos especialistas em como sua empresa aparece pro mundo."</div>
+            </div>
+          </div>
+          <div class="post-item">
+            <div class="post-format">Carrossel</div>
+            <div>
+              <div class="post-title">3 coisas que sua presença digital está comunicando — mesmo sem você saber</div>
+              <div class="post-hook">"Antes de você falar uma palavra, sua marca já falou por você."</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="week">
+        <div class="week-header">
+          <div class="week-num">SEMANA 02</div>
+          <div class="week-focus">Dor + Autoridade</div>
+        </div>
+        <div class="week-posts">
+          <div class="post-item">
+            <div class="post-format">Carrossel</div>
+            <div>
+              <div class="post-title">Análise: como seria o Instagram de uma empresa de Serra que cresce 30% vs. uma que patina</div>
+              <div class="post-hook">"Analisei dois perfis do mesmo segmento. A diferença não era o produto."</div>
+            </div>
+          </div>
+          <div class="post-item">
+            <div class="post-format">Reel</div>
+            <div>
+              <div class="post-title">Seu site faz 3 coisas que afastam clientes hoje</div>
+              <div class="post-hook">"Você tem 5 segundos. É isso que o cliente decide antes de ir embora."</div>
+            </div>
+          </div>
+          <div class="post-item">
+            <div class="post-format">Carrossel</div>
+            <div>
+              <div class="post-title">Como empresas menores cobram mais caro (e conseguem) graças ao visual</div>
+              <div class="post-hook">"Preço não é só sobre o produto. É sobre o que a marca transmite."</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="week">
+        <div class="week-header">
+          <div class="week-num">SEMANA 03</div>
+          <div class="week-focus">Prova Social + Posicionamento</div>
+        </div>
+        <div class="week-posts">
+          <div class="post-item">
+            <div class="post-format">Portfólio</div>
+            <div>
+              <div class="post-title">Antes e depois — transformação de presença digital [cliente]</div>
+              <div class="post-hook">"O que mudamos e o impacto nos primeiros 30 dias."</div>
+            </div>
+          </div>
+          <div class="post-item">
+            <div class="post-format">Carrossel</div>
+            <div>
+              <div class="post-title">A diferença entre agência que faz post e agência que constrói posicionamento</div>
+              <div class="post-hook">"Uma te entrega arte. A outra te entrega percepção de marca."</div>
+            </div>
+          </div>
+          <div class="post-item">
+            <div class="post-format">Reel</div>
+            <div>
+              <div class="post-title">O que acontece quando uma empresa resolve levar a presença digital a sério</div>
+              <div class="post-hook">"Acompanhei de perto. Te conto o que mudou primeiro."</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="week">
+        <div class="week-header">
+          <div class="week-num">SEMANA 04</div>
+          <div class="week-focus">Funil de Captação ativo</div>
+        </div>
+        <div class="week-posts">
+          <div class="post-item">
+            <div class="post-format">Carrossel</div>
+            <div>
+              <div class="post-title">5 erros que empresas de ES cometem no Instagram — e como corrigir</div>
+              <div class="post-hook">"Comenta ANÁLISE que eu olho o seu perfil gratuitamente."</div>
+            </div>
+          </div>
+          <div class="post-item">
+            <div class="post-format">Carrossel</div>
+            <div>
+              <div class="post-title">Quanto vale sua presença digital? (Um cálculo que poucos donos de empresa fazem)</div>
+              <div class="post-hook">"Vou te mostrar como calcular o custo de uma presença amadora."</div>
+            </div>
+          </div>
+          <div class="post-item">
+            <div class="post-format">Reel</div>
+            <div>
+              <div class="post-title">Por que a BBold existe — e o que prometo a cada cliente</div>
+              <div class="post-hook">"Comenta PRESENÇA que eu te mando um diagnóstico rápido do seu digital."</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04. FUNIL -->
+    <section class="section">
+      <div class="section-label">04 · Captação</div>
+      <h2 class="section-title">Funil de Aquisição de Clientes</h2>
+      <div class="divider"></div>
+      <p class="section-intro">O funil completo: do primeiro post até o fechamento no WhatsApp. Cada etapa tem um objetivo específico.</p>
+
+      <div class="card" style="margin-bottom: 24px;">
+        <div class="card-title">Visão geral do funil</div>
+        <p style="font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 0.04em; color: var(--text); line-height: 1.6;">
+          Post com CTA → Comentário com keyword → ManyChat auto-reply → Direct com PDF/recurso → Pergunta qualificadora → WhatsApp → Reunião diagnóstico → Proposta → Fechamento
+        </p>
+      </div>
+
+      <div class="phase" data-num="1">
+        <div class="phase-num">1</div>
+        <div class="phase-title">ATRAÇÃO — Instagram</div>
+        <div class="phase-sub">Objetivo: gerar comentário com palavra-chave</div>
+        <ul>
+          <li>Todo post tem CTA que pede comentário com keyword específica (SITE, ANÁLISE, DIGITAL, MARCA, PRESENÇA)</li>
+          <li>A keyword muda por post — isso permite segmentar o interesse do lead (quem comenta SITE quer diagnóstico de site)</li>
+          <li>Reels para alcance de novos perfis. Carrosséis para converter quem já acompanha.</li>
+          <li>Stories com enquetes semanais: "Seu site tem mais de 2 anos sem atualização?" — quem responde SIM entra no funil</li>
+        </ul>
+      </div>
+
+      <div class="phase" data-num="2">
+        <div class="phase-num">2</div>
+        <div class="phase-title">ATIVAÇÃO — ManyChat</div>
+        <div class="phase-sub">Objetivo: qualificar e mover pro direct/WhatsApp</div>
+        <ul>
+          <li>Configure keyword triggers para cada CTA (SITE, ANÁLISE, DIGITAL, MARCA, PRESENÇA)</li>
+          <li>Auto-reply no direct: "Oi [nome]! Vi que você comentou ANÁLISE — vou dar uma olhada no seu perfil. Me manda o @ ou link do seu Instagram/site." </li>
+          <li>Após resposta do lead, ManyChat envia PDF de diagnóstico genérico + pergunta qualificadora</li>
+          <li>Pergunta qualificadora: "Você tem site hoje?" / "Qual é o seu segmento?" / "Você já trabalhou com alguma agência antes?"</li>
+          <li>Com as respostas, você tem contexto suficiente pra personalizar a abordagem no WhatsApp</li>
+        </ul>
+      </div>
+
+      <div class="phase" data-num="3">
+        <div class="phase-num">3</div>
+        <div class="phase-title">CONVERSÃO — WhatsApp</div>
+        <div class="phase-sub">Objetivo: agendar reunião de diagnóstico (gratuita)</div>
+        <ul>
+          <li>Primeira mensagem no WhatsApp não é proposta — é diagnóstico de 5 minutos</li>
+          <li>Mostre que você já olhou o perfil/site deles antes de entrar em contato</li>
+          <li>Ofereça uma "Reunião de Diagnóstico Digital" de 20 minutos — gratuita, sem compromisso</li>
+          <li>Na reunião: mostre 3 problemas específicos que você identificou na presença digital deles</li>
+          <li>No final da reunião: apresente a proposta ou diga que vai enviar por escrito em 24h</li>
+        </ul>
+      </div>
+
+      <div class="phase" data-num="4">
+        <div class="phase-num">4</div>
+        <div class="phase-title">FECHAMENTO — Proposta</div>
+        <div class="phase-sub">Objetivo: fechar contrato mensal</div>
+        <ul>
+          <li>Proposta visual — não PDF genérico. Crie um template de proposta com a cara da BBold.</li>
+          <li>Apresente 3 opções de plano (Essencial, Profissional, Premium) — ancoragem de preço</li>
+          <li>Inclua diagnóstico personalizado com os problemas específicos que você levantou</li>
+          <li>Prazo de decisão: 5 dias úteis. Após isso, a agenda reabre</li>
+          <li>Follow-up no dia 2 e no dia 4 com informações adicionais de valor (cases, artigos)</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 05. SCRIPTS -->
+    <section class="section">
+      <div class="section-label">05 · Scripts</div>
+      <h2 class="section-title">Scripts de Abordagem</h2>
+      <div class="divider"></div>
+      <p class="section-intro">Templates prontos para cada etapa do funil. Personalize com o nome e o segmento do lead — nunca mande copado.</p>
+
+      <div class="script-box">
+        <div class="script-label">ManyChat — Auto-reply após comentário</div>
+        <p>Oi, <strong>[Nome]</strong>! 👋</p>
+        <p>Vi que você comentou no nosso post — vou dar uma olhada na sua presença digital.</p>
+        <p>Me manda o link do seu site ou Instagram da sua empresa que eu faço um diagnóstico rápido pra você. 🔍</p>
+        <p><em>(Esse diagnóstico é gratuito, sem compromisso nenhum.)</em></p>
+      </div>
+
+      <div class="script-box">
+        <div class="script-label">WhatsApp — Primeira abordagem (após ManyChat)</div>
+        <p>Oi, <strong>[Nome]</strong>! Aqui é o Bruno, da BBold.</p>
+        <p>Dei uma olhada no seu <strong>[site/Instagram]</strong> e já identifiquei <strong>3 pontos</strong> que estão impactando diretamente a percepção da sua marca.</p>
+        <p>Tem 20 minutos essa semana pra gente conversar? Não é uma reunião de vendas — é um diagnóstico mesmo. Você sai com clareza do que precisa ser feito, independente de trabalhar comigo ou não.</p>
+        <p>Qual o melhor dia pra você: <strong>quarta ou quinta</strong>?</p>
+      </div>
+
+      <div class="script-box">
+        <div class="script-label">Cold Outreach — Instagram DM para empresas locais</div>
+        <p>Oi, <strong>[Nome]</strong>! Acompanho o trabalho de vocês — <strong>[algo específico do perfil deles, ex: "vi o projeto que fizeram em março"]</strong>.</p>
+        <p>Percebi que a presença digital de vocês poderia estar gerando muito mais resultado com alguns ajustes estratégicos. Não estou falando de post novo — estou falando de <strong>como vocês aparecem pro cliente antes do primeiro contato</strong>.</p>
+        <p>Posso te mandar um diagnóstico rápido do perfil de vocês? Sem compromisso.</p>
+      </div>
+
+      <div class="script-box">
+        <div class="script-label">WhatsApp — Follow-up após envio de proposta (dia 2)</div>
+        <p>Oi, <strong>[Nome]</strong>! Espero que tenha conseguido dar uma olhada na proposta.</p>
+        <p>Separei aqui um case de um cliente nosso do <strong>[segmento similar]</strong> que estava com uma situação parecida com a de vocês. Em 60 dias o resultado foi <strong>[resultado específico]</strong>.</p>
+        <p>Se tiver alguma dúvida sobre a proposta ou quiser ajustar alguma coisa, é só falar. Estou à disposição 🤝</p>
+      </div>
+
+      <div class="script-box">
+        <div class="script-label">Script — Reunião de Diagnóstico (roteiro)</div>
+        <p><strong>Abertura (2 min):</strong> "Antes de qualquer coisa, quero entender o negócio de vocês. Me conta: qual é o maior desafio hoje em termos de captação de novos clientes?"</p>
+        <p><strong>Diagnóstico (10 min):</strong> Mostre os 3 problemas que você identificou. Use print do site/Instagram deles. Seja específico — não genérico. Ex: "Olha, esse banner aqui está comunicando serviço, mas não está comunicando confiança. Vou te mostrar o porquê."</p>
+        <p><strong>Solução (5 min):</strong> "O que a gente faria é [descreva a solução específica]. Outras empresas do seu segmento que fizeram isso tiveram [resultado]."</p>
+        <p><strong>Fechamento (3 min):</strong> "Com base no que conversamos, vou estruturar uma proposta personalizada e te mando até [data]. Faz sentido pra você?"</p>
+      </div>
+    </section>
+
+    <!-- 06. TRÁFEGO PAGO -->
+    <section class="section">
+      <div class="section-label">06 · Tráfego Pago</div>
+      <h2 class="section-title">Meta Ads — Quando e Como Usar</h2>
+      <div class="divider"></div>
+      <p class="section-intro">Tráfego pago amplifica o que já funciona. Não adianta investir em anúncio antes de ter o perfil e o funil funcionando organicamente.</p>
+
+      <div class="highlight">
+        <strong>Regra de ouro:</strong> Só comece a pagar tráfego a partir do Mês 2, quando você já tiver pelo menos 20 posts publicados, o funil ManyChat configurado e pelo menos 1 cliente como case de resultado. Anúncio sem base orgânica queima dinheiro.
+      </div>
+
+      <div class="card">
+        <div class="card-title">Fase 1 — Mês 2 a 3 (R$ 15–25/dia)</div>
+        <h3>Objetivo: Alcance e seguidores qualificados</h3>
+        <p><strong>Tipo de campanha:</strong> Reconhecimento + Engajamento. Objetivo não é lead ainda — é crescer a base de pessoas que te conhecem.</p>
+        <p><strong>Criativo recomendado:</strong> Reels que já performaram organicamente. Booste o reel com melhor resultado. Não crie criativos novos só pra anúncio nessa fase.</p>
+        <p><strong>Público:</strong> Donos de empresa + empreendedores no ES. Idade: 28–50. Interesses: empreendedorismo, marketing digital, gestão de negócios. Excluir: estudantes, designers.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Fase 2 — Mês 3 a 6 (R$ 30–50/dia)</div>
+        <h3>Objetivo: Geração de leads via WhatsApp</h3>
+        <p><strong>Tipo de campanha:</strong> Mensagens (WhatsApp). Anúncio leva diretamente pra conversa no WhatsApp com mensagem pré-preenchida.</p>
+        <p><strong>Criativo recomendado:</strong> Carrossel com "Análise gratuita da sua presença digital" ou Reel de antes/depois de cliente. CTA: "Clique e receba seu diagnóstico gratuito".</p>
+        <p><strong>Público:</strong> Lookalike dos seus seguidores atuais (após ter 200+) + público de interesse. Geolocalizaçao: Grande Vitória + cidades do ES com maior concentração de PMEs.</p>
+        <p><strong>Landing da conversão:</strong> WhatsApp com mensagem automática: "Oi! Vi o anúncio da BBold e quero um diagnóstico da minha presença digital."</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Fase 3 — Mês 6+ (R$ 50–100/dia)</div>
+        <h3>Objetivo: Escalar com case e prova social</h3>
+        <p><strong>Tipo de campanha:</strong> Leads (formulário) ou Conversões. Aqui você já tem cases reais para usar no criativo.</p>
+        <p><strong>Criativo:</strong> Depoimento de cliente em vídeo ou carrossel com transformação + resultado mensurável. "Em 45 dias, a [Empresa X] passou de presença amadora para autoridade no segmento."</p>
+        <p><strong>Retargeting:</strong> Pessoas que visitaram o site ou engajaram com o perfil nos últimos 30 dias. Esse público converte 3–5× mais barato que público frio.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Orçamento recomendado por fase</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Fase</th>
+              <th>Período</th>
+              <th>Orçamento/dia</th>
+              <th>Objetivo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Orgânico puro</td>
+              <td>Mês 1</td>
+              <td>R$ 0</td>
+              <td>Construir base e testar conteúdo</td>
+            </tr>
+            <tr>
+              <td>Boost de alcance</td>
+              <td>Mês 2–3</td>
+              <td>R$ 15–25</td>
+              <td>Crescer seguidores qualificados</td>
+            </tr>
+            <tr>
+              <td>Geração de leads</td>
+              <td>Mês 3–6</td>
+              <td>R$ 30–50</td>
+              <td>Leads via WhatsApp</td>
+            </tr>
+            <tr>
+              <td>Escala com cases</td>
+              <td>Mês 6+</td>
+              <td>R$ 50–100</td>
+              <td>CAC otimizado, retargeting</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 07. PLANO 90 DIAS -->
+    <section class="section">
+      <div class="section-label">07 · Execução</div>
+      <h2 class="section-title">Plano de Ação — 90 Dias</h2>
+      <div class="divider"></div>
+
+      <div class="phase" data-num="1">
+        <div class="phase-num">1</div>
+        <div class="phase-title">MÊS 1 — FUNDAÇÃO</div>
+        <div class="phase-sub">Semanas 1 a 4 · Custo: R$ 0 em mídia</div>
+        <ul>
+          <li>Publicar os 12 posts do plano acima (3x/semana, terça/quinta/sábado)</li>
+          <li>Configurar ManyChat com pelo menos 5 keywords ativas</li>
+          <li>Stories diários: bastidores, enquetes, provocações estratégicas</li>
+          <li>Prospecção manual: 5 DMs frias por dia em perfis de empresas do ES</li>
+          <li>Oferecer 3 diagnósticos gratuitos para montar cases reais</li>
+          <li>Meta do mês: 100 seguidores reais + 3 reuniões de diagnóstico agendadas</li>
+        </ul>
+      </div>
+
+      <div class="phase" data-num="2">
+        <div class="phase-num">2</div>
+        <div class="phase-title">MÊS 2 — AUTORIDADE</div>
+        <div class="phase-sub">Semanas 5 a 8 · Iniciar tráfego pago leve</div>
+        <ul>
+          <li>Publicar primeiro case de resultado (antes/depois de cliente do mês 1)</li>
+          <li>Iniciar Meta Ads: R$ 15/dia em boost de Reel que melhor performou</li>
+          <li>Criar série temática: "Presença Digital no ES" — análise de segmentos locais</li>
+          <li>Pedir depoimento dos clientes dos diagnósticos gratuitos</li>
+          <li>Refinar scripts de WhatsApp com base nos feedbacks das reuniões</li>
+          <li>Meta do mês: 300 seguidores + 1 cliente fechado + 5 reuniões de diagnóstico</li>
+        </ul>
+      </div>
+
+      <div class="phase" data-num="3">
+        <div class="phase-num">3</div>
+        <div class="phase-title">MÊS 3 — ESCALA</div>
+        <div class="phase-sub">Semanas 9 a 12 · Funil completo operando</div>
+        <ul>
+          <li>Aumentar tráfego pago: R$ 30–50/dia com campanha de WhatsApp</li>
+          <li>Criar LP de diagnóstico gratuito (pode ser integrada ao site existente)</li>
+          <li>Implementar sistema de indicação: cliente atual indica → recebe desconto no próximo mês</li>
+          <li>Começar a construir lista de e-mail (oferecendo conteúdo via stories)</li>
+          <li>Avaliar quais serviços estão sendo mais solicitados e priorizar pacotes</li>
+          <li>Meta do mês: 600 seguidores + 3 clientes ativos + receita mensal recorrente</li>
+        </ul>
+      </div>
+
+      <div class="highlight" style="margin-top: 32px;">
+        <strong>Métrica principal nos primeiros 90 dias:</strong> número de reuniões de diagnóstico realizadas. Seguidor é vaidade. Reunião é oportunidade real. Se você fizer 3 reuniões por semana com taxa de fechamento de 33%, em 3 meses você tem 12 clientes ativos.
+      </div>
+    </section>
+
+    <!-- 08. CHECKLIST -->
+    <section class="section">
+      <div class="section-label">08 · Checklist</div>
+      <h2 class="section-title">Antes de Começar</h2>
+      <div class="divider"></div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Instagram</div>
+          <p>☐ Bio atualizada com tagline + CTA para WhatsApp<br>
+          ☐ Link na bio apontando para WhatsApp ou /bio<br>
+          ☐ Destaques organizados: Serviços / Portfólio / Feedbacks / Bastidores<br>
+          ☐ Foto de perfil com logo clean (já ok)<br>
+          ☐ Primeiro reel de apresentação publicado</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Infraestrutura</div>
+          <p>☐ ManyChat configurado com keywords<br>
+          ☐ WhatsApp Business com resposta automática<br>
+          ☐ Template de proposta criado (PDF ou apresentação)<br>
+          ☐ Calendário de posts no Notion ou similar<br>
+          ☐ Pasta de criativos organizada no Canva/Figma</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Conteúdo</div>
+          <p>☐ 6 posts criados e agendados (2 semanas de buffer)<br>
+          ☐ Banco de hooks salvos (mínimo 20 frases)<br>
+          ☐ Templates de carrossel padronizados (preto + amarelo)<br>
+          ☐ Banco de legendas estratégicas<br>
+          ☐ 3 depoimentos ou cases para usar como conteúdo</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Vendas</div>
+          <p>☐ Scripts de DM e WhatsApp prontos<br>
+          ☐ Roteiro de reunião de diagnóstico preparado<br>
+          ☐ Tabela de preços definida (3 planos)<br>
+          ☐ Contrato padrão com advogado revisado<br>
+          ☐ Forma de pagamento configurada (Stripe, Asaas, etc)</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    <p>© 2026 <span>BBOLD Studio</span> · Documento Interno · Uso Restrito · Serra, ES</p>
+  </footer>
+
+</body>
+</html>

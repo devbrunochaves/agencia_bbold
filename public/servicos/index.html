@@ -3,48 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Valores — BBOLD Studio</title>
+  <title>Esteira de Serviços — BBOLD Studio</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <style>
     :root {
       --yellow: #F5C518;
-      --yellow-dark: #D4AA10;
       --black: #0A0A0A;
-      --black-mid: #141414;
-      --black-light: #1E1E1E;
-      --off-white: #F0EFE8;
-      --font-display: 'Bebas Neue', sans-serif;
-      --font-body: 'Barlow', sans-serif;
+      --dark: #111111;
+      --card: #161616;
+      --card2: #1C1C1C;
+      --border: rgba(240,239,232,0.07);
+      --border-y: rgba(245,197,24,0.18);
+      --text: #F0EFE8;
+      --muted: rgba(240,239,232,0.45);
+      --green: #5fcf7a;
+      --blue: #7b8fcf;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; font-size: 16px; }
-    body { font-family: var(--font-body); background: var(--black); color: var(--off-white); line-height: 1.6; }
-    img { max-width: 100%; display: block; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Barlow', sans-serif; background: var(--black); color: var(--text); line-height: 1.6; }
     a { text-decoration: none; color: inherit; }
-    ul { list-style: none; }
     ::selection { background: var(--yellow); color: var(--black); }
-    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: var(--black); }
-    ::-webkit-scrollbar-thumb { background: var(--yellow); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: rgba(245,197,24,0.4); border-radius: 3px; }
 
+    /* HEADER */
     .header {
       background: var(--yellow);
-      padding: 40px 48px 36px;
+      padding: 48px 48px 40px;
       position: relative;
       overflow: hidden;
     }
     .header::after {
       content: 'BBOLD';
-      font-family: var(--font-display);
-      font-size: 200px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 220px;
       position: absolute;
-      right: -20px; top: -30px;
-      color: rgba(0,0,0,0.06);
+      right: -10px; top: -30px;
+      color: rgba(0,0,0,0.05);
       line-height: 1;
       pointer-events: none;
-      user-select: none;
     }
     .header__tag {
       display: inline-block;
@@ -56,109 +57,186 @@
       text-transform: uppercase;
       padding: 5px 14px;
       border-radius: 100px;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
     .header h1 {
-      font-family: var(--font-display);
+      font-family: 'Bebas Neue', sans-serif;
       font-size: clamp(48px, 8vw, 80px);
       color: var(--black);
       line-height: 0.95;
       margin-bottom: 10px;
     }
-    .header p {
-      font-size: 15px;
-      color: rgba(0,0,0,0.55);
-      max-width: 480px;
-    }
+    .header p { font-size: 15px; color: rgba(0,0,0,0.5); max-width: 500px; }
 
+    /* TABS */
     .tabs {
       display: flex;
-      background: var(--black-mid);
-      border-bottom: 1px solid rgba(240,239,232,0.06);
+      background: var(--dark);
+      border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 20;
+      overflow-x: auto;
     }
     .tab {
-      flex: 1;
-      padding: 16px 24px;
-      text-align: center;
+      flex-shrink: 0;
+      padding: 16px 28px;
       font-size: 11px;
       font-weight: 700;
       letter-spacing: 2px;
       text-transform: uppercase;
-      color: rgba(240,239,232,0.35);
+      color: var(--muted);
       cursor: pointer;
       border-bottom: 2px solid transparent;
-      transition: color 0.2s, border-color 0.2s;
-      user-select: none;
+      transition: color .2s, border-color .2s;
+      white-space: nowrap;
     }
-    .tab:hover { color: rgba(240,239,232,0.6); }
+    .tab:hover { color: rgba(240,239,232,.65); }
     .tab.active { color: var(--yellow); border-bottom-color: var(--yellow); }
 
-    .panel { display: none; padding: 48px; max-width: 1000px; margin: 0 auto; }
+    /* PANELS */
+    .panel { display: none; padding: 48px; max-width: 1040px; margin: 0 auto; }
     .panel.active { display: block; }
 
-    .section-label {
+    /* SECTION LABEL */
+    .slabel {
       font-size: 10px;
       font-weight: 700;
       letter-spacing: 3px;
       text-transform: uppercase;
       color: var(--yellow);
-      margin-bottom: 18px;
+      margin-bottom: 20px;
       display: flex;
       align-items: center;
       gap: 12px;
     }
-    .section-label::after {
+    .slabel::after {
       content: '';
       flex: 1;
       height: 1px;
-      background: rgba(240,239,232,0.06);
+      background: var(--border);
     }
 
-    .price-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 48px;
+    /* JOURNEY / TIER CARDS */
+    .journey { display: flex; flex-direction: column; gap: 0; margin-bottom: 48px; position: relative; }
+    .journey::before {
+      content: '';
+      position: absolute;
+      left: 27px;
+      top: 40px;
+      bottom: 40px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--yellow), rgba(245,197,24,0.1));
     }
-    .price-table thead th {
+    .tier {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 24px;
+      padding: 28px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .tier:last-child { border-bottom: none; }
+    .tier-num {
+      width: 56px;
+      height: 56px;
+      background: var(--yellow);
+      color: var(--black);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+    .tier-num.outline {
+      background: transparent;
+      border: 2px solid rgba(245,197,24,0.35);
+      color: rgba(245,197,24,0.6);
+      font-size: 20px;
+    }
+    .tier-tag {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 4px;
+    }
+    .tier-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+      line-height: 1;
+    }
+    .tier-desc { font-size: 14px; color: var(--muted); margin-bottom: 16px; line-height: 1.6; }
+    .tier-services { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .tier-svc {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--yellow);
+      border: 1px solid var(--border-y);
+      padding: 5px 12px;
+      border-radius: 3px;
+    }
+    .tier-price { display: inline-flex; align-items: baseline; gap: 6px; }
+    .tier-price-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      color: var(--text);
+      letter-spacing: 0.02em;
+    }
+    .tier-price-label { font-size: 12px; color: var(--muted); }
+    .tier-arrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+    .tier-arrow span { color: var(--yellow); }
+
+    /* PRICE TABLE */
+    .ptable { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
+    .ptable thead th {
       font-size: 10px;
       font-weight: 700;
       letter-spacing: 2px;
       text-transform: uppercase;
-      color: rgba(240,239,232,0.3);
+      color: var(--muted);
       text-align: left;
       padding: 10px 16px;
-      border-bottom: 1px solid rgba(240,239,232,0.07);
+      border-bottom: 1px solid var(--border);
     }
-    .price-table thead th:last-child { text-align: right; }
-    .price-table tbody tr { transition: background 0.15s; }
-    .price-table tbody tr:hover td { background: var(--black-light); }
-    .price-table tbody td {
-      padding: 16px;
-      border-bottom: 1px solid rgba(240,239,232,0.05);
+    .ptable thead th:last-child { text-align: right; }
+    .ptable tbody tr { transition: background .15s; }
+    .ptable tbody tr:hover td { background: var(--card2); }
+    .ptable tbody td {
+      padding: 15px 16px;
+      border-bottom: 1px solid rgba(240,239,232,0.04);
       font-size: 14px;
-      color: rgba(240,239,232,0.7);
+      color: var(--muted);
       vertical-align: top;
       line-height: 1.55;
     }
-    .price-table tbody td:last-child { text-align: right; }
-    .price-table td strong { color: var(--off-white); font-weight: 700; }
-    .price-val {
-      font-family: var(--font-display);
+    .ptable tbody td:last-child { text-align: right; white-space: nowrap; }
+    .ptable td strong { color: var(--text); font-weight: 700; }
+    .pval {
+      font-family: 'Bebas Neue', sans-serif;
       font-size: 22px;
       color: var(--yellow);
       letter-spacing: 0.02em;
       display: block;
     }
-    .price-range {
-      font-size: 11px;
-      color: rgba(240,239,232,0.3);
-      display: block;
-      margin-top: 2px;
-    }
+    .prange { font-size: 11px; color: rgba(240,239,232,0.25); display: block; margin-top: 1px; }
 
+    /* BADGES */
     .badge {
       display: inline-block;
       font-size: 9px;
@@ -170,25 +248,26 @@
       margin-left: 8px;
       vertical-align: middle;
     }
-    .badge-mensal { background: rgba(107,207,107,0.12); color: #6bcf6b; }
-    .badge-avulso { background: rgba(123,143,207,0.12); color: #7b8fcf; }
-    .badge-hot { background: rgba(245,197,24,0.12); color: var(--yellow); }
+    .b-mensal { background: rgba(95,207,122,.1); color: var(--green); }
+    .b-avulso { background: rgba(123,143,207,.1); color: var(--blue); }
+    .b-hot    { background: rgba(245,197,24,.1);  color: var(--yellow); }
 
-    .pkg-list { display: flex; flex-direction: column; gap: 20px; margin-bottom: 32px; }
-    .pkg-card {
-      background: var(--black-light);
-      border: 1px solid rgba(240,239,232,0.07);
-      border-radius: 12px;
+    /* MONTHLY PLAN CARDS */
+    .mplans { display: flex; flex-direction: column; gap: 16px; margin-bottom: 40px; }
+    .mplan {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
       padding: 28px 32px;
-      display: flex;
-      align-items: flex-start;
-      gap: 28px;
-      transition: border-color 0.2s;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: start;
+      transition: border-color .2s;
     }
-    .pkg-card:hover { border-color: rgba(245,197,24,0.25); }
-    .pkg-card.featured { border: 2px solid var(--yellow); background: var(--black-mid); }
-    .pkg-card__body { flex: 1; }
-    .pkg-card__popular {
+    .mplan:hover { border-color: var(--border-y); }
+    .mplan.featured { border: 2px solid var(--yellow); background: #131300; }
+    .mplan-popular {
       display: inline-block;
       background: var(--yellow);
       color: var(--black);
@@ -200,57 +279,43 @@
       border-radius: 100px;
       margin-bottom: 10px;
     }
-    .pkg-card__name {
-      font-family: var(--font-display);
-      font-size: 26px;
-      letter-spacing: 0.04em;
-      color: var(--off-white);
-      line-height: 1;
-      margin-bottom: 6px;
-    }
-    .pkg-card__desc {
-      font-size: 13px;
-      color: rgba(240,239,232,0.45);
-      margin-bottom: 16px;
-      line-height: 1.6;
-    }
-    .pkg-card__tags { display: flex; flex-wrap: wrap; gap: 7px; }
-    .pkg-card__tag {
+    .mplan-tier { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--yellow); margin-bottom: 4px; }
+    .mplan-name { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 0.04em; margin-bottom: 4px; }
+    .mplan-desc { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.6; }
+    .mplan-tags { display: flex; flex-wrap: wrap; gap: 7px; }
+    .mplan-tag {
       font-size: 10px;
       font-weight: 700;
       letter-spacing: 1px;
       text-transform: uppercase;
       color: var(--yellow);
-      border: 1px solid rgba(245,197,24,0.22);
+      border: 1px solid var(--border-y);
       padding: 4px 10px;
-      border-radius: 2px;
+      border-radius: 3px;
     }
-    .pkg-card__price-col { text-align: right; flex-shrink: 0; min-width: 140px; }
-    .pkg-card__price {
-      font-family: var(--font-display);
-      font-size: 38px;
-      color: var(--yellow);
-      line-height: 1;
-      letter-spacing: 0.02em;
-    }
-    .pkg-card__economy { font-size: 12px; color: #6bcf6b; margin-top: 5px; }
-    .pkg-card__deadline { font-size: 11px; color: rgba(240,239,232,0.3); margin-top: 5px; }
+    .mplan-price-col { text-align: right; flex-shrink: 0; }
+    .mplan-price { font-family: 'Bebas Neue', sans-serif; font-size: 38px; color: var(--yellow); line-height: 1; letter-spacing: 0.02em; }
+    .mplan-freq { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .mplan-note { font-size: 11px; color: var(--green); margin-top: 5px; }
 
+    /* TIP BOX */
     .tip {
-      background: rgba(245,197,24,0.05);
-      border: 1px solid rgba(245,197,24,0.15);
-      border-radius: 10px;
+      background: rgba(245,197,24,.05);
+      border: 1px solid rgba(245,197,24,.15);
+      border-left: 3px solid var(--yellow);
+      border-radius: 8px;
       padding: 18px 22px;
       font-size: 13px;
-      color: rgba(200,184,74,0.9);
+      color: rgba(200,184,74,.9);
       line-height: 1.7;
-      margin-top: 16px;
+      margin: 24px 0;
     }
     .tip strong { color: var(--yellow); }
 
+    /* FOOTER */
     .footer {
       background: var(--yellow);
-      padding: 28px 48px;
+      padding: 24px 48px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -258,16 +323,19 @@
       gap: 12px;
       margin-top: 40px;
     }
-    .footer p { font-size: 13px; color: rgba(0,0,0,0.55); }
+    .footer p { font-size: 13px; color: rgba(0,0,0,.5); }
     .footer strong { color: var(--black); font-weight: 700; }
 
+    /* RESPONSIVE */
     @media (max-width: 768px) {
       .header { padding: 32px 24px 28px; }
-      .panel { padding: 32px 24px; }
-      .pkg-card { flex-direction: column; gap: 16px; }
-      .pkg-card__price-col { text-align: left; }
-      .footer { padding: 24px; flex-direction: column; align-items: flex-start; }
-      .tab { padding: 14px 12px; font-size: 10px; }
+      .panel { padding: 28px 20px; }
+      .mplan { grid-template-columns: 1fr; }
+      .mplan-price-col { text-align: left; }
+      .footer { padding: 20px 24px; flex-direction: column; align-items: flex-start; }
+      .tier { grid-template-columns: 44px 1fr; gap: 16px; }
+      .tier-num { width: 44px; height: 44px; font-size: 20px; }
+      .journey::before { left: 21px; }
     }
   </style>
 </head>
@@ -275,111 +343,434 @@
 
   <div class="header">
     <div class="header__tag">Uso interno — BBOLD Studio</div>
-    <h1>ESTEIRA DE<br/>SERVIÇOS</h1>
-    <p>Tabela de referência de preços para montar propostas e negociar com clientes.</p>
+    <h1>ESTEIRA DE<br>SERVIÇOS</h1>
+    <p>Jornada completa do cliente — da fundação ao full service. Referência para montar propostas e negociar.</p>
   </div>
 
   <div class="tabs">
-    <div class="tab active" onclick="showTab('avulso', this)">Serviços Avulsos</div>
-    <div class="tab" onclick="showTab('pacotes', this)">Pacotes</div>
-    <div class="tab" onclick="showTab('mensais', this)">Mensais</div>
+    <div class="tab active" onclick="show('jornada', this)">Jornada do Cliente</div>
+    <div class="tab" onclick="show('mensais', this)">Planos Mensais</div>
+    <div class="tab" onclick="show('avulsos', this)">Serviços Avulsos</div>
+    <div class="tab" onclick="show('negoc', this)">Negociação</div>
   </div>
 
-  <div class="panel active" id="tab-avulso">
-    <div class="section-label">Design &amp; Identidade Visual</div>
-    <table class="price-table">
-      <thead><tr><th style="width:26%">Serviço</th><th>O que inclui</th><th style="width:18%">Valor</th></tr></thead>
-      <tbody>
-        <tr><td><strong>Logo simples</strong><span class="badge badge-avulso">Avulso</span></td><td>1 conceito, 2 revisões, arquivos finais (AI, PNG, SVG)</td><td><span class="price-val">R$ 350</span><span class="price-range">mín. R$250 — máx. R$500</span></td></tr>
-        <tr><td><strong>Identidade Visual Completa</strong><span class="badge badge-hot">🔥 Core</span></td><td>Logo + paleta + tipografia + ícone + cartão de visita + mini guia de marca</td><td><span class="price-val">R$ 1.200</span><span class="price-range">mín. R$800 — máx. R$1.800</span></td></tr>
-        <tr><td><strong>Redesign de marca</strong></td><td>Atualização de logo e identidade existente, arquivos completos</td><td><span class="price-val">R$ 800</span><span class="price-range">mín. R$500 — máx. R$1.200</span></td></tr>
-        <tr><td><strong>Embalagem / Rótulo</strong></td><td>1 face completa com dielines, pronto para gráfica</td><td><span class="price-val">R$ 600</span><span class="price-range">mín. R$400 — máx. R$900</span></td></tr>
-        <tr><td><strong>Flyer / Banner / Cartaz</strong></td><td>1 peça gráfica, formato digital ou impresso, com revisão</td><td><span class="price-val">R$ 180</span><span class="price-range">mín. R$120 — máx. R$300</span></td></tr>
-        <tr><td><strong>Post avulso — Instagram</strong></td><td>1 arte para feed ou story, com texto e identidade</td><td><span class="price-val">R$ 80</span><span class="price-range">mín. R$50 — máx. R$150</span></td></tr>
-        <tr><td><strong>Pack de 10 posts</strong></td><td>10 artes prontas com identidade visual consistente</td><td><span class="price-val">R$ 600</span><span class="price-range">mín. R$450 — máx. R$800</span></td></tr>
-      </tbody>
-    </table>
+  <!-- TAB: JORNADA -->
+  <div class="panel active" id="tab-jornada">
+    <div class="slabel">Como o cliente evolui com a BBold</div>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:40px;max-width:620px;">Cada tier representa um estágio de maturidade digital do cliente. O objetivo é entrar pelo Tier 1 e expandir naturalmente. Quanto mais tiers o cliente contrata, mais difícil é trocar de agência.</p>
 
-    <div class="section-label">Sites &amp; Presença Digital</div>
-    <table class="price-table">
-      <thead><tr><th style="width:26%">Serviço</th><th>O que inclui</th><th style="width:18%">Valor</th></tr></thead>
-      <tbody>
-        <tr><td><strong>Landing Page</strong><span class="badge badge-hot">🔥 Core</span></td><td>1 página de conversão, responsiva, formulário/WhatsApp, SEO básico</td><td><span class="price-val">R$ 1.500</span><span class="price-range">mín. R$1.000 — máx. R$2.500</span></td></tr>
-        <tr><td><strong>Site Institucional</strong></td><td>Até 5 páginas (home, sobre, serviços, portfólio, contato), CMS opcional</td><td><span class="price-val">R$ 3.000</span><span class="price-range">mín. R$2.000 — máx. R$5.000</span></td></tr>
-        <tr><td><strong>Google Meu Negócio</strong><span class="badge badge-avulso">Avulso</span></td><td>Setup completo, fotos, descrição estratégica, categorias e atributos</td><td><span class="price-val">R$ 350</span><span class="price-range">mín. R$250 — máx. R$500</span></td></tr>
-        <tr><td><strong>Cartão de visita digital</strong></td><td>Página de apresentação com contatos, redes sociais e link bio</td><td><span class="price-val">R$ 200</span><span class="price-range">mín. R$150 — máx. R$350</span></td></tr>
-      </tbody>
-    </table>
+    <div class="journey">
 
-    <div class="tip"><strong>Dica de negociação:</strong> sempre apresente o valor máximo primeiro. Se o cliente resistir, você negocia para baixo sem comprometer sua margem. Nunca comece pelo mínimo — você perde espaço de manobra e desvaloriza o serviço.</div>
+      <div class="tier">
+        <div class="tier-num">1</div>
+        <div class="tier-body">
+          <div class="tier-tag">Ponto de entrada · Projeto único</div>
+          <div class="tier-title">FUNDAÇÃO</div>
+          <div class="tier-desc">Cliente tem negócio mas presença digital fraca ou inexistente. Você entrega a base: marca + site + Google. Ele sai do zero com identidade profissional. É o serviço mais fácil de vender porque o problema é visível.</div>
+          <div class="tier-services">
+            <span class="tier-svc">Identidade Visual</span>
+            <span class="tier-svc">Landing Page / Site</span>
+            <span class="tier-svc">Google Meu Negócio</span>
+            <span class="tier-svc">Cartão Digital</span>
+          </div>
+          <div class="tier-price">
+            <span class="tier-price-val">R$ 1.500 — R$ 4.000</span>
+            <span class="tier-price-label">projeto único</span>
+          </div>
+          <div class="tier-arrow">↓ próximo passo natural: <span>Presença</span></div>
+        </div>
+      </div>
+
+      <div class="tier">
+        <div class="tier-num">2</div>
+        <div class="tier-body">
+          <div class="tier-tag">1ª recorrência · Mensal</div>
+          <div class="tier-title">PRESENÇA</div>
+          <div class="tier-desc">Com a fundação feita, o cliente precisa que alguém cuide da presença dele no dia a dia. Gestão de redes sociais, criação de conteúdo estratégico, stories. Quem fez a identidade tem vantagem natural para fazer o social — o cliente sabe que você conhece a marca.</div>
+          <div class="tier-services">
+            <span class="tier-svc">Gestão de Instagram</span>
+            <span class="tier-svc">Criação de Conteúdo</span>
+            <span class="tier-svc">Reels + Stories</span>
+            <span class="tier-svc">Relatório Mensal</span>
+          </div>
+          <div class="tier-price">
+            <span class="tier-price-val">R$ 800 — R$ 1.500</span>
+            <span class="tier-price-label">/ mês</span>
+          </div>
+          <div class="tier-arrow">↓ próximo passo natural: <span>Crescimento</span></div>
+        </div>
+      </div>
+
+      <div class="tier">
+        <div class="tier-num">3</div>
+        <div class="tier-body">
+          <div class="tier-tag">2ª recorrência · Mensal</div>
+          <div class="tier-title">CRESCIMENTO</div>
+          <div class="tier-desc">Presença ativa no orgânico, agora é hora de amplificar com tráfego pago. Meta Ads e Google Ads gerenciados por quem já conhece o negócio e a marca. A venda é natural: "seu conteúdo está bom — agora vamos fazer mais gente ver."</div>
+          <div class="tier-services">
+            <span class="tier-svc">Meta Ads</span>
+            <span class="tier-svc">Google Ads</span>
+            <span class="tier-svc">Criativos para Anúncio</span>
+            <span class="tier-svc">Relatório de Performance</span>
+          </div>
+          <div class="tier-price">
+            <span class="tier-price-val">R$ 800 — R$ 1.500</span>
+            <span class="tier-price-label">/ mês + % da verba</span>
+          </div>
+          <div class="tier-arrow">↓ próximo passo natural: <span>Full Service</span></div>
+        </div>
+      </div>
+
+      <div class="tier">
+        <div class="tier-num">4</div>
+        <div class="tier-body">
+          <div class="tier-tag">Parceria completa · Mensal</div>
+          <div class="tier-title">FULL SERVICE</div>
+          <div class="tier-desc">Cliente que quer delegar tudo. BBold é o parceiro estratégico da marca — cuida da identidade, do conteúdo, do tráfego e do site. Ticket mais alto, mais difícil de perder. Clientes nesse nível raramente trocam de agência porque o custo de transição é alto.</div>
+          <div class="tier-services">
+            <span class="tier-svc">Tudo do Tier 2 + 3</span>
+            <span class="tier-svc">Estratégia de Marca</span>
+            <span class="tier-svc">Site Gerenciado</span>
+            <span class="tier-svc">SEO Contínuo</span>
+            <span class="tier-svc">Reuniões Mensais</span>
+          </div>
+          <div class="tier-price">
+            <span class="tier-price-val">R$ 2.500 — R$ 5.000</span>
+            <span class="tier-price-label">/ mês</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tier">
+        <div class="tier-num outline">⚡</div>
+        <div class="tier-body">
+          <div class="tier-tag">Entrada alternativa · Projeto único</div>
+          <div class="tier-title">SERVIÇOS AVULSOS</div>
+          <div class="tier-desc">Landing page, identidade visual, logo, flyer — serviços menores que atraem clientes que ainda não estão prontos para a jornada completa. Use esses projetos para mostrar qualidade, ganhar confiança e depois apresentar os tiers mensais. É a porta lateral de entrada.</div>
+          <div class="tier-services">
+            <span class="tier-svc">Landing Page</span>
+            <span class="tier-svc">Logo + Identidade</span>
+            <span class="tier-svc">Pack de Posts</span>
+            <span class="tier-svc">Redesign de Marca</span>
+          </div>
+          <div class="tier-price">
+            <span class="tier-price-val">R$ 180 — R$ 3.000</span>
+            <span class="tier-price-label">por projeto</span>
+          </div>
+          <div class="tier-arrow">↓ objetivo: <span>converter para Tier 1 ou Tier 2</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tip"><strong>Estratégia de upsell:</strong> sempre que fechar um avulso, agende uma reunião de acompanhamento para 30 dias depois. Mostre o que melhorou e apresente o próximo tier como continuidade natural. Não venda — mostre o próximo passo lógico.</div>
   </div>
 
-  <div class="panel" id="tab-pacotes">
-    <div class="pkg-list">
-      <div class="pkg-card">
-        <div class="pkg-card__body">
-          <div class="pkg-card__name">PRESENÇA VISUAL EXPRESS</div>
-          <div class="pkg-card__desc">Para negócios que precisam de identidade e posicionamento rápido no Google.</div>
-          <div class="pkg-card__tags">
-            <span class="pkg-card__tag">Logo + Paleta</span><span class="pkg-card__tag">Google Meu Negócio</span><span class="pkg-card__tag">5 Posts prontos</span><span class="pkg-card__tag">Mini guia de marca</span>
+  <!-- TAB: MENSAIS -->
+  <div class="panel" id="tab-mensais">
+
+    <div class="slabel">Tier 2 — Presença (Social Media)</div>
+    <div class="mplans">
+      <div class="mplan">
+        <div>
+          <div class="mplan-tier">Tier 2 · Entrada</div>
+          <div class="mplan-name">PRESENÇA ESSENCIAL</div>
+          <div class="mplan-desc">Para negócios que precisam de presença ativa sem complexidade. Conteúdo consistente, publicado na hora certa, com a cara da marca.</div>
+          <div class="mplan-tags">
+            <span class="mplan-tag">12 posts/mês</span>
+            <span class="mplan-tag">8 stories/semana</span>
+            <span class="mplan-tag">Legendas estratégicas</span>
+            <span class="mplan-tag">Publicação incluída</span>
           </div>
         </div>
-        <div class="pkg-card__price-col"><div class="pkg-card__price">R$ 697</div><div class="pkg-card__economy">Avulso sairia ~R$980</div><div class="pkg-card__deadline">3 a 5 dias úteis</div></div>
+        <div class="mplan-price-col">
+          <div class="mplan-price">R$ 800</div>
+          <div class="mplan-freq">por mês</div>
+        </div>
       </div>
-      <div class="pkg-card featured">
-        <div class="pkg-card__body">
-          <div class="pkg-card__popular">Mais procurado</div>
-          <div class="pkg-card__name">PRESENÇA DIGITAL COMPLETA</div>
-          <div class="pkg-card__desc">Identidade + posicionamento + conteúdo pronto para 1 mês de redes sociais.</div>
-          <div class="pkg-card__tags">
-            <span class="pkg-card__tag">Identidade Visual</span><span class="pkg-card__tag">Google Meu Negócio</span><span class="pkg-card__tag">10 Posts prontos</span><span class="pkg-card__tag">Stories + Destaques</span><span class="pkg-card__tag">Banner WhatsApp</span><span class="pkg-card__tag">Cartão digital</span><span class="pkg-card__tag">Guia de marca PDF</span>
+
+      <div class="mplan featured">
+        <div>
+          <div class="mplan-popular">Mais contratado</div>
+          <div class="mplan-tier">Tier 2 · Completo</div>
+          <div class="mplan-name">PRESENÇA COMPLETA</div>
+          <div class="mplan-desc">Gestão completa das redes com estratégia de conteúdo, reels e relatório mensal de resultados. Para negócios que querem crescer de verdade no orgânico.</div>
+          <div class="mplan-tags">
+            <span class="mplan-tag">20 posts/mês</span>
+            <span class="mplan-tag">Stories diários</span>
+            <span class="mplan-tag">2 Reels/semana</span>
+            <span class="mplan-tag">Estratégia mensal</span>
+            <span class="mplan-tag">Relatório de resultados</span>
+            <span class="mplan-tag">Reunião mensal</span>
           </div>
         </div>
-        <div class="pkg-card__price-col"><div class="pkg-card__price">R$ 1.497</div><div class="pkg-card__economy">Avulso sairia ~R$2.150</div><div class="pkg-card__deadline">5 a 7 dias úteis</div></div>
-      </div>
-      <div class="pkg-card">
-        <div class="pkg-card__body">
-          <div class="pkg-card__name">FULL BRAND + SITE</div>
-          <div class="pkg-card__desc">Tudo do pacote anterior mais site profissional. Marca completa no digital.</div>
-          <div class="pkg-card__tags">
-            <span class="pkg-card__tag">Tudo do anterior</span><span class="pkg-card__tag">Landing Page</span><span class="pkg-card__tag">Domínio 1º ano</span><span class="pkg-card__tag">SEO básico</span><span class="pkg-card__tag">Suporte 30 dias</span>
-          </div>
+        <div class="mplan-price-col">
+          <div class="mplan-price">R$ 1.400</div>
+          <div class="mplan-freq">por mês</div>
         </div>
-        <div class="pkg-card__price-col"><div class="pkg-card__price">R$ 2.797</div><div class="pkg-card__economy">Avulso sairia ~R$3.650</div><div class="pkg-card__deadline">10 a 14 dias úteis</div></div>
       </div>
     </div>
-    <div class="tip"><strong>Lançamento:</strong> ofereça 15% de desconto para os 3 primeiros clientes de cada pacote. Você fecha mais rápido, ganha cases reais para o portfólio e depoimentos para o Instagram da BBOLD.</div>
+
+    <div class="slabel">Tier 3 — Crescimento (Tráfego Pago)</div>
+    <div class="mplans">
+      <div class="mplan">
+        <div>
+          <div class="mplan-tier">Tier 3 · Meta Ads</div>
+          <div class="mplan-name">TRÁFEGO META ADS</div>
+          <div class="mplan-desc">Gestão completa de campanhas no Instagram e Facebook. Criativos, segmentação, otimização e relatório. Você define a verba, a gente faz o resto.</div>
+          <div class="mplan-tags">
+            <span class="mplan-tag">Setup de campanhas</span>
+            <span class="mplan-tag">Criativos para anúncio</span>
+            <span class="mplan-tag">Otimização contínua</span>
+            <span class="mplan-tag">Relatório mensal</span>
+          </div>
+        </div>
+        <div class="mplan-price-col">
+          <div class="mplan-price">R$ 900</div>
+          <div class="mplan-freq">+ 10% da verba</div>
+        </div>
+      </div>
+
+      <div class="mplan">
+        <div>
+          <div class="mplan-tier">Tier 3 · Google Ads</div>
+          <div class="mplan-name">TRÁFEGO GOOGLE ADS</div>
+          <div class="mplan-desc">Campanhas de pesquisa e display no Google. Para negócios que precisam ser encontrados por quem já está procurando o serviço.</div>
+          <div class="mplan-tags">
+            <span class="mplan-tag">Pesquisa + Display</span>
+            <span class="mplan-tag">Palavras-chave estratégicas</span>
+            <span class="mplan-tag">Otimização de bid</span>
+            <span class="mplan-tag">Relatório mensal</span>
+          </div>
+        </div>
+        <div class="mplan-price-col">
+          <div class="mplan-price">R$ 900</div>
+          <div class="mplan-freq">+ 10% da verba</div>
+        </div>
+      </div>
+
+      <div class="mplan featured">
+        <div>
+          <div class="mplan-popular">Máximo resultado</div>
+          <div class="mplan-tier">Tier 3 · Combo</div>
+          <div class="mplan-name">TRÁFEGO COMPLETO</div>
+          <div class="mplan-desc">Meta + Google integrados com estratégia unificada. O cliente aparece onde o público está e onde ele está pesquisando. Combinado com Presença Completa, é o pacote mais poderoso da BBold.</div>
+          <div class="mplan-tags">
+            <span class="mplan-tag">Meta Ads</span>
+            <span class="mplan-tag">Google Ads</span>
+            <span class="mplan-tag">Estratégia integrada</span>
+            <span class="mplan-tag">Relatório unificado</span>
+            <span class="mplan-tag">Reunião quinzenal</span>
+          </div>
+        </div>
+        <div class="mplan-price-col">
+          <div class="mplan-price">R$ 1.600</div>
+          <div class="mplan-freq">+ 10% da verba</div>
+          <div class="mplan-note">Economiza R$200/mês</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slabel">Tier 4 — Full Service</div>
+    <div class="mplans">
+      <div class="mplan">
+        <div>
+          <div class="mplan-tier">Tier 4 · Parceria estratégica</div>
+          <div class="mplan-name">FULL SERVICE BBOLD</div>
+          <div class="mplan-desc">Para clientes que querem delegar o digital completamente. BBold cuida da marca, do conteúdo, do tráfego e do site. Reuniões mensais de estratégia e relatório integrado de todas as frentes.</div>
+          <div class="mplan-tags">
+            <span class="mplan-tag">Presença Completa</span>
+            <span class="mplan-tag">Tráfego Completo</span>
+            <span class="mplan-tag">Site Gerenciado</span>
+            <span class="mplan-tag">SEO Contínuo</span>
+            <span class="mplan-tag">Estratégia de Marca</span>
+            <span class="mplan-tag">Relatório Integrado</span>
+          </div>
+        </div>
+        <div class="mplan-price-col">
+          <div class="mplan-price">R$ 3.500</div>
+          <div class="mplan-freq">/ mês + verba</div>
+          <div class="mplan-note">Proposta personalizada</div>
+        </div>
+      </div>
+
+      <div class="mplan">
+        <div>
+          <div class="mplan-tier">Tier 4 · Premium</div>
+          <div class="mplan-name">FULL SERVICE PREMIUM</div>
+          <div class="mplan-desc">O topo da esteira. Atendimento prioritário, reuniões semanais, estratégia de posicionamento de longo prazo e presença em múltiplas plataformas.</div>
+          <div class="mplan-tags">
+            <span class="mplan-tag">Tudo do Full Service</span>
+            <span class="mplan-tag">Múltiplas plataformas</span>
+            <span class="mplan-tag">Campanhas sazonais</span>
+            <span class="mplan-tag">Reuniões semanais</span>
+            <span class="mplan-tag">Atendimento prioritário</span>
+          </div>
+        </div>
+        <div class="mplan-price-col">
+          <div class="mplan-price">R$ 5.000+</div>
+          <div class="mplan-freq">/ mês + verba</div>
+          <div class="mplan-note">Sob consulta</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip"><strong>Meta de recorrência:</strong> com 3 clientes de Presença Essencial + 2 de Tráfego Meta você já tem R$4.200 fixos por mês. A partir daí, cada avulso e cada upsell é lucro puro em cima de uma base estável.</div>
   </div>
 
-  <div class="panel" id="tab-mensais">
-    <div class="section-label">Gestão mensal recorrente</div>
-    <table class="price-table">
-      <thead><tr><th style="width:26%">Serviço</th><th>O que inclui por mês</th><th style="width:18%">Mensalidade</th></tr></thead>
+  <!-- TAB: AVULSOS -->
+  <div class="panel" id="tab-avulsos">
+    <p style="font-size:14px;color:var(--muted);margin-bottom:32px;max-width:580px;">Serviços pontuais que servem como <strong style="color:var(--text)">porta de entrada</strong> para novos clientes. Entregue qualidade, ganhe confiança, apresente a jornada.</p>
+
+    <div class="slabel">Identidade Visual &amp; Design</div>
+    <table class="ptable">
+      <thead><tr><th style="width:28%">Serviço</th><th>O que inclui</th><th style="width:20%">Valor</th></tr></thead>
       <tbody>
-        <tr><td><strong>Social Media Básico</strong><span class="badge badge-mensal">Mensal</span></td><td>12 posts feed + 8 stories + legendas + publicação</td><td><span class="price-val">R$ 800</span><span class="price-range">mín. R$600 — máx. R$1.200</span></td></tr>
-        <tr><td><strong>Social Media Completo</strong><span class="badge badge-mensal">Mensal</span></td><td>20 posts feed + 15 stories + roteiro de reels + relatório mensal</td><td><span class="price-val">R$ 1.400</span><span class="price-range">mín. R$1.000 — máx. R$2.000</span></td></tr>
-        <tr><td><strong>Tráfego Pago — Meta Ads</strong><span class="badge badge-mensal">Mensal</span></td><td>Criação + gestão de campanhas + criativos para anúncios + relatório</td><td><span class="price-val">R$ 700</span><span class="price-range">+ 10% da verba investida</span></td></tr>
-        <tr><td><strong>Tráfego Pago — Google Ads</strong><span class="badge badge-mensal">Mensal</span></td><td>Campanhas de pesquisa + display + acompanhamento + relatório mensal</td><td><span class="price-val">R$ 700</span><span class="price-range">+ 10% da verba investida</span></td></tr>
-        <tr><td><strong>Social + Tráfego</strong><span class="badge badge-hot">🔥 Combo</span></td><td>Social Media Básico + Meta Ads gerenciado, tudo integrado</td><td><span class="price-val">R$ 1.300</span><span class="price-range">+ 10% da verba</span></td></tr>
-        <tr><td><strong>Google Meu Negócio — Gestão</strong><span class="badge badge-mensal">Mensal</span></td><td>4 posts/mês + resposta de avaliações + atualização de informações</td><td><span class="price-val">R$ 300</span><span class="price-range">mín. R$200 — máx. R$450</span></td></tr>
+        <tr>
+          <td><strong>Logo Simples</strong><span class="badge b-avulso">Avulso</span></td>
+          <td>1 conceito, 2 revisões, arquivos finais (AI, PNG, SVG, PDF)</td>
+          <td><span class="pval">R$ 350</span><span class="prange">R$250 — R$500</span></td>
+        </tr>
+        <tr>
+          <td><strong>Identidade Visual Completa</strong><span class="badge b-hot">🔥 Core</span></td>
+          <td>Logo + paleta + tipografia + ícone + cartão + guia de marca completo</td>
+          <td><span class="pval">R$ 1.200</span><span class="prange">R$800 — R$1.800</span></td>
+        </tr>
+        <tr>
+          <td><strong>Redesign de Marca</strong></td>
+          <td>Atualização de logo e identidade existente, arquivos completos</td>
+          <td><span class="pval">R$ 800</span><span class="prange">R$500 — R$1.200</span></td>
+        </tr>
+        <tr>
+          <td><strong>Embalagem / Rótulo</strong></td>
+          <td>1 face completa com dielines, pronto para gráfica</td>
+          <td><span class="pval">R$ 600</span><span class="prange">R$400 — R$900</span></td>
+        </tr>
+        <tr>
+          <td><strong>Pack de 10 Posts</strong></td>
+          <td>10 artes com identidade visual consistente, prontas para publicação</td>
+          <td><span class="pval">R$ 600</span><span class="prange">R$450 — R$800</span></td>
+        </tr>
+        <tr>
+          <td><strong>Flyer / Banner / Cartaz</strong></td>
+          <td>1 peça gráfica, formato digital ou impresso, com revisão</td>
+          <td><span class="pval">R$ 180</span><span class="prange">R$120 — R$300</span></td>
+        </tr>
       </tbody>
     </table>
-    <div class="tip"><strong>Recorrência é previsibilidade.</strong> Com 2 clientes de Social Media básico você já tem R$1.600 fixos por mês sem depender de novos projetos. A partir daí, cada avulso é lucro. Meta de curto prazo: fechar pelo menos 2 mensais até junho.</div>
+
+    <div class="slabel">Sites &amp; Presença Digital</div>
+    <table class="ptable">
+      <thead><tr><th style="width:28%">Serviço</th><th>O que inclui</th><th style="width:20%">Valor</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Landing Page</strong><span class="badge b-hot">🔥 Core</span></td>
+          <td>1 página de conversão, responsiva, formulário/WhatsApp, SEO básico</td>
+          <td><span class="pval">R$ 1.500</span><span class="prange">R$1.000 — R$2.500</span></td>
+        </tr>
+        <tr>
+          <td><strong>Site Institucional</strong></td>
+          <td>Até 5 páginas (home, sobre, serviços, portfólio, contato), CMS opcional</td>
+          <td><span class="pval">R$ 3.000</span><span class="prange">R$2.000 — R$5.000</span></td>
+        </tr>
+        <tr>
+          <td><strong>Google Meu Negócio — Setup</strong><span class="badge b-avulso">Avulso</span></td>
+          <td>Configuração completa, fotos, descrição estratégica, categorias e atributos</td>
+          <td><span class="pval">R$ 350</span><span class="prange">R$250 — R$500</span></td>
+        </tr>
+        <tr>
+          <td><strong>Cartão de Visita Digital</strong></td>
+          <td>Página de apresentação com contatos, redes sociais e link bio</td>
+          <td><span class="pval">R$ 200</span><span class="prange">R$150 — R$350</span></td>
+        </tr>
+        <tr>
+          <td><strong>Google Meu Negócio — Gestão</strong><span class="badge b-mensal">Mensal</span></td>
+          <td>4 posts/mês + resposta a avaliações + atualização de informações</td>
+          <td><span class="pval">R$ 300</span><span class="prange">R$200 — R$450/mês</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="tip"><strong>Porta de entrada estratégica:</strong> sempre apresente o valor máximo primeiro. Se o cliente resistir, negocie para baixo sem comprometer sua margem. E em todo avulso, plante a semente: <em>"isso aqui é o começo — quando a identidade estiver no ar, a gente cuida do restante."</em></div>
+  </div>
+
+  <!-- TAB: NEGOCIAÇÃO -->
+  <div class="panel" id="tab-negoc">
+
+    <div class="slabel">Scripts de apresentação de preço</div>
+
+    <div class="tip" style="margin-bottom:28px;">
+      <strong>Regra de ouro:</strong> nunca apresente preço sem antes entender o problema. Quem apresenta preço antes de apresentar diagnóstico está vendendo commodity. Você vende transformação — o preço vem depois do "por que".
+    </div>
+
+    <table class="ptable" style="margin-bottom:40px;">
+      <thead><tr><th style="width:32%">Situação</th><th>O que dizer</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Cliente pergunta preço antes da reunião</strong></td>
+          <td>"Depende do que você precisa. Me conta mais sobre o seu negócio — quero entender antes de passar qualquer valor, porque não quero te propor algo que não faz sentido pra sua realidade."</td>
+        </tr>
+        <tr>
+          <td><strong>Cliente acha caro</strong></td>
+          <td>"Entendo. Me ajuda a entender o que você esperava? Porque às vezes é uma questão de ajustar o escopo — não o valor do que a gente entrega."</td>
+        </tr>
+        <tr>
+          <td><strong>Cliente quer só o logo</strong></td>
+          <td>"Dá pra fazer só o logo. Mas quero ser honesto: logo sem identidade visual completa vai te fazer voltar em 6 meses pra refazer tudo. Posso te mostrar a diferença em 5 minutos?"</td>
+        </tr>
+        <tr>
+          <td><strong>Apresentar 3 opções de plano</strong></td>
+          <td>Sempre apresente Essencial / Completo / Full. Comece pelo Full — explique tudo. Depois desça. O cliente ancora no topo e o meio parece razoável.</td>
+        </tr>
+        <tr>
+          <td><strong>Upsell após projeto avulso</strong></td>
+          <td>"[30 dias depois] Oi [Nome], fui dar uma olhada no desempenho da [landing page/logo]. Quero te mostrar uma coisa — você tem 10 minutos essa semana?"</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="slabel">Combos recomendados para proposta</div>
+    <table class="ptable">
+      <thead><tr><th style="width:30%">Combo</th><th>O que inclui</th><th style="width:22%">Valor sugerido</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Starter Pack</strong><br><span style="font-size:12px;color:var(--muted)">Avulso → Tier 1</span></td>
+          <td>Logo + Identidade Visual + Google Meu Negócio + 5 posts prontos</td>
+          <td><span class="pval">R$ 1.497</span><span class="prange">Avulso sairia ~R$2.100</span></td>
+        </tr>
+        <tr>
+          <td><strong>Fundação Completa</strong><br><span style="font-size:12px;color:var(--muted)">Tier 1 completo</span></td>
+          <td>Identidade Visual + Landing Page + Google Meu Negócio + Cartão Digital + Guia de Marca</td>
+          <td><span class="pval">R$ 2.497</span><span class="prange">Avulso sairia ~R$3.400</span></td>
+        </tr>
+        <tr>
+          <td><strong>Fundação + Presença</strong><br><span style="font-size:12px;color:var(--muted)">Tier 1 + início Tier 2</span></td>
+          <td>Tudo da Fundação Completa + 1º mês de Social Media grátis</td>
+          <td><span class="pval">R$ 2.997</span><span class="prange">Fecha projeto + garante recorrência</span></td>
+        </tr>
+        <tr>
+          <td><strong>Social + Tráfego</strong><br><span style="font-size:12px;color:var(--muted)">Tier 2 + Tier 3</span></td>
+          <td>Presença Completa + Meta Ads — tudo integrado com estratégia unificada</td>
+          <td><span class="pval">R$ 2.500/mês</span><span class="prange">+ 10% da verba</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="tip"><strong>Oferta de lançamento:</strong> para os primeiros 3 clientes de cada tier, ofereça 15% de desconto em troca de depoimento em vídeo e autorização para usar como case. Você fecha mais rápido, constrói portfólio e alimenta o funil do Instagram da BBold.</div>
   </div>
 
   <footer class="footer">
     <p><strong>BBOLD Studio</strong> — Tabela de valores interna. Não compartilhar publicamente.</p>
-    <p>Atualizado em <strong>Abril 2026</strong></p>
+    <p>Atualizado em <strong>Maio 2026</strong></p>
   </footer>
 
   <script>
-    function showTab(name, el) {
+    function show(name, el) {
       document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.getElementById('tab-' + name).classList.add('active');
       el.classList.add('active');
     }
   </script>
-
 </body>
 </html>

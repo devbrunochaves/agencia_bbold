@@ -1,933 +1,435 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="robots" content="noindex, nofollow"/>
-  <title>Instagram BBold — Plano 30 Dias</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>BBold — Roteiros de Conteúdo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --yellow: #F5C518;
-      --black: #0A0A0A;
-      --black-mid: #141414;
-      --black-light: #1E1E1E;
-      --off-white: #F0EFE8;
-      --green: #6bcf6b;
-      --blue: #7b8fcf;
-      --red: #cf7b7b;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'Barlow', sans-serif; background: var(--black); color: var(--off-white); line-height: 1.6; }
-
-    .header {
-      background: var(--yellow);
-      padding: 48px;
-      position: relative;
-      overflow: hidden;
-    }
-    .header::after {
-      content: 'INSTAGRAM';
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 160px;
-      position: absolute;
-      right: -10px; top: -20px;
-      color: rgba(0,0,0,0.06);
-      line-height: 1;
-      pointer-events: none;
-    }
-    .header__tag {
-      display: inline-block;
-      background: var(--black);
-      color: var(--yellow);
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      padding: 5px 14px;
-      border-radius: 100px;
-      margin-bottom: 16px;
-    }
-    .header h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(48px, 8vw, 80px);
-      color: var(--black);
-      line-height: 0.95;
-      margin-bottom: 10px;
-    }
-    .header p { font-size: 15px; color: rgba(0,0,0,0.5); max-width: 560px; }
-
-    /* ESTRATÉGIA */
-    .strategy {
-      padding: 48px;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-    .section-label {
-      font-size: 10px; font-weight: 700; letter-spacing: 3px;
-      text-transform: uppercase; color: var(--yellow);
-      margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
-    }
-    .section-label::after { content:''; flex:1; height:1px; background: rgba(240,239,232,0.07); }
-
-    .pillars-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px;
-      margin-bottom: 48px;
-    }
-    .pillar {
-      background: var(--black-light);
-      border: 1px solid rgba(240,239,232,0.07);
-      border-radius: 10px;
-      padding: 20px;
-    }
-    .pillar__emoji { font-size: 28px; margin-bottom: 10px; }
-    .pillar__name { font-weight: 700; font-size: 13px; color: var(--off-white); margin-bottom: 6px; }
-    .pillar__desc { font-size: 12px; color: rgba(240,239,232,0.45); line-height: 1.55; }
-
-    .meta-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-bottom: 48px;
-    }
-    .meta-card {
-      background: var(--black-light);
-      border: 1px solid rgba(240,239,232,0.07);
-      border-radius: 10px;
-      padding: 20px 24px;
-    }
-    .meta-card__label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(240,239,232,0.3); margin-bottom: 6px; }
-    .meta-card__value { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--yellow); }
-    .meta-card__sub { font-size: 12px; color: rgba(240,239,232,0.45); margin-top: 4px; }
-
-    /* CALENDÁRIO */
-    .calendar { padding: 0 48px 48px; max-width: 1000px; margin: 0 auto; }
-
-    .week-block { margin-bottom: 48px; }
-    .week-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 13px;
-      letter-spacing: 4px;
-      color: rgba(240,239,232,0.25);
-      text-transform: uppercase;
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid rgba(240,239,232,0.06);
-    }
-
-    .post-card {
-      background: var(--black-light);
-      border: 1px solid rgba(240,239,232,0.07);
-      border-radius: 12px;
-      margin-bottom: 20px;
-      overflow: hidden;
-      transition: border-color 0.2s;
-    }
-    .post-card:hover { border-color: rgba(245,197,24,0.2); }
-
-    .post-card__header {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 20px 24px;
-      border-bottom: 1px solid rgba(240,239,232,0.05);
-      cursor: pointer;
-    }
-    .post-num {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 32px;
-      color: rgba(240,239,232,0.15);
-      line-height: 1;
-      min-width: 44px;
-    }
-    .post-meta { flex: 1; }
-    .post-meta__day { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(240,239,232,0.3); margin-bottom: 4px; }
-    .post-meta__title { font-weight: 700; font-size: 15px; color: var(--off-white); }
-    .post-meta__format { font-size: 12px; color: rgba(240,239,232,0.4); margin-top: 2px; }
-    .post-badges { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-
-    .badge {
-      font-size: 9px; font-weight: 700; letter-spacing: 1px;
-      text-transform: uppercase; padding: 3px 10px; border-radius: 100px;
-    }
-    .badge-portfolio { background: rgba(123,143,207,0.12); color: var(--blue); }
-    .badge-dor { background: rgba(207,123,123,0.12); color: var(--red); }
-    .badge-edu { background: rgba(107,207,107,0.12); color: var(--green); }
-    .badge-oferta { background: rgba(245,197,24,0.12); color: var(--yellow); }
-    .badge-bastidores { background: rgba(180,107,207,0.12); color: #b46bcf; }
-
-    .post-card__body { padding: 24px; display: none; }
-    .post-card__body.open { display: block; }
-
-    .copy-block { margin-bottom: 20px; }
-    .copy-block__label {
-      font-size: 10px; font-weight: 700; letter-spacing: 2px;
-      text-transform: uppercase; color: var(--yellow);
-      margin-bottom: 10px;
-    }
-    .copy-block__content {
-      background: var(--black-mid);
-      border: 1px solid rgba(240,239,232,0.06);
-      border-radius: 8px;
-      padding: 16px 20px;
-      font-size: 14px;
-      color: rgba(240,239,232,0.75);
-      line-height: 1.7;
-      white-space: pre-wrap;
-    }
-    .copy-block__content strong { color: var(--off-white); }
-
-    .slides-list { counter-reset: slide; }
-    .slide-item {
-      counter-increment: slide;
-      display: flex;
-      gap: 14px;
-      margin-bottom: 12px;
-      align-items: flex-start;
-    }
-    .slide-item::before {
-      content: counter(slide);
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 20px;
-      color: var(--yellow);
-      min-width: 24px;
-      line-height: 1.2;
-    }
-    .slide-item__content {
-      background: var(--black-mid);
-      border: 1px solid rgba(240,239,232,0.06);
-      border-radius: 6px;
-      padding: 12px 16px;
-      font-size: 13px;
-      color: rgba(240,239,232,0.7);
-      flex: 1;
-      line-height: 1.6;
-    }
-    .slide-item__content strong { color: var(--off-white); font-size: 14px; display: block; margin-bottom: 3px; }
-
-    .tip-box {
-      background: rgba(245,197,24,0.05);
-      border: 1px solid rgba(245,197,24,0.15);
-      border-radius: 8px;
-      padding: 14px 18px;
-      font-size: 13px;
-      color: rgba(200,184,74,0.9);
-      line-height: 1.7;
-      margin-top: 16px;
-    }
-    .tip-box strong { color: var(--yellow); }
-
-    .toggle-btn {
-      background: none; border: none; color: rgba(240,239,232,0.3);
-      font-size: 11px; font-weight: 700; letter-spacing: 1px;
-      text-transform: uppercase; cursor: pointer; padding: 0;
-      transition: color 0.2s;
-    }
-    .toggle-btn:hover { color: var(--yellow); }
-
-    .footer {
-      background: var(--yellow);
-      padding: 28px 48px;
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 12px; margin-top: 40px;
-    }
-    .footer p { font-size: 13px; color: rgba(0,0,0,0.5); }
-    .footer strong { color: var(--black); }
-
-    @media (max-width: 768px) {
-      .header, .strategy, .calendar { padding: 28px 20px; }
-      .post-card__header { flex-wrap: wrap; }
-      .footer { padding: 24px 20px; flex-direction: column; align-items: flex-start; }
-    }
+    :root{--y:#F5C518;--b:#0A0A0A;--d:#111;--c:#181818;--c2:#202020;--br:rgba(240,239,232,0.07);--bry:rgba(245,197,24,0.18);--t:#F0EFE8;--m:rgba(240,239,232,0.5);--green:#5fcf7a;--blue:#7b9cf5;--purple:#b87cf5}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'Barlow',sans-serif;background:var(--b);color:var(--t);line-height:1.7}
+    ::selection{background:var(--y);color:var(--b)}
+    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--b)}::-webkit-scrollbar-thumb{background:rgba(245,197,24,.4);border-radius:3px}
+    .hero{background:var(--y);padding:52px 48px 44px;position:relative;overflow:hidden}
+    .hero::after{content:'BBOLD';font-family:'Bebas Neue',sans-serif;font-size:240px;position:absolute;right:-10px;top:-30px;color:rgba(0,0,0,0.05);line-height:1;pointer-events:none}
+    .hero-tag{display:inline-block;background:var(--b);color:var(--y);font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:5px 14px;border-radius:100px;margin-bottom:20px}
+    .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,8vw,80px);color:var(--b);line-height:.95;margin-bottom:10px}
+    .hero p{font-size:15px;color:rgba(0,0,0,.5);max-width:500px}
+    .week-nav{display:flex;background:var(--d);border-bottom:1px solid var(--br);position:sticky;top:0;z-index:20;overflow-x:auto}
+    .wnav-btn{flex-shrink:0;padding:14px 24px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--m);cursor:pointer;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap}
+    .wnav-btn:hover{color:rgba(240,239,232,.7)}.wnav-btn.active{color:var(--y);border-bottom-color:var(--y)}
+    .panel{display:none;padding:48px;max-width:860px;margin:0 auto}.panel.active{display:block}
+    .week-header{margin-bottom:40px}
+    .wh-label{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--y);margin-bottom:6px}
+    .wh-title{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:.04em;margin-bottom:8px}
+    .wh-desc{font-size:14px;color:var(--m);max-width:560px}
+    .post{background:var(--c);border:1px solid var(--br);border-radius:16px;margin-bottom:28px;overflow:hidden}
+    .post-header{padding:24px 28px 20px;border-bottom:1px solid var(--br);display:flex;align-items:flex-start;gap:16px}
+    .post-day{width:48px;height:48px;background:var(--y);color:var(--b);font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:.05em;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;line-height:1.1}
+    .post-meta{flex:1}
+    .post-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+    .badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:100px}
+    .b-carrossel{background:rgba(89,142,245,.12);color:var(--blue)}.b-reel{background:rgba(184,124,245,.12);color:var(--purple)}.b-estatico{background:rgba(245,197,24,.12);color:var(--y)}.b-dor{background:rgba(239,68,68,.1);color:#f87171}.b-percepcao{background:rgba(245,197,24,.1);color:var(--y)}.b-posicionamento{background:rgba(95,207,122,.1);color:var(--green)}.b-bastidores{background:rgba(89,142,245,.1);color:var(--blue)}
+    .post-title{font-size:18px;font-weight:700;line-height:1.3}
+    .post-hook-tag{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--y);margin-top:6px}
+    .post-hook-text{font-size:15px;font-style:italic;color:rgba(240,239,232,.75);margin-top:3px}
+    .post-body{padding:0 28px}
+    .psec{padding:20px 0;border-bottom:1px solid rgba(255,255,255,.04)}.psec:last-child{border-bottom:none;padding-bottom:24px}
+    .psec-label{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--y);margin-bottom:12px}
+    .slides{display:flex;flex-direction:column;gap:10px}
+    .slide{background:var(--c2);border:1px solid var(--br);border-radius:10px;padding:14px 18px;display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:start}
+    .slide-num{width:28px;height:28px;background:rgba(245,197,24,.1);color:var(--y);font-family:'Bebas Neue',sans-serif;font-size:14px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+    .slide-cta .slide-num{background:rgba(245,197,24,.2)}
+    .slide-role{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--m);margin-bottom:4px}
+    .slide-text{font-size:14px;color:var(--t);line-height:1.6}.slide-text em{color:var(--y);font-style:normal;font-weight:700}
+    .slide-sub{font-size:12px;color:var(--m);margin-top:4px;line-height:1.5}
+    .reel-steps{display:flex;flex-direction:column;gap:8px}
+    .reel-step{background:var(--c2);border-radius:10px;padding:14px 18px;display:grid;grid-template-columns:80px 1fr;gap:16px;align-items:start}
+    .reel-time{font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--y);letter-spacing:.05em;padding-top:2px}
+    .reel-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--m);margin-bottom:4px}
+    .reel-line{font-size:14px;color:var(--t);line-height:1.6}.reel-line em{color:var(--y);font-style:normal;font-weight:700}
+    .reel-note{font-size:12px;color:var(--m);margin-top:4px;font-style:italic}
+    .caption-box{background:#111;border:1px solid var(--bry);border-radius:10px;padding:20px 22px;font-size:14px;color:rgba(240,239,232,.8);line-height:1.8;white-space:pre-wrap}.caption-box strong{color:var(--t)}
+    .design-notes{display:flex;flex-direction:column;gap:8px}
+    .dn-item{display:flex;gap:10px;font-size:13px;color:var(--m);line-height:1.6}
+    .dn-dot{width:6px;height:6px;background:var(--y);border-radius:50%;flex-shrink:0;margin-top:7px}
+    .copy-btn{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--m);background:transparent;border:1px solid var(--br);padding:6px 14px;border-radius:6px;cursor:pointer;transition:all .2s;margin-top:12px}
+    .copy-btn:hover{color:var(--y);border-color:var(--bry)}.copy-btn.copied{color:var(--green);border-color:rgba(95,207,122,.3)}
+    @media(max-width:768px){.hero{padding:32px 24px 28px}.panel{padding:28px 20px}.post-header{flex-direction:column}.reel-step{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
+<div class="hero">
+  <div class="hero-tag">Uso interno — BBOLD Studio</div>
+  <h1>ROTEIROS<br>DE CONTEÚDO</h1>
+  <p>2 semanas de conteúdo completo — slides, roteiros, legendas e orientação de design.</p>
+</div>
+<div class="week-nav">
+  <div class="wnav-btn active" onclick="show('s1',this)">Semana 1 — Apresentação</div>
+  <div class="wnav-btn" onclick="show('s2',this)">Semana 2 — Dor &amp; Autoridade</div>
+</div>
 
-  <div class="header">
-    <div class="header__tag">Uso Interno — BBOLD Studio</div>
-    <h1>INSTAGRAM<br/>30 DIAS</h1>
-    <p>Plano editorial completo para lançamento do @agencia.bbold — copy pronta, estrutura de carrossel e orientações de design para cada post.</p>
+<!-- SEMANA 1 -->
+<div class="panel active" id="tab-s1">
+  <div class="week-header">
+    <div class="wh-label">Semana 01 · Terça / Quinta / Sábado</div>
+    <div class="wh-title">APRESENTAÇÃO + PROVOCAÇÃO</div>
+    <div class="wh-desc">Objetivo: fazer o mercado entender quem é a BBold e por que é diferente. Os primeiros 3 posts constroem a lente pela qual todos os futuros posts serão lidos.</div>
   </div>
 
-  <!-- ESTRATÉGIA -->
-  <div class="strategy">
-
-    <div class="section-label">Visão geral</div>
-    <div class="meta-grid">
-      <div class="meta-card">
-        <div class="meta-card__label">Frequência</div>
-        <div class="meta-card__value">3x / semana</div>
-        <div class="meta-card__sub">Seg · Qua · Sex</div>
-      </div>
-      <div class="meta-card">
-        <div class="meta-card__label">Total de posts</div>
-        <div class="meta-card__value">12 posts</div>
-        <div class="meta-card__sub">Mês 1 completo</div>
-      </div>
-      <div class="meta-card">
-        <div class="meta-card__label">Meta de receita</div>
-        <div class="meta-card__value">R$ 2k+</div>
-        <div class="meta-card__sub">2-3 clientes mensais</div>
-      </div>
-      <div class="meta-card">
-        <div class="meta-card__label">Público-alvo</div>
-        <div class="meta-card__value">PMEs</div>
-        <div class="meta-card__sub">Todo o Brasil, digital</div>
+  <!-- POST 1 -->
+  <div class="post">
+    <div class="post-header">
+      <div class="post-day">TER<br>01</div>
+      <div class="post-meta">
+        <div class="post-badges"><span class="badge b-reel">Reel</span><span class="badge b-posicionamento">Posicionamento</span></div>
+        <div class="post-title">Apresentação da BBold — o que nos separa de qualquer outra agência</div>
+        <div class="post-hook-tag">Hook</div>
+        <div class="post-hook-text">"Você não precisa de mais posts. Você precisa que a sua marca pareça o que ela vale."</div>
       </div>
     </div>
-
-    <div class="section-label">Pilares de conteúdo</div>
-    <div class="pillars-grid">
-      <div class="pillar">
-        <div class="pillar__emoji">🎨</div>
-        <div class="pillar__name">Portfólio</div>
-        <div class="pillar__desc">Mostrar trabalhos reais. Constrói prova de qualidade desde o primeiro dia.</div>
-      </div>
-      <div class="pillar">
-        <div class="pillar__emoji">🔥</div>
-        <div class="pillar__name">Provocação / Dor</div>
-        <div class="pillar__desc">Posts que falam diretamente com quem está invisível no digital. Geram identificação.</div>
-      </div>
-      <div class="pillar">
-        <div class="pillar__emoji">💡</div>
-        <div class="pillar__name">Educação</div>
-        <div class="pillar__desc">Dicas sobre marca, design e presença digital. Posiciona como especialista.</div>
-      </div>
-      <div class="pillar">
-        <div class="pillar__emoji">📦</div>
-        <div class="pillar__name">Oferta</div>
-        <div class="pillar__desc">Apresentação direta de serviços e pacotes com CTA claro pro WhatsApp.</div>
-      </div>
-      <div class="pillar">
-        <div class="pillar__emoji">🛠️</div>
-        <div class="pillar__name">Bastidores</div>
-        <div class="pillar__desc">Processo, ferramentas, tela do computador. Humaniza sem precisar aparecer.</div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- CALENDÁRIO -->
-  <div class="calendar">
-
-    <!-- SEMANA 1 -->
-    <div class="week-block">
-      <div class="week-title">Semana 1 — Apresentação e primeiros impactos</div>
-
-      <!-- POST 01 -->
-      <div class="post-card">
-        <div class="post-card__header" onclick="toggle('p01')">
-          <div class="post-num">01</div>
-          <div class="post-meta">
-            <div class="post-meta__day">Segunda-feira · Semana 1</div>
-            <div class="post-meta__title">A BBold chegou — apresentação da agência</div>
-            <div class="post-meta__format">Carrossel · 5 slides</div>
+    <div class="post-body">
+      <div class="psec">
+        <div class="psec-label">Roteiro do Reel (30–45s)</div>
+        <div class="reel-steps">
+          <div class="reel-step">
+            <div class="reel-time">0–3s<br><span style="font-size:9px;color:var(--m)">HOOK</span></div>
+            <div><div class="reel-label">Frase de abertura — olho na câmera</div><div class="reel-line"><em>"Você não precisa de mais posts. Você precisa que a sua marca pareça o que ela vale."</em></div><div class="reel-note">Pausa de 1 segundo. Deixa pesar.</div></div>
           </div>
-          <div class="post-badges">
-            <span class="badge badge-oferta">Oferta</span>
-            <button class="toggle-btn">Ver copy ↓</button>
+          <div class="reel-step">
+            <div class="reel-time">4–10s<br><span style="font-size:9px;color:var(--m)">PROBLEMA</span></div>
+            <div><div class="reel-label">Nomeie o problema do mercado</div><div class="reel-line">"A maioria das agências entrega arte. Entrega post. Entrega frequência. Mas o cliente continua sem saber por que o concorrente parece mais profissional do que ele."</div></div>
           </div>
-        </div>
-        <div class="post-card__body" id="p01">
-          <div class="copy-block">
-            <div class="copy-block__label">Estrutura dos slides</div>
-            <div class="slides-list">
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 1 — Capa (impacto)</strong>Texto: "Sua marca merece ser vista." / Sub: Agência BBold — Design Estratégico & Presença Digital / Visual: fundo preto, logo amarela, tipografia grande</div></div>
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 2 — O problema</strong>Texto: "Muitas empresas têm um produto incrível. Mas perdem clientes todo dia para concorrentes com uma presença digital mais forte." / Visual: fundo escuro, texto centralizado, sem imagem</div></div>
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 3 — Quem somos</strong>Texto: "A BBold nasceu pra mudar isso. Somos uma agência de marketing digital com mais de 15 anos de experiência em design, tráfego pago e gestão de redes sociais." / Visual: badge "15 anos" em destaque</div></div>
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 4 — O que fazemos</strong>Texto: Lista dos 4 serviços principais — Social Media · Tráfego Pago · Design Gráfico · Sites & Landing Pages / Visual: ícones simples ou tipografia limpa</div></div>
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 5 — CTA</strong>Texto: "Quer crescer de verdade? Chama a gente no WhatsApp. Atendemos em todo o Brasil." / Visual: botão/link + número do WhatsApp</div></div>
-            </div>
+          <div class="reel-step">
+            <div class="reel-time">11–22s<br><span style="font-size:9px;color:var(--m)">POSICIONAMENTO</span></div>
+            <div><div class="reel-label">Quem é a BBold</div><div class="reel-line">"A BBold nasceu pra resolver isso. A gente não faz post — <em>a gente constrói percepção de marca</em>. Identidade visual, presença digital, conteúdo estratégico, tráfego, site. Tudo com um objetivo: fazer sua empresa parecer tão forte quanto ela é."</div></div>
           </div>
-          <div class="copy-block">
-            <div class="copy-block__label">Legenda do post</div>
-            <div class="copy-block__content">A BBold chegou — e a gente veio pra fazer sua marca aparecer. 🖤⚡
-
-Somos uma agência de marketing digital com mais de 15 anos de experiência em design gráfico, tráfego pago e gestão de redes sociais.
-
-Aqui você encontra:
-→ Social media com estratégia e consistência
-→ Tráfego pago que traz resultado real
-→ Design que posiciona e gera confiança
-→ Sites e landing pages que convertem
-
-Atendemos empresas em todo o Brasil de forma 100% remota.
-
-Se sua marca ainda está invisível no digital, a gente muda isso. 👇
-Fala com a gente pelo link na bio.
-
-#agenciabbold #marketingdigital #designgrafico #socialmedia #trafegopage #identidadevisual #marcaforte #presencadigital #agenciadigital #marketingbrasil</div>
+          <div class="reel-step">
+            <div class="reel-time">23–28s<br><span style="font-size:9px;color:var(--m)">FILOSOFIA</span></div>
+            <div><div class="reel-label">A frase que define tudo — fala devagar</div><div class="reel-line"><em>"Empresas fortes precisam parecer fortes."</em></div><div class="reel-note">Freeze frame + texto em Bebas Neue amarelo na tela.</div></div>
           </div>
-          <div class="tip-box"><strong>Dica de design:</strong> Use a identidade visual da BBold — fundo preto, tipografia Bebas Neue, amarelo nos destaques. Esse primeiro post define o "look" do feed. Salve como template base para os próximos.</div>
-        </div>
-      </div>
-
-      <!-- POST 02 -->
-      <div class="post-card">
-        <div class="post-card__header" onclick="toggle('p02')">
-          <div class="post-num">02</div>
-          <div class="post-meta">
-            <div class="post-meta__day">Quarta-feira · Semana 1</div>
-            <div class="post-meta__title">Sua marca está invisível — post de dor/provocação</div>
-            <div class="post-meta__format">Imagem única com texto forte</div>
-          </div>
-          <div class="post-badges">
-            <span class="badge badge-dor">Provocação</span>
-            <button class="toggle-btn">Ver copy ↓</button>
-          </div>
-        </div>
-        <div class="post-card__body" id="p02">
-          <div class="copy-block">
-            <div class="copy-block__label">Visual do post</div>
-            <div class="copy-block__content">Fundo preto. Texto centralizado em branco/amarelo.
-
-Título grande: "ENQUANTO VOCÊ NÃO APARECE"
-Subtítulo: "seu concorrente está fechando o cliente que era seu."
-
-Rodapé discreto: @agencia.bbold</div>
-          </div>
-          <div class="copy-block">
-            <div class="copy-block__label">Legenda do post</div>
-            <div class="copy-block__content">Todo dia, alguém pesquisa no Google pelo serviço que você oferece.
-
-E encontra o seu concorrente.
-
-Não porque ele é melhor do que você. Mas porque ele aparece — e você não.
-
-Presença digital não é luxo. É o mínimo para competir hoje.
-
-Se você ainda não tem:
-❌ Um perfil ativo no Instagram
-❌ Uma página no Google Meu Negócio
-❌ Um site ou landing page profissional
-
-Você está perdendo clientes todos os dias sem saber.
-
-A gente resolve isso. Fala com a gente. 👇
-Link na bio ou chama no WhatsApp.
-
-#presencadigital #marketingdigital #pequenosnegócios #empreendedorismo #marcaforte #agenciadigital #agenciabbold #googlemeunegocio #socialmedia #crescimento</div>
-          </div>
-          <div class="tip-box"><strong>Por que esse post funciona:</strong> Ele fala diretamente com a dor do empreendedor — medo de perder clientes. Não vende nada explicitamente. Só planta a semente. É o tipo de post que gera salvamentos e compartilhamentos.</div>
-        </div>
-      </div>
-
-      <!-- POST 03 -->
-      <div class="post-card">
-        <div class="post-card__header" onclick="toggle('p03')">
-          <div class="post-num">03</div>
-          <div class="post-meta">
-            <div class="post-meta__day">Sexta-feira · Semana 1</div>
-            <div class="post-meta__title">Portfólio #1 — Showcase de trabalhos</div>
-            <div class="post-meta__format">Carrossel de imagens (6–10 peças)</div>
-          </div>
-          <div class="post-badges">
-            <span class="badge badge-portfolio">Portfólio</span>
-            <button class="toggle-btn">Ver copy ↓</button>
-          </div>
-        </div>
-        <div class="post-card__body" id="p03">
-          <div class="copy-block">
-            <div class="copy-block__label">Estrutura do carrossel</div>
-            <div class="copy-block__content">Slide 1 — Capa: "15 anos de design. Veja o resultado." com fundo preto e logo
-Slides 2–9 — Selecione as melhores peças do seu portfólio (identidades visuais, posts de social media, logos, embalagens)
-Slide final — "Quer uma identidade assim para seu negócio? Chama no WhatsApp." + contato
-
-Critério de seleção das peças: variedade de segmentos (não mostre só um tipo de cliente), qualidade visual alta, projetos completos se possível.</div>
-          </div>
-          <div class="copy-block">
-            <div class="copy-block__label">Legenda do post</div>
-            <div class="copy-block__content">15 anos criando marcas que ficam na memória. ✦
-
-Cada projeto aqui foi construído com estratégia — não só estética. Porque uma boa marca não é só bonita. Ela comunica, posiciona e vende.
-
-Desliza pra ver o portfólio 👉
-
-Tem um projeto em mente? Fala com a gente.
-Atendemos em todo o Brasil. 🇧🇷
-
-#portfólio #designgrafico #identidadevisual #branding #logodesign #criatividade #agenciabbold #marcas #designbrasil #brandingbrasil</div>
-          </div>
-          <div class="tip-box"><strong>Dica:</strong> No primeiro slide do carrossel, use uma peça impactante — a mais visual e chamativa que você tem. O objetivo é fazer o seguidor deslizar até o fim. Quanto mais slides visualizados, melhor o alcance pelo algoritmo.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SEMANA 2 -->
-    <div class="week-block">
-      <div class="week-title">Semana 2 — Educação e autoridade</div>
-
-      <!-- POST 04 -->
-      <div class="post-card">
-        <div class="post-card__header" onclick="toggle('p04')">
-          <div class="post-num">04</div>
-          <div class="post-meta">
-            <div class="post-meta__day">Segunda-feira · Semana 2</div>
-            <div class="post-meta__title">Por que consistência visual vende mais</div>
-            <div class="post-meta__format">Carrossel educativo · 6 slides</div>
-          </div>
-          <div class="post-badges">
-            <span class="badge badge-edu">Educação</span>
-            <button class="toggle-btn">Ver copy ↓</button>
-          </div>
-        </div>
-        <div class="post-card__body" id="p04">
-          <div class="copy-block">
-            <div class="copy-block__label">Estrutura dos slides</div>
-            <div class="slides-list">
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 1 — Capa</strong>"Por que marcas consistentes vendem mais (e o que você pode fazer hoje)" — tipografia grande, fundo escuro</div></div>
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 2</strong>"Sabe por que você reconhece a Coca-Cola em qualquer lugar do mundo?" → Porque ela é sempre igual. Mesmas cores, mesma fonte, mesmo estilo. Isso se chama consistência visual.</div></div>
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 3</strong>"Quando sua marca muda de cara a cada semana, o cliente não reconhece você — e não confia." → Confiança se constrói com repetição visual.</div></div>
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 4</strong>"Uma identidade visual profissional define: paleta de cores · tipografias · ícones · tom de voz visual · padrão de posts" → Tudo isso faz o cliente te reconhecer antes mesmo de ler o nome.</div></div>
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 5</strong>"Marcas consistentes são percebidas como mais profissionais, cobram mais caro e fidelizam mais clientes." → Não é sobre ser bonito. É sobre ser lembrável.</div></div>
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 6 — CTA</strong>"Sua marca tem identidade visual definida? Se a resposta for não — a gente pode ajudar. Chama no WhatsApp." + contato</div></div>
-            </div>
-          </div>
-          <div class="copy-block">
-            <div class="copy-block__label">Legenda do post</div>
-            <div class="copy-block__content">A sua marca está passando a mensagem certa? 🤔
-
-Muitos negócios perdem vendas não por falta de produto — mas por falta de consistência visual.
-
-Desliza e entende por que isso importa mais do que você imagina. 👉
-
-Salva esse post — você vai querer reler. 🔖
-
-#identidadevisual #branding #marketingdigital #designgrafico #marcaforte #agenciabbold #empreendedorismo #presencadigital #dicas #negócios</div>
-          </div>
-          <div class="tip-box"><strong>Por que esse post funciona:</strong> Posts educativos em carrossel têm o maior índice de salvamentos no Instagram. Cada salvamento sinaliza pro algoritmo que o conteúdo é valioso — aumenta o alcance orgânico.</div>
-        </div>
-      </div>
-
-      <!-- POST 05 -->
-      <div class="post-card">
-        <div class="post-card__header" onclick="toggle('p05')">
-          <div class="post-num">05</div>
-          <div class="post-meta">
-            <div class="post-meta__day">Quarta-feira · Semana 2</div>
-            <div class="post-meta__title">Social Media Básico — apresentação do serviço</div>
-            <div class="post-meta__format">Imagem única com copy de oferta</div>
-          </div>
-          <div class="post-badges">
-            <span class="badge badge-oferta">Oferta</span>
-            <button class="toggle-btn">Ver copy ↓</button>
-          </div>
-        </div>
-        <div class="post-card__body" id="p05">
-          <div class="copy-block">
-            <div class="copy-block__label">Visual do post</div>
-            <div class="copy-block__content">Fundo preto. Layout clean.
-
-Headline: "Gestão de redes sociais a partir de R$ 800/mês"
-Subheadline: "Você cuida do seu negócio. A gente cuida da sua presença digital."
-
-Lista de entregáveis:
-✓ 12 posts por mês
-✓ 8 stories por semana
-✓ Legendas estratégicas
-✓ Relatório mensal
-
-Rodapé: "Atendemos todo o Brasil · @agencia.bbold"</div>
-          </div>
-          <div class="copy-block">
-            <div class="copy-block__label">Legenda do post</div>
-            <div class="copy-block__content">Você sabe que precisa postar mais. Mas o dia tem só 24 horas — e o seu negócio não para.
-
-É aí que a BBold entra. 👊
-
-Com a nossa gestão de Social Media, você tem:
-✅ 12 posts por mês com design profissional
-✅ 8 stories por semana
-✅ Legendas com copywriting estratégico
-✅ Publicação na hora certa
-✅ Relatório mensal com os resultados
-
-Você foca no que sabe fazer. A gente cuida da sua presença digital.
-
-A partir de R$ 800/mês.
-Sem contrato longo. Sem enrolação.
-
-Quer saber mais? Chama no link da bio. 👇
-
-#socialmedia #gestaoderedes #marketingdigital #agenciabbold #redes sociais #instagram #presencadigital #pequenosnegócios #empreendedor #gestão</div>
-          </div>
-          <div class="tip-box"><strong>Importante:</strong> Esse é o seu serviço âncora — o que vai gerar receita recorrente. Poste de forma direta, sem vergonha de mostrar o preço. Quem vê o valor e se assusta não é seu cliente ideal. Quem vê e pensa "isso resolve meu problema" vai chamar.</div>
-        </div>
-      </div>
-
-      <!-- POST 06 -->
-      <div class="post-card">
-        <div class="post-card__header" onclick="toggle('p06')">
-          <div class="post-num">06</div>
-          <div class="post-meta">
-            <div class="post-meta__day">Sexta-feira · Semana 2</div>
-            <div class="post-meta__title">Portfólio #2 — Antes e depois</div>
-            <div class="post-meta__format">Carrossel · Antes / Depois visual</div>
-          </div>
-          <div class="post-badges">
-            <span class="badge badge-portfolio">Portfólio</span>
-            <button class="toggle-btn">Ver copy ↓</button>
-          </div>
-        </div>
-        <div class="post-card__body" id="p06">
-          <div class="copy-block">
-            <div class="copy-block__label">Estrutura do carrossel</div>
-            <div class="copy-block__content">Slide 1 — Capa: "Transformação de marca. Antes → Depois." (tipografia grande)
-Slide 2 — ANTES: logo ou identidade original do cliente (se autorizado, ou use um case fictício de redesign)
-Slide 3 — DEPOIS: nova identidade criada por você
-Slide 4 — Detalhe: aplicação em mockup realista (cartão, perfil de Instagram, embalagem)
-Slide 5 — Resultado: "Uma marca profissional transmite confiança antes mesmo do cliente falar com você."
-Slide 6 — CTA: "Quer essa transformação para o seu negócio? Fala com a gente." + contato</div>
-          </div>
-          <div class="copy-block">
-            <div class="copy-block__label">Legenda do post</div>
-            <div class="copy-block__content">Uma marca bem feita não precisa se apresentar — ela já passa a mensagem. ✦
-
-Desliza pra ver a transformação completa. 👉
-
-O antes era funcional. O depois é profissional.
-Essa diferença vale clientes, preço mais alto e muito mais confiança.
-
-Tem um projeto de redesign ou identidade do zero em mente?
-Chama a gente. Atendemos em todo o Brasil. 🇧🇷
-
-#antes e depois #redesign #identidadevisual #branding #designgrafico #logotipo #marcas #agenciabbold #transformação #brandingbrasil</div>
-          </div>
-          <div class="tip-box"><strong>Dica:</strong> Antes/depois é um dos formatos com melhor performance no Instagram porque gera curiosidade imediata. O algoritmo favorece carrosséis onde as pessoas chegam até o último slide — e esse formato naturalmente estimula isso.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SEMANA 3 -->
-    <div class="week-block">
-      <div class="week-title">Semana 3 — Aprofundamento e autoridade</div>
-
-      <!-- POST 07 -->
-      <div class="post-card">
-        <div class="post-card__header" onclick="toggle('p07')">
-          <div class="post-num">07</div>
-          <div class="post-meta">
-            <div class="post-meta__day">Segunda-feira · Semana 3</div>
-            <div class="post-meta__title">5 sinais de que sua marca precisa de ajuda</div>
-            <div class="post-meta__format">Carrossel educativo · 7 slides</div>
-          </div>
-          <div class="post-badges">
-            <span class="badge badge-edu">Educação</span>
-            <span class="badge badge-dor">Provocação</span>
-            <button class="toggle-btn">Ver copy ↓</button>
-          </div>
-        </div>
-        <div class="post-card__body" id="p07">
-          <div class="copy-block">
-            <div class="copy-block__label">Estrutura dos slides</div>
-            <div class="slides-list">
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 1 — Capa</strong>"5 sinais de que sua marca está prejudicando suas vendas" — capa impactante</div></div>
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 2 — Sinal 1</strong>"Sua logo parece que foi feita no Canva em 10 minutos." → A primeira impressão é formada em 0,05 segundos. Se a logo não passa profissionalismo, o cliente já desconfia.</div></div>
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 3 — Sinal 2</strong>"Suas cores e fontes mudam a cada post." → Quando a marca não tem padrão, ela não fica na memória. E o que não é lembrado, não é contratado.</div></div>
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 4 — Sinal 3</strong>"Você não aparece no Google quando alguém pesquisa pelo seu serviço." → Google Meu Negócio desatualizado ou inexistente = cliente indo direto pro concorrente.</div></div>
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 5 — Sinal 4</strong>"Seu Instagram está parado há semanas — ou nunca foi pra frente." → Redes sociais paradas passam a mensagem de que o negócio está parado também.</div></div>
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 6 — Sinal 5</strong>"Você não tem um site ou landing page onde o cliente possa te conhecer melhor." → Sem um endereço digital profissional, você depende 100% de indicação. Isso tem limite.</div></div>
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 7 — CTA</strong>"Quantos desses você se identificou? A gente resolve todos. Chama no WhatsApp."</div></div>
-            </div>
-          </div>
-          <div class="copy-block">
-            <div class="copy-block__label">Legenda do post</div>
-            <div class="copy-block__content">Você pode estar perdendo clientes sem saber o motivo. 🤔
-
-Não é o produto. Não é o preço. É a marca.
-
-Desliza e veja os 5 sinais mais comuns. 👉
-
-Se você se identificou com algum — a gente pode ajudar.
-Fala com a gente pelo link na bio. 👇
-
-Salva esse post e manda pra alguém que precisa ver isso. 🔖
-
-#marketingdigital #branding #marcaforte #empreendedorismo #pequenosnegócios #identidadevisual #presencadigital #agenciabbold #dicas #negócios</div>
+          <div class="reel-step">
+            <div class="reel-time">29–38s<br><span style="font-size:9px;color:var(--m)">CTA</span></div>
+            <div><div class="reel-label">Chamada para ação</div><div class="reel-line">"Se você sente que sua empresa poderia passar mais confiança no digital, comenta <em>PRESENÇA</em> aqui embaixo. Eu te mando um diagnóstico rápido — sem custo, sem compromisso."</div></div>
           </div>
         </div>
       </div>
+      <div class="psec">
+        <div class="psec-label">Legenda</div>
+        <div class="caption-box">Muita empresa boa parece pequena no digital.
 
-      <!-- POST 08 -->
-      <div class="post-card">
-        <div class="post-card__header" onclick="toggle('p08')">
-          <div class="post-num">08</div>
-          <div class="post-meta">
-            <div class="post-meta__day">Quarta-feira · Semana 3</div>
-            <div class="post-meta__title">Portfólio #3 — Social Media showcase</div>
-            <div class="post-meta__format">Carrossel de imagens (feed de cliente)</div>
-          </div>
-          <div class="post-badges">
-            <span class="badge badge-portfolio">Portfólio</span>
-            <button class="toggle-btn">Ver copy ↓</button>
-          </div>
-        </div>
-        <div class="post-card__body" id="p08">
-          <div class="copy-block">
-            <div class="copy-block__label">Estrutura do carrossel</div>
-            <div class="copy-block__content">Slide 1 — Capa: "Gestão de Social Media. Veja como fica na prática."
-Slides 2–8 — Selecione posts de um mesmo cliente (identidade consistente) ou de clientes diferentes mostrando variedade de estilos — posts de feed, stories, artes de datas comemorativas, etc.
-Slide final — "Quer esse nível de consistência para o seu perfil? Chama a gente." + @agencia.bbold</div>
-          </div>
-          <div class="copy-block">
-            <div class="copy-block__label">Legenda do post</div>
-            <div class="copy-block__content">Isso é o que acontece quando um perfil tem estratégia + design de qualidade. ✦
+Não porque o produto é fraco. Não porque o serviço é ruim. Mas porque a marca não comunica o valor que existe por trás dela.
 
-Cada post pensado para o público certo, na linguagem certa, com visual que comunica antes mesmo de ler o texto.
+O cliente chega no seu Instagram — e sai sem entender por que deveria escolher você.
 
-Desliza e veja o trabalho. 👉
+A BBold existe pra resolver exatamente isso: transformar a percepção que o mercado tem da sua empresa.
 
-Você tem um negócio e precisa de um perfil assim?
-A gente cuida de tudo — da criação ao relatório mensal.
+Não fazemos post por fazer. Fazemos posicionamento com estratégia, identidade e intenção.
 
-Fala com a gente pelo link na bio. 🇧🇷 Atendemos em todo o Brasil.
+<strong>Comenta PRESENÇA</strong> que eu te mando um diagnóstico rápido da sua presença digital. 🎯
 
-#socialmedia #gestãoderedes #instagram #designgrafico #feedinstagram #agenciabbold #marketingdigital #conteudo #redes sociais #presencadigital</div>
-          </div>
+#presencadigital #posicionamentodigital #agenciabbold #branding #marketingdigital #identidadevisual</div>
+        <button class="copy-btn" onclick="copyText(this)">📋 Copiar legenda</button>
+      </div>
+      <div class="psec">
+        <div class="psec-label">Orientação de Design</div>
+        <div class="design-notes">
+          <div class="dn-item"><div class="dn-dot"></div><div>Filmagem simples: fundo escuro (preto ou parede escura), boa iluminação frontal. Roupa sólida preta ou amarela.</div></div>
+          <div class="dn-item"><div class="dn-dot"></div><div>Na frase "Empresas fortes precisam parecer fortes" — freeze frame 1s + texto Bebas Neue amarelo aparecendo na tela.</div></div>
+          <div class="dn-item"><div class="dn-dot"></div><div>Música instrumental, bass leve, volume baixo. Legendas animadas em toda a duração.</div></div>
+          <div class="dn-item"><div class="dn-dot"></div><div>Cortes rápidos entre os blocos. Ritmo ágil — sem espaços mortos.</div></div>
         </div>
       </div>
-
-      <!-- POST 09 -->
-      <div class="post-card">
-        <div class="post-card__header" onclick="toggle('p09')">
-          <div class="post-num">09</div>
-          <div class="post-meta">
-            <div class="post-meta__day">Sexta-feira · Semana 3</div>
-            <div class="post-meta__title">Bastidores — processo de trabalho sem câmera</div>
-            <div class="post-meta__format">Imagem ou vídeo curto (tela/mãos)</div>
-          </div>
-          <div class="post-badges">
-            <span class="badge badge-bastidores">Bastidores</span>
-            <button class="toggle-btn">Ver copy ↓</button>
-          </div>
-        </div>
-        <div class="post-card__body" id="p09">
-          <div class="copy-block">
-            <div class="copy-block__label">Visual / Vídeo</div>
-            <div class="copy-block__content">Opção A — Foto: Print da tela do seu computador com o Adobe Illustrator/Figma aberto em um projeto. Ou foto das mãos no teclado com o monitor ao fundo.
-
-Opção B — Vídeo de 15-30s: Gravação da tela em time-lapse mostrando a construção de uma logo ou identidade visual do zero. Sem aparecer. Só a tela + trilha instrumental de fundo.
-
-Esse tipo de conteúdo humaniza muito sem precisar colocar o rosto na câmera.</div>
-          </div>
-          <div class="copy-block">
-            <div class="copy-block__label">Legenda do post</div>
-            <div class="copy-block__content">Por trás de cada logo, identidade ou post, tem horas de estratégia, técnica e cuidado com o detalhe. 🖤
-
-Mais de 15 anos de mercado não é só tempo — é repertório. É saber o que funciona, o que não funciona, e por quê.
-
-A BBold é isso: experiência real aplicada em resultados concretos para o seu negócio.
-
-Se você quer uma marca que funciona de verdade, a gente está aqui.
-Link na bio. 👇
-
-#bastidores #processocriativo #designgrafico #agenciabbold #branding #adobe #identidadevisual #trabalho #marketingdigital #criatividade</div>
-          </div>
-          <div class="tip-box"><strong>Sobre câmera:</strong> Esse post é 100% sem você aparecer. Com o tempo, quando sentir confiança, você pode gravar um vídeo curto de 15 segundos falando sobre um projeto — mas sem nenhuma pressa. Portfólio e conteúdo educativo já constroem a autoridade necessária pra fechar os primeiros clientes.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SEMANA 4 -->
-    <div class="week-block">
-      <div class="week-title">Semana 4 — Conversão e fechamento do mês</div>
-
-      <!-- POST 10 -->
-      <div class="post-card">
-        <div class="post-card__header" onclick="toggle('p10')">
-          <div class="post-num">10</div>
-          <div class="post-meta">
-            <div class="post-meta__day">Segunda-feira · Semana 4</div>
-            <div class="post-meta__title">Pacote Presença Digital Completa — oferta direta</div>
-            <div class="post-meta__format">Carrossel de oferta · 4 slides</div>
-          </div>
-          <div class="post-badges">
-            <span class="badge badge-oferta">Oferta</span>
-            <button class="toggle-btn">Ver copy ↓</button>
-          </div>
-        </div>
-        <div class="post-card__body" id="p10">
-          <div class="copy-block">
-            <div class="copy-block__label">Estrutura dos slides</div>
-            <div class="slides-list">
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 1 — Capa</strong>"Tudo que seu negócio precisa para aparecer de verdade. Por R$ 1.497." — impacto no número</div></div>
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 2 — O que inclui</strong>Lista visual: Identidade Visual Completa · Google Meu Negócio · 10 posts prontos · Stories + Destaques · Banner WhatsApp · Cartão digital · Guia de marca em PDF</div></div>
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 3 — Para quem é</strong>"Para quem está começando do zero ou para quem já tem uma marca mas precisa profissionalizar tudo de uma vez." · Prazo: 5 a 7 dias úteis · Atendimento 100% remoto</div></div>
-              <div class="slide-item"><div class="slide-item__content"><strong>Slide 4 — CTA</strong>"Avulso sairia ~R$2.150. No pacote você paga R$1.497. Chama no WhatsApp e garanta o seu." + número</div></div>
-            </div>
-          </div>
-          <div class="copy-block">
-            <div class="copy-block__label">Legenda do post</div>
-            <div class="copy-block__content">Você não precisa contratar 5 fornecedores diferentes. A gente resolve tudo em um lugar. 🖤
-
-Nosso pacote Presença Digital Completa foi feito pra quem quer sair do zero e chegar ao profissional em menos de uma semana.
-
-O que você recebe:
-✅ Identidade Visual Completa
-✅ Google Meu Negócio configurado
-✅ 10 posts prontos pra publicar
-✅ Stories + capas de destaques
-✅ Banner de WhatsApp
-✅ Cartão de visita digital
-✅ Guia de marca em PDF
-
-Tudo isso por R$ 1.497 — em até 7 dias úteis.
-
-Interessou? Chama no link da bio. 👇
-Atendemos em todo o Brasil. 🇧🇷
-
-#pacote #presencadigital #identidadevisual #marketingdigital #agenciabbold #branding #googlemeunegocio #empreendedorismo #pequenosnegócios #lançamento</div>
-          </div>
-          <div class="tip-box"><strong>Sobre o preço:</strong> Mostre sempre a comparação "avulso sairia R$2.150 · no pacote R$1.497". A ancoragem de preço faz o cliente perceber o valor imediatamente. Não tenha vergonha de mostrar o quanto você entrega.</div>
-        </div>
-      </div>
-
-      <!-- POST 11 -->
-      <div class="post-card">
-        <div class="post-card__header" onclick="toggle('p11')">
-          <div class="post-num">11</div>
-          <div class="post-meta">
-            <div class="post-meta__day">Quarta-feira · Semana 4</div>
-            <div class="post-meta__title">Portfólio #4 — Identidade visual completa showcase</div>
-            <div class="post-meta__format">Carrossel · Mockups de identidade</div>
-          </div>
-          <div class="post-badges">
-            <span class="badge badge-portfolio">Portfólio</span>
-            <button class="toggle-btn">Ver copy ↓</button>
-          </div>
-        </div>
-        <div class="post-card__body" id="p11">
-          <div class="copy-block">
-            <div class="copy-block__label">Estrutura do carrossel</div>
-            <div class="copy-block__content">Escolha um projeto de identidade visual completo do seu portfólio — de preferência um com aplicações variadas (logo, cartão, papel timbrado, mockup de perfil, material impresso).
-
-Slide 1 — Capa com nome do projeto (pode ser fictício: "Projeto: Marca X")
-Slides 2–3 — Logo e variações
-Slides 4–5 — Aplicações digitais (Instagram, WhatsApp, Google)
-Slides 6–7 — Aplicações físicas (cartão, embalagem, adesivo)
-Slide 8 — "Quer uma identidade assim? Fala com a gente." + contato</div>
-          </div>
-          <div class="copy-block">
-            <div class="copy-block__label">Legenda do post</div>
-            <div class="copy-block__content">Identidade visual não é só uma logo bonita.
-
-É a soma de tudo que faz seu cliente te reconhecer, confiar em você e te escolher antes do concorrente. 🖤
-
-Cada detalhe aqui foi pensado com estratégia — cores, tipografia, ícone, aplicações. Tudo alinhado com o posicionamento do negócio.
-
-Desliza e veja o projeto completo. 👉
-
-Quer isso pra sua marca?
-Chama a gente pelo link na bio. Atendemos em todo o Brasil. 🇧🇷
-
-#identidadevisual #branding #logodesign #designgrafico #marcas #agenciabbold #brandingbrasil #portfoliodesign #visualidentity #criatividade</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- POST 12 -->
-      <div class="post-card">
-        <div class="post-card__header" onclick="toggle('p12')">
-          <div class="post-num">12</div>
-          <div class="post-meta">
-            <div class="post-meta__day">Sexta-feira · Semana 4</div>
-            <div class="post-meta__title">Fechamento do mês — CTA direto e proposta de valor</div>
-            <div class="post-meta__format">Imagem única com copy forte</div>
-          </div>
-          <div class="post-badges">
-            <span class="badge badge-oferta">Oferta</span>
-            <span class="badge badge-dor">Provocação</span>
-            <button class="toggle-btn">Ver copy ↓</button>
-          </div>
-        </div>
-        <div class="post-card__body" id="p12">
-          <div class="copy-block">
-            <div class="copy-block__label">Visual do post</div>
-            <div class="copy-block__content">Fundo preto. Texto em branco e amarelo.
-
-Headline: "Sua marca pode estar custando clientes agora mesmo."
-Subheadline: "A gente muda isso — com design estratégico e presença digital de verdade."
-
-Rodapé: "BBold · Design · Tráfego · Social Media · Sites · @agencia.bbold"</div>
-          </div>
-          <div class="copy-block">
-            <div class="copy-block__label">Legenda do post</div>
-            <div class="copy-block__content">Um mês de conteúdo. Um objetivo claro: mostrar que a sua marca pode ser muito mais.
-
-A BBold trabalha com negócios de todo o Brasil que querem:
-→ Uma identidade visual que posiciona e vende
-→ Presença consistente nas redes sociais
-→ Campanhas de tráfego que trazem resultado real
-→ Sites que convertem visitantes em clientes
-
-Se você chegou até aqui e se identificou — a hora é agora.
-
-Fala com a gente pelo link na bio. A primeira conversa é sem compromisso. 👇
-
-WhatsApp: (27) 9 9734-1557
-E-mail: contato@agenciabbold.com.br
-
-Atendemos em todo o Brasil. 🇧🇷🖤
-
-#agenciabbold #marketingdigital #presencadigital #branding #socialmedia #trafegopage #designgrafico #empreendedorismo #marcaforte #crescimento</div>
-          </div>
-          <div class="tip-box"><strong>Fechamento de mês:</strong> Esse post serve como retrospectiva implícita e CTA final. Quem seguiu o perfil durante o mês e ainda não converteu recebe um último empurrão. Lembre-se: coloque o WhatsApp tanto na legenda quanto no link da bio — facilite ao máximo o contato.</div>
-        </div>
-      </div>
-
-    </div><!-- fim semana 4 -->
-
-  </div><!-- fim calendar -->
-
-  <!-- PRÓXIMOS PASSOS -->
-  <div class="strategy" style="border-top: 1px solid rgba(240,239,232,0.07); padding-top: 48px;">
-    <div class="section-label">Próximos passos</div>
-    <div style="background: var(--black-light); border: 1px solid rgba(240,239,232,0.07); border-radius: 12px; padding: 28px 32px; margin-bottom: 20px;">
-      <div style="font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--off-white); margin-bottom: 16px; letter-spacing: 0.05em;">ANTES DE PUBLICAR O POST 01</div>
-      <div style="display: flex; flex-direction: column; gap: 12px;">
-        <div style="display: flex; gap: 12px; font-size: 14px; color: rgba(240,239,232,0.7);">
-          <span style="color: var(--yellow); font-weight: 700; min-width: 24px;">1.</span>
-          <span>Atualize a bio do Instagram com: "Design Estratégico & Presença Digital · Atendemos todo o Brasil · 👇 Fala com a gente"</span>
-        </div>
-        <div style="display: flex; gap: 12px; font-size: 14px; color: rgba(240,239,232,0.7);">
-          <span style="color: var(--yellow); font-weight: 700; min-width: 24px;">2.</span>
-          <span>Configure o link da bio com o número do WhatsApp (wa.me/5527997341557) — facilita o contato direto</span>
-        </div>
-        <div style="display: flex; gap: 12px; font-size: 14px; color: rgba(240,239,232,0.7);">
-          <span style="color: var(--yellow); font-weight: 700; min-width: 24px;">3.</span>
-          <span>Crie os destaques do perfil: "Portfólio", "Serviços", "Sobre" — mesmo sem conteúdo ainda, prepare a estrutura</span>
-        </div>
-        <div style="display: flex; gap: 12px; font-size: 14px; color: rgba(240,239,232,0.7);">
-          <span style="color: var(--yellow); font-weight: 700; min-width: 24px;">4.</span>
-          <span>Selecione os trabalhos de portfólio que vai usar nos posts 3, 6, 8 e 11 — separe antes de começar</span>
-        </div>
-        <div style="display: flex; gap: 12px; font-size: 14px; color: rgba(240,239,232,0.7);">
-          <span style="color: var(--yellow); font-weight: 700; min-width: 24px;">5.</span>
-          <span>Crie um template base no Canva ou Figma com a identidade da BBold — vai acelerar muito a produção dos posts</span>
-        </div>
-      </div>
-    </div>
-    <div class="tip-box">
-      <strong>Meta financeira do mês 1:</strong> Fechar 1 cliente de Social Media Básico (R$800) + 1 projeto avulso de identidade ou landing page (R$1.200–R$1.500). Isso já te coloca próximo ou acima dos R$2k sem precisar de um volume grande de seguidores — só de pessoas certas vendo o conteúdo certo. Qualidade acima de quantidade.
     </div>
   </div>
 
-  <footer class="footer">
-    <p><strong>BBOLD Studio</strong> — Plano editorial interno. Criado em Abril 2026.</p>
-    <p>@agencia.bbold · <strong>instagram.com/agencia.bbold</strong></p>
-  </footer>
+  <!-- POST 2 -->
+  <div class="post">
+    <div class="post-header">
+      <div class="post-day">QUI<br>02</div>
+      <div class="post-meta">
+        <div class="post-badges"><span class="badge b-carrossel">Carrossel · 7 slides</span><span class="badge b-percepcao">Percepção</span></div>
+        <div class="post-title">3 coisas que sua marca comunica — mesmo sem você saber</div>
+        <div class="post-hook-tag">Hook</div>
+        <div class="post-hook-text">"Antes de você falar uma palavra, sua marca já falou."</div>
+      </div>
+    </div>
+    <div class="post-body">
+      <div class="psec">
+        <div class="psec-label">Estrutura dos Slides</div>
+        <div class="slides">
+          <div class="slide"><div class="slide-num">1</div><div class="slide-content"><div class="slide-role">Hook — capa</div><div class="slide-text"><em>Antes de você falar uma palavra, sua marca já falou.</em></div><div class="slide-sub">Fundo preto. Texto centralizado. Tipografia enorme. Nenhuma imagem.</div></div></div>
+          <div class="slide"><div class="slide-num">2</div><div class="slide-content"><div class="slide-role">Introdução</div><div class="slide-text">Seu cliente te pesquisa antes de falar com você. E nos primeiros 5 segundos ele já decidiu se você parece confiável.</div><div class="slide-sub">Essa decisão não é consciente — é percepção visual pura.</div></div></div>
+          <div class="slide"><div class="slide-num">3</div><div class="slide-content"><div class="slide-role">Ponto 1</div><div class="slide-text"><em>01. Sua logo comunica posição de mercado.</em></div><div class="slide-sub">Uma logo amadora diz "somos pequenos". Uma logo forte diz "somos referência". Não é sobre gosto — é sobre o sinal que você manda ao mercado.</div></div></div>
+          <div class="slide"><div class="slide-num">4</div><div class="slide-content"><div class="slide-role">Ponto 2</div><div class="slide-text"><em>02. Sua consistência visual comunica organização.</em></div><div class="slide-sub">Empresa que muda fonte, cor e estilo todo mês parece empresa sem direção. Consistência não é limitação — é autoridade.</div></div></div>
+          <div class="slide"><div class="slide-num">5</div><div class="slide-content"><div class="slide-role">Ponto 3</div><div class="slide-text"><em>03. Seu site comunica se você merece confiança.</em></div><div class="slide-sub">Site lento, desatualizado ou sem clareza faz o cliente sair sem contato. Ele não vai te ligar pra explicar — simplesmente vai embora.</div></div></div>
+          <div class="slide"><div class="slide-num">6</div><div class="slide-content"><div class="slide-role">Reflexão</div><div class="slide-text">Você não perde clientes porque seu produto é pior. Você perde porque sua <em>presença</em> não comunica o valor que você tem.</div></div></div>
+          <div class="slide slide-cta"><div class="slide-num">7</div><div class="slide-content"><div class="slide-role">CTA</div><div class="slide-text">Quer saber o que a <em>sua</em> marca está comunicando agora?</div><div class="slide-sub">Comenta <strong>ANÁLISE</strong> que eu olho sua presença digital e te mando alguns insights. Sem custo.</div></div></div>
+        </div>
+      </div>
+      <div class="psec">
+        <div class="psec-label">Legenda</div>
+        <div class="caption-box">Você investe em produto, em atendimento, em equipe.
 
-  <script>
-    function toggle(id) {
-      const body = document.getElementById(id);
-      body.classList.toggle('open');
-      const btn = body.previousElementSibling.querySelector('.toggle-btn');
-      btn.textContent = body.classList.contains('open') ? 'Fechar ↑' : 'Ver copy ↓';
-    }
-  </script>
+Mas se sua presença digital não comunica isso — o cliente nunca vai descobrir.
 
+A percepção que o mercado tem da sua marca é construída antes do primeiro contato. E ela é formada por detalhes que você talvez nem tenha percebido ainda.
+
+Logo. Consistência visual. Site. Instagram. Primeira mensagem.
+
+Tudo isso está falando por você agora.
+
+<strong>Comenta ANÁLISE</strong> que eu dou uma olhada na sua presença digital e te mando o que eu mudaria. 🔍
+
+#identidadevisual #presencadigital #branding #agenciabbold #marketingdigital #posicionamentodigital</div>
+        <button class="copy-btn" onclick="copyText(this)">📋 Copiar legenda</button>
+      </div>
+      <div class="psec">
+        <div class="psec-label">Orientação de Design</div>
+        <div class="design-notes">
+          <div class="dn-item"><div class="dn-dot"></div><div>Fundo preto em todos os slides. Alta hierarquia tipográfica: título grande (Bebas Neue) + texto pequeno (Barlow).</div></div>
+          <div class="dn-item"><div class="dn-dot"></div><div>Slide 1 (capa): só a frase, tipografia enorme. Nada mais.</div></div>
+          <div class="dn-item"><div class="dn-dot"></div><div>Slides 3–5: numeração "01 / 02 / 03" em amarelo destacado antes do título de cada ponto.</div></div>
+          <div class="dn-item"><div class="dn-dot"></div><div>Slide 7 (CTA): fundo amarelo com texto preto — inversão de cor para chamar atenção.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST 3 -->
+  <div class="post">
+    <div class="post-header">
+      <div class="post-day">SÁB<br>03</div>
+      <div class="post-meta">
+        <div class="post-badges"><span class="badge b-estatico">Estático</span><span class="badge b-posicionamento">Posicionamento</span></div>
+        <div class="post-title">"Empresas fortes precisam parecer fortes." — post de posicionamento</div>
+        <div class="post-hook-tag">Conceito</div>
+        <div class="post-hook-text">Post de impacto visual. A frase que resume a filosofia da BBold — simples, direta, compartilhável.</div>
+      </div>
+    </div>
+    <div class="post-body">
+      <div class="psec">
+        <div class="psec-label">Conteúdo do Post</div>
+        <div class="slides">
+          <div class="slide"><div class="slide-num">—</div><div class="slide-content"><div class="slide-role">Imagem única 1080×1080</div><div class="slide-text"><em>"Empresas fortes precisam parecer fortes."</em></div><div class="slide-sub">Fundo preto. Frase em Bebas Neue branca grande. Linha fina amarela separando da assinatura BBold embaixo. Logo no canto. Nada mais.</div></div></div>
+        </div>
+      </div>
+      <div class="psec">
+        <div class="psec-label">Legenda</div>
+        <div class="caption-box">Essa frase guia tudo que fazemos.
+
+Não é sobre estética. Não é sobre ficar bonito nas redes.
+
+É sobre garantir que a percepção que o mercado tem de uma empresa esteja à altura do que ela realmente entrega.
+
+Quando alguém pesquisa sua empresa e encontra uma presença digital sólida, consistente e profissional — a decisão de entrar em contato fica mais fácil.
+
+Quando encontra o contrário — ela vai embora sem dizer nada.
+
+<strong>Comenta PRESENÇA</strong> que eu analiso seu digital e te mostro onde você está perdendo percepção de valor. 🎯
+
+#agenciabbold #presencadigital #branding #marcaforte #posicionamentodigital #marketingdigital</div>
+        <button class="copy-btn" onclick="copyText(this)">📋 Copiar legenda</button>
+      </div>
+      <div class="psec">
+        <div class="psec-label">Orientação de Design</div>
+        <div class="design-notes">
+          <div class="dn-item"><div class="dn-dot"></div><div>Formato quadrado (1080×1080). Fundo preto puro (#0A0A0A).</div></div>
+          <div class="dn-item"><div class="dn-dot"></div><div>Frase em Bebas Neue, tamanho grande, cor branca. Centralizada verticalmente.</div></div>
+          <div class="dn-item"><div class="dn-dot"></div><div>Linha fina amarela horizontal separando a frase da assinatura "BBold Studio" em baixo.</div></div>
+          <div class="dn-item"><div class="dn-dot"></div><div>Logo pequeno no canto inferior direito. Textura sutil de granulado escuro no fundo para sofisticação.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SEMANA 2 -->
+<div class="panel" id="tab-s2">
+  <div class="week-header">
+    <div class="wh-label">Semana 02 · Terça / Quinta / Sábado</div>
+    <div class="wh-title">DOR + AUTORIDADE</div>
+    <div class="wh-desc">Objetivo: fazer o empresário se ver no problema. Posts que geram comentário porque tocam em algo que ele sente mas não sabia nomear.</div>
+  </div>
+
+  <!-- POST 4 -->
+  <div class="post">
+    <div class="post-header">
+      <div class="post-day">TER<br>04</div>
+      <div class="post-meta">
+        <div class="post-badges"><span class="badge b-carrossel">Carrossel · 8 slides</span><span class="badge b-dor">Dor</span></div>
+        <div class="post-title">Por que sua empresa parece menor do que realmente é</div>
+        <div class="post-hook-tag">Hook</div>
+        <div class="post-hook-text">"Seu concorrente cobra mais caro que você. O produto dele não é melhor. O que é diferente?"</div>
+      </div>
+    </div>
+    <div class="post-body">
+      <div class="psec">
+        <div class="psec-label">Estrutura dos Slides</div>
+        <div class="slides">
+          <div class="slide"><div class="slide-num">1</div><div class="slide-content"><div class="slide-role">Hook — capa</div><div class="slide-text"><em>Seu concorrente cobra mais caro que você. O produto dele não é melhor. O que é diferente?</em></div></div></div>
+          <div class="slide"><div class="slide-num">2</div><div class="slide-content"><div class="slide-role">Contexto</div><div class="slide-text">Não é coincidência. Empresas que cobram mais são percebidas como mais valiosas — mesmo quando a entrega é idêntica.</div><div class="slide-sub">Isso tem um nome: percepção de marca.</div></div></div>
+          <div class="slide"><div class="slide-num">3</div><div class="slide-content"><div class="slide-role">Razão 1</div><div class="slide-text"><em>01. A marca deles tem identidade visual consistente.</em></div><div class="slide-sub">Logo profissional. Paleta de cores definida. Tipografia que se repete. O cérebro do cliente registra consistência como competência.</div></div></div>
+          <div class="slide"><div class="slide-num">4</div><div class="slide-content"><div class="slide-role">Razão 2</div><div class="slide-text"><em>02. O site deles passa segurança.</em></div><div class="slide-sub">Rápido, claro, com prova social e CTA direto. O cliente entra e sabe exatamente o que fazer.</div></div></div>
+          <div class="slide"><div class="slide-num">5</div><div class="slide-content"><div class="slide-role">Razão 3</div><div class="slide-text"><em>03. O Instagram deles comunica autoridade.</em></div><div class="slide-sub">Não é quantidade de post. É qualidade da mensagem. Cada post parece intencional — não aleatório.</div></div></div>
+          <div class="slide"><div class="slide-num">6</div><div class="slide-content"><div class="slide-role">Virada</div><div class="slide-text">Tudo isso pode ser construído. Não é sorte. Não é verba de marketing enorme.</div><div class="slide-sub">É estratégia de posicionamento digital — aplicada do jeito certo.</div></div></div>
+          <div class="slide"><div class="slide-num">7</div><div class="slide-content"><div class="slide-role">Fechamento</div><div class="slide-text">A diferença entre a empresa que cobra mais e a que briga por preço raramente está no produto.</div><div class="slide-sub"><em>Está em como cada uma aparece pro mundo.</em></div></div></div>
+          <div class="slide slide-cta"><div class="slide-num">8</div><div class="slide-content"><div class="slide-role">CTA</div><div class="slide-text">Comenta <em>MARCA</em> que eu te mando o que eu mudaria na sua presença digital agora.</div><div class="slide-sub">Diagnóstico gratuito. Sem enrolação.</div></div></div>
+        </div>
+      </div>
+      <div class="psec">
+        <div class="psec-label">Legenda</div>
+        <div class="caption-box">Não é produto. Não é preço. Não é localização.
+
+A empresa que cobra mais no seu segmento provavelmente tem exatamente o mesmo serviço que você. O que ela tem diferente é como ela aparece.
+
+Identidade visual sólida. Site que passa confiança. Presença digital que comunica autoridade antes do primeiro contato.
+
+Isso não é vaidade — é estratégia. E é exatamente o que separa quem briga por preço de quem define o preço.
+
+<strong>Comenta MARCA</strong> que eu analiso sua presença e te mostro o que eu mudaria. 🔍
+
+#presencadigital #identidadevisual #agenciabbold #branding #empreendedorismo #marcaforte</div>
+        <button class="copy-btn" onclick="copyText(this)">📋 Copiar legenda</button>
+      </div>
+      <div class="psec">
+        <div class="psec-label">Orientação de Design</div>
+        <div class="design-notes">
+          <div class="dn-item"><div class="dn-dot"></div><div>Slide 1: pergunta em dois tamanhos — primeira parte maior em branco, "O que é diferente?" menor em amarelo.</div></div>
+          <div class="dn-item"><div class="dn-dot"></div><div>Slides 3–5: número "01 / 02 / 03" em amarelo grande como elemento gráfico de destaque. Cria ritmo visual.</div></div>
+          <div class="dn-item"><div class="dn-dot"></div><div>Slide 7: frase em itálico e fonte maior que o normal. Cria pausa e peso emocional.</div></div>
+          <div class="dn-item"><div class="dn-dot"></div><div>Slide 8 (CTA): fundo amarelo, texto preto em negrito. "MARCA" com caixa de destaque.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST 5 -->
+  <div class="post">
+    <div class="post-header">
+      <div class="post-day">QUI<br>05</div>
+      <div class="post-meta">
+        <div class="post-badges"><span class="badge b-reel">Reel</span><span class="badge b-dor">Dor</span></div>
+        <div class="post-title">Você tem 5 segundos. É tudo que seu cliente precisa para decidir.</div>
+        <div class="post-hook-tag">Hook</div>
+        <div class="post-hook-text">"Seu cliente decidiu se vai te contratar antes de ler uma palavra."</div>
+      </div>
+    </div>
+    <div class="post-body">
+      <div class="psec">
+        <div class="psec-label">Roteiro do Reel (25–35s)</div>
+        <div class="reel-steps">
+          <div class="reel-step">
+            <div class="reel-time">0–3s<br><span style="font-size:9px;color:var(--m)">HOOK</span></div>
+            <div><div class="reel-label">Abertura — direto, sem introdução</div><div class="reel-line"><em>"Seu cliente decidiu se vai te contratar antes de ler uma palavra."</em></div><div class="reel-note">Corte rápido logo depois. Sem pausa longa.</div></div>
+          </div>
+          <div class="reel-step">
+            <div class="reel-time">4–12s<br><span style="font-size:9px;color:var(--m)">CONTEXTO</span></div>
+            <div><div class="reel-label">Explica o mecanismo</div><div class="reel-line">"Pesquisa mostra que leva 0,05 segundos pra formar uma primeira impressão visual. Menos de um décimo de segundo. Nesse tempo, o cérebro do seu cliente já processou: 'isso parece confiável ou não?'"</div></div>
+          </div>
+          <div class="reel-step">
+            <div class="reel-time">13–22s<br><span style="font-size:9px;color:var(--m)">DOR</span></div>
+            <div><div class="reel-label">Aplica na realidade do empresário</div><div class="reel-line">"Se o seu site é lento, se o Instagram tem posts inconsistentes, se a logo parece improvisada — <em>ele já foi embora</em>. Não vai te ligar pra explicar. Simplesmente não volta."</div></div>
+          </div>
+          <div class="reel-step">
+            <div class="reel-time">23–32s<br><span style="font-size:9px;color:var(--m)">SOLUÇÃO + CTA</span></div>
+            <div><div class="reel-label">Onde a BBold entra</div><div class="reel-line">"A BBold existe pra garantir que esses 5 segundos trabalhem a favor da sua empresa. Comenta <em>DIGITAL</em> aqui embaixo — eu te mando um diagnóstico rápido da sua presença."</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="psec">
+        <div class="psec-label">Legenda</div>
+        <div class="caption-box">0,05 segundos.
+
+É o tempo que o cérebro leva pra formar uma opinião visual sobre uma empresa.
+
+Antes de ler seu nome. Antes de ver seu preço. Antes de qualquer coisa.
+
+Se sua presença digital não transmite confiança nesse primeiro momento — o cliente vai embora. Silenciosamente. E você nunca vai saber.
+
+Essa não é uma questão de estética. É uma questão de negócio.
+
+<strong>Comenta DIGITAL</strong> que eu analiso sua presença e te mostro o que está funcionando e o que não está. 🎯
+
+#presencadigital #marketingdigital #agenciabbold #branding #identidadevisual #posicionamentodigital</div>
+        <button class="copy-btn" onclick="copyText(this)">📋 Copiar legenda</button>
+      </div>
+      <div class="psec">
+        <div class="psec-label">Orientação de Design</div>
+        <div class="design-notes">
+          <div class="dn-item"><div class="dn-dot"></div><div>Câmera em plano médio. Fundo escuro limpo. Iluminação frontal boa.</div></div>
+          <div class="dn-item"><div class="dn-dot"></div><div>Na edição: ao falar "0,05 segundos" — freeze frame e número em tela grande em amarelo.</div></div>
+          <div class="dn-item"><div class="dn-dot"></div><div>Legendas animadas em toda a duração — muita gente assiste sem som.</div></div>
+          <div class="dn-item"><div class="dn-dot"></div><div>Na parte do CTA: texto "DIGITAL" aparece em destaque na tela.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST 6 -->
+  <div class="post">
+    <div class="post-header">
+      <div class="post-day">SÁB<br>06</div>
+      <div class="post-meta">
+        <div class="post-badges"><span class="badge b-carrossel">Carrossel · 7 slides</span><span class="badge b-posicionamento">Posicionamento</span></div>
+        <div class="post-title">Agência que faz post vs. agência que constrói posicionamento</div>
+        <div class="post-hook-tag">Hook</div>
+        <div class="post-hook-text">"Tem dois tipos de agência no mercado. Você sabe qual contratar."</div>
+      </div>
+    </div>
+    <div class="post-body">
+      <div class="psec">
+        <div class="psec-label">Estrutura dos Slides</div>
+        <div class="slides">
+          <div class="slide"><div class="slide-num">1</div><div class="slide-content"><div class="slide-role">Hook — capa</div><div class="slide-text"><em>Tem dois tipos de agência no mercado. Você sabe qual contratar.</em></div></div></div>
+          <div class="slide"><div class="slide-num">2</div><div class="slide-content"><div class="slide-role">Apresentação</div><div class="slide-text">Uma te entrega arte. A outra te entrega percepção de marca.</div><div class="slide-sub">A diferença entre as duas não está no portfólio — está na pergunta que cada uma faz antes de começar.</div></div></div>
+          <div class="slide"><div class="slide-num">3</div><div class="slide-content"><div class="slide-role">Lado A</div><div class="slide-text"><em>Agência que faz post pergunta:</em></div><div class="slide-sub">"Quantos posts por semana? Qual a data comemorativa dessa semana? Vamos fazer uma arte para o dia do cliente?"</div></div></div>
+          <div class="slide"><div class="slide-num">4</div><div class="slide-content"><div class="slide-role">Lado B</div><div class="slide-text"><em>Agência que constrói posicionamento pergunta:</em></div><div class="slide-sub">"Quem é o cliente ideal? O que ele precisa sentir antes de entrar em contato? O que sua empresa precisa comunicar pra cobrar mais caro?"</div></div></div>
+          <div class="slide"><div class="slide-num">5</div><div class="slide-content"><div class="slide-role">Impacto</div><div class="slide-text">Um tipo de agência te deixa com feed bonito e sem cliente novo.</div><div class="slide-sub">O outro te deixa com presença digital que trabalha por você 24 horas.</div></div></div>
+          <div class="slide"><div class="slide-num">6</div><div class="slide-content"><div class="slide-role">Posicionamento BBold</div><div class="slide-text">Na BBold, <em>cada ação tem intenção</em>. Conteúdo → percepção → confiança → cliente.</div><div class="slide-sub">Não fazemos post por fazer. Entregamos posicionamento.</div></div></div>
+          <div class="slide slide-cta"><div class="slide-num">7</div><div class="slide-content"><div class="slide-role">CTA</div><div class="slide-text">Comenta <em>SITE</em> que eu analiso sua presença digital e te mostro onde você está deixando percepção de valor na mesa.</div></div></div>
+        </div>
+      </div>
+      <div class="psec">
+        <div class="psec-label">Legenda</div>
+        <div class="caption-box">Toda agência tem Canva. Toda agência tem calendário editorial.
+
+Mas poucas agências têm a pergunta certa antes de começar:
+
+"O que essa empresa precisa comunicar pra atrair o cliente ideal?"
+
+Essa é a diferença entre conteúdo que ocupa espaço e conteúdo que constrói autoridade.
+
+Na BBold, a estratégia vem antes da arte. O posicionamento vem antes do post. O objetivo vem antes da execução.
+
+<strong>Comenta SITE</strong> que eu analiso como está sua presença digital hoje. 🎯
+
+#agenciabbold #posicionamentodigital #marketingdigital #branding #presencadigital #identidadevisual</div>
+        <button class="copy-btn" onclick="copyText(this)">📋 Copiar legenda</button>
+      </div>
+      <div class="psec">
+        <div class="psec-label">Orientação de Design</div>
+        <div class="design-notes">
+          <div class="dn-item"><div class="dn-dot"></div><div>Slides 3 e 4 (a comparação): layout com tom visual diferente — slide 3 mais frio (cinza escuro), slide 4 com acento amarelo. Reforça a diferença.</div></div>
+          <div class="dn-item"><div class="dn-dot"></div><div>Slide 6: a sequência "percepção → confiança → cliente" pode ser em formato de setas horizontais.</div></div>
+          <div class="dn-item"><div class="dn-dot"></div><div>Slide 7 (CTA): fundo amarelo, texto preto, "SITE" em destaque com caixa ou sublinhado grosso.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer style="text-align:center;padding:40px 24px;font-size:11px;color:rgba(240,239,232,0.2);letter-spacing:1px;border-top:1px solid rgba(255,255,255,0.05)">
+  © 2026 <span style="color:rgba(245,197,24,.4)">BBOLD Studio</span> · Documento Interno · Uso Restrito
+</footer>
+
+<script>
+function show(id,el){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.wnav-btn').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+id).classList.add('active');el.classList.add('active')}
+function copyText(btn){const box=btn.previousElementSibling;navigator.clipboard.writeText(box.innerText).then(()=>{btn.textContent='✓ Copiado!';btn.classList.add('copied');setTimeout(()=>{btn.textContent='📋 Copiar legenda';btn.classList.remove('copied')},2000)})}
+</script>
 </body>
 </html>

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"D:\\\\OneDrive\\\\BRUNO CHAVES\\\\AGÊNCIA\\\\SITE\\\\agencia_bbold\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)",
+      "Bash(tree -L 3 -d \"D:\\\\OneDrive\\\\BRUNO CHAVES\\\\AGÊNCIA\\\\SITE\\\\agencia_bbold\" --ignore node_modules)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
+    ]
+  }
+}

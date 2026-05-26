@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Estratégia Digital — Bruno Chaves</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --yellow: #F5C518;
+      --black: #0A0A0A;
+      --black-mid: #141414;
+      --black-light: #1E1E1E;
+      --off-white: #F0EFE8;
+      --muted: rgba(240,239,232,0.45);
+      --p1: #F5C518;
+      --p2: #3B82F6;
+      --p3: #10B981;
+      --p4: #EC4899;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: var(--black);
+      color: var(--off-white);
+      line-height: 1.6;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--black-mid);
+      border-bottom: 1px solid rgba(245,197,24,0.15);
+      padding: 48px 24px 40px;
+      text-align: center;
+    }
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(36px, 8vw, 72px);
+      letter-spacing: 0.04em;
+      line-height: 1;
+      color: var(--off-white);
+      margin-bottom: 16px;
+    }
+    h1 span { color: var(--yellow); }
+    .subtitle {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 20px 24px;
+      background: var(--black-mid);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    nav a {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: all 0.2s;
+    }
+    nav a:hover { color: var(--yellow); border-color: var(--yellow); }
+
+    /* MAIN */
+    main { max-width: 900px; margin: 0 auto; padding: 60px 24px; }
+
+    section { margin-bottom: 72px; }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .section-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 13px;
+      letter-spacing: 2px;
+      color: var(--yellow);
+      opacity: 0.6;
+    }
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.07);
+    }
+    h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(28px, 5vw, 44px);
+      letter-spacing: 0.04em;
+      color: var(--off-white);
+      margin-bottom: 16px;
+      line-height: 1.1;
+    }
+    h2 em { color: var(--yellow); font-style: normal; }
+    p { color: rgba(240,239,232,0.75); margin-bottom: 16px; font-size: 15px; }
+    p strong { color: var(--off-white); }
+
+    /* POSITIONING BOX */
+    .hero-phrase {
+      background: linear-gradient(135deg, rgba(245,197,24,0.08) 0%, rgba(245,197,24,0.03) 100%);
+      border: 1px solid rgba(245,197,24,0.25);
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+      margin: 28px 0;
+    }
+    .hero-phrase .quote {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(22px, 4vw, 34px);
+      letter-spacing: 0.06em;
+      color: var(--yellow);
+      line-height: 1.2;
+    }
+    .hero-phrase .sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    /* AUDIENCE CARDS */
+    .audience-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 24px 0;
+    }
+    @media (max-width: 600px) { .audience-grid { grid-template-columns: 1fr; } }
+    .audience-card {
+      background: var(--black-light);
+      border-radius: 12px;
+      padding: 24px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .audience-card .tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+    .tag-designers { background: rgba(245,197,24,0.12); color: var(--yellow); }
+    .tag-empresarios { background: rgba(59,130,246,0.12); color: #60A5FA; }
+    .audience-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .audience-card p { font-size: 13px; margin: 0; }
+
+    /* PILLARS */
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 24px 0;
+    }
+    @media (max-width: 600px) { .pillars-grid { grid-template-columns: 1fr; } }
+    .pillar-card {
+      border-radius: 12px;
+      padding: 24px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .pillar-card .pillar-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .pillar-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .pillar-card .pillar-meta { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+    .pillar-card ul { list-style: none; padding: 0; }
+    .pillar-card ul li { font-size: 13px; color: rgba(240,239,232,0.65); padding: 4px 0; padding-left: 16px; position: relative; }
+    .pillar-card ul li::before { content: '→'; position: absolute; left: 0; opacity: 0.5; }
+
+    .p1-card { background: rgba(245,197,24,0.05); border-color: rgba(245,197,24,0.2); }
+    .p1-card .pillar-meta { color: var(--p1); }
+    .p2-card { background: rgba(59,130,246,0.05); border-color: rgba(59,130,246,0.2); }
+    .p2-card .pillar-meta { color: #60A5FA; }
+    .p3-card { background: rgba(16,185,129,0.05); border-color: rgba(16,185,129,0.2); }
+    .p3-card .pillar-meta { color: #34D399; }
+    .p4-card { background: rgba(236,72,153,0.05); border-color: rgba(236,72,153,0.2); }
+    .p4-card .pillar-meta { color: #F472B6; }
+
+    /* PLATFORMS */
+    .platform-list { display: flex; flex-direction: column; gap: 12px; margin: 24px 0; }
+    .platform-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      background: var(--black-light);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .platform-icon { font-size: 28px; flex-shrink: 0; }
+    .platform-item h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .platform-item p { font-size: 13px; margin: 0; }
+    .priority-badge {
+      font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 10px; margin-left: 8px;
+    }
+    .badge-primary { background: rgba(245,197,24,0.15); color: var(--yellow); }
+    .badge-secondary { background: rgba(255,255,255,0.07); color: var(--muted); }
+
+    /* CALENDAR */
+    .week-block { margin-bottom: 40px; }
+    .week-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .week-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 13px;
+      letter-spacing: 2px;
+      color: var(--yellow);
+      white-space: nowrap;
+    }
+    .week-theme {
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .week-line { flex: 1; height: 1px; background: rgba(255,255,255,0.06); }
+
+    .posts-list { display: flex; flex-direction: column; gap: 10px; }
+    .post-item {
+      display: grid;
+      grid-template-columns: 90px 80px 1fr;
+      gap: 12px;
+      align-items: start;
+      background: var(--black-light);
+      border-radius: 10px;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    @media (max-width: 600px) { .post-item { grid-template-columns: 1fr; } }
+    .post-day { font-size: 12px; font-weight: 700; color: var(--muted); padding-top: 2px; }
+    .post-format {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-align: center;
+      align-self: start;
+    }
+    .fmt-reel { background: rgba(236,72,153,0.12); color: #F472B6; }
+    .fmt-carrossel { background: rgba(59,130,246,0.12); color: #60A5FA; }
+    .fmt-foto { background: rgba(16,185,129,0.12); color: #34D399; }
+    .fmt-stories { background: rgba(245,197,24,0.12); color: var(--yellow); }
+    .post-content {}
+    .post-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+    .post-desc { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .post-pillar { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+    .pl-edu { color: var(--p1); }
+    .pl-aut { color: #60A5FA; }
+    .pl-conv { color: #34D399; }
+    .pl-con { color: #F472B6; }
+
+    /* TIPS */
+    .tips-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+    @media (max-width: 600px) { .tips-grid { grid-template-columns: 1fr; } }
+    .tip-card { background: var(--black-light); border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.06); }
+    .tip-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+    .tip-card p { font-size: 13px; margin: 0; }
+
+    /* METRICS */
+    .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0; }
+    @media (max-width: 600px) { .metrics-grid { grid-template-columns: 1fr; } }
+    .metric-card { background: var(--black-light); border-radius: 12px; padding: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.06); }
+    .metric-card .metric-val { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--yellow); line-height: 1; margin-bottom: 6px; }
+    .metric-card .metric-label { font-size: 12px; color: var(--muted); }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 48px 24px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    footer strong { color: var(--yellow); }
+  </style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Estratégia Digital · Bruno Chaves · 2026</p>
+  <h1>CRESCIMENTO<br/><span>DIGITAL</span></h1>
+  <p class="subtitle">Plano estratégico para construir autoridade, audiência e clientes no Instagram e YouTube — com 20 anos de experiência como diferencial.</p>
+</header>
+
+<nav>
+  <a href="#posicionamento">Posicionamento</a>
+  <a href="#publico">Público</a>
+  <a href="#pilares">Pilares</a>
+  <a href="#plataformas">Plataformas</a>
+  <a href="#calendario">Calendário 30 dias</a>
+  <a href="#producao">Produção</a>
+  <a href="#metricas">Métricas</a>
+</nav>
+
+<main>
+
+  <!-- POSICIONAMENTO -->
+  <section id="posicionamento">
+    <div class="section-label">
+      <span class="section-num">01 — POSICIONAMENTO</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>Quem é o <em>Bruno Chaves</em> para o mercado</h2>
+    <p>Você não compete com outros designers. Você compete com agências inteiras. Por quê? Porque você entrega o que normalmente exige uma equipe: estratégia, design e código. Em 20 anos de mercado, você viu o que funciona e o que quebra um projeto. Esse é o diferencial que precisa aparecer em cada post.</p>
+
+    <div class="hero-phrase">
+      <div class="quote">"Design que você vê.<br/>Código que você sente.<br/>Resultado que aparece no caixa."</div>
+      <p class="sub">Frase central de posicionamento — pode usar em bio, stories, apresentações e pitches.</p>
+    </div>
+
+    <p>Seu concorrente é o freelancer genérico que faz "um logo no Canva". Seu cliente ideal percebe essa diferença quando você mostra processo, profundidade e resultado real. <strong>O conteúdo é a prova de que você é diferente.</strong></p>
+  </section>
+
+  <!-- PÚBLICO -->
+  <section id="publico">
+    <div class="section-label">
+      <span class="section-num">02 — PÚBLICO</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>Dois públicos, <em>uma estratégia</em></h2>
+    <p>Você quer atrair designers E empresários. Isso funciona, e tem uma lógica poderosa: os designers validam sua autoridade e recomendam você para os clientes deles. Os empresários chegam no seu perfil, veem uma comunidade te seguindo, e confiam mais.</p>
+
+    <div class="audience-grid">
+      <div class="audience-card">
+        <span class="tag tag-designers">🎨 Designers</span>
+        <h3>Por que te seguem</h3>
+        <p>Tutoriais, dicas de processo, ferramentas, como precificar, erros comuns, carreira. Eles consomem conteúdo educacional e de inspiração. São o público de <strong>crescimento de audiência</strong>.</p>
+      </div>
+      <div class="audience-card">
+        <span class="tag tag-empresarios">💼 Empresários</span>
+        <h3>Por que te contratam</h3>
+        <p>Eles não sabem de design — mas sabem de resultado. Fale em vendas, conversão, autoridade de marca, presença digital. São o público de <strong>geração de receita</strong>.</p>
+      </div>
+    </div>
+
+    <p>A chave: <strong>o mesmo post pode servir para os dois</strong>. Um tutorial de "como criar uma landing page que converte" educa o designer e convence o empresário de que você sabe o que faz.</p>
+  </section>
+
+  <!-- PILARES -->
+  <section id="pilares">
+    <div class="section-label">
+      <span class="section-num">03 — PILARES DE CONTEÚDO</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>Os 4 pilares do seu <em>conteúdo</em></h2>
+    <p>Cada post que você publicar pertence a um desses pilares. Isso garante variedade sem perder foco.</p>
+
+    <div class="pillars-grid">
+      <div class="pillar-card p1-card">
+        <span class="pillar-icon">🎓</span>
+        <div class="pillar-meta">Pilar 1 · Educação</div>
+        <h3>Para designers evoluírem</h3>
+        <ul>
+          <li>Tutoriais de Figma, CSS, design de UI</li>
+          <li>Erros que 90% dos designers cometem</li>
+          <li>Como montar um portfólio que vende</li>
+          <li>Ferramentas que uso no dia a dia</li>
+          <li>Como precificar seu trabalho</li>
+          <li>Design + código na prática</li>
+        </ul>
+      </div>
+      <div class="pillar-card p2-card">
+        <span class="pillar-icon">🏆</span>
+        <div class="pillar-meta">Pilar 2 · Autoridade</div>
+        <h3>20 anos de mercado em conteúdo</h3>
+        <ul>
+          <li>Bastidores de projetos reais</li>
+          <li>Cases com antes e depois</li>
+          <li>"O que 20 anos me ensinaram sobre X"</li>
+          <li>Opiniões sobre tendências do mercado</li>
+          <li>Desmistificando mitos do design</li>
+          <li>Processo criativo real, sem filtro</li>
+        </ul>
+      </div>
+      <div class="pillar-card p3-card">
+        <span class="pillar-icon">💰</span>
+        <div class="pillar-meta">Pilar 3 · Conversão</div>
+        <h3>Para empresários virarem clientes</h3>
+        <ul>
+          <li>Por que seu site não está vendendo</li>
+          <li>O que separa uma marca que converte</li>
+          <li>Checklist: sua marca está pronta pro digital?</li>
+          <li>Quanto custa não investir em design</li>
+          <li>Cases de clientes com resultados</li>
+          <li>CTAs diretos para WhatsApp/BBold</li>
+        </ul>
+      </div>
+      <div class="pillar-card p4-card">
+        <span class="pillar-icon">🤝</span>
+        <div class="pillar-meta">Pilar 4 · Conexão</div>
+        <h3>Humaniza e retém a audiência</h3>
+        <ul>
+          <li>Sua história: como chegou até aqui</li>
+          <li>Dia a dia de designer freelancer/agência</li>
+          <li>Setup, ferramentas, rotina</li>
+          <li>Opinião sobre o mercado criativo</li>
+          <li>Erros que você mesmo cometeu</li>
+          <li>Bastidores da BBold</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLATAFORMAS -->
+  <section id="plataformas">
+    <div class="section-label">
+      <span class="section-num">04 — PLATAFORMAS</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>Onde e como <em>aparecer</em></h2>
+
+    <div class="platform-list">
+      <div class="platform-item">
+        <div class="platform-icon">📸</div>
+        <div>
+          <h3>Instagram <span class="priority-badge badge-primary">PRIORIDADE 1</span></h3>
+          <p><strong>Reels</strong> para crescer (algoritmo favorece vídeo curto). <strong>Carrosséis</strong> para salvar e compartilhar (autoridade e educação). <strong>Stories diários</strong> de 3–5 minutos, sem roteiro — bastidores, pergunta, opinião rápida. Meta: 4 posts/semana + stories todo dia.</p>
+        </div>
+      </div>
+      <div class="platform-item">
+        <div class="platform-icon">▶️</div>
+        <div>
+          <h3>YouTube <span class="priority-badge badge-secondary">A PARTIR DO MÊS 2</span></h3>
+          <p><strong>1 vídeo a cada 2 semanas</strong> para começar. Tutoriais longos (10–20 min), cases completos, vlogs de processo. <strong>Os Reels do Instagram viram Shorts do YouTube</strong> — você cria uma vez e distribui em dois canais. YouTube gera SEO de longo prazo.</p>
+        </div>
+      </div>
+      <div class="platform-item">
+        <div class="platform-icon">💼</div>
+        <div>
+          <h3>LinkedIn <span class="priority-badge badge-secondary">FASE FUTURA</span></h3>
+          <p>Ideal para atrair empresários e B2B. Reposte os cases e posts de conversão que funcionaram no Instagram. Mínimo esforço extra, alcance em audiência diferente. Começar no mês 3 ou 4.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALENDÁRIO -->
+  <section id="calendario">
+    <div class="section-label">
+      <span class="section-num">05 — CALENDÁRIO EDITORIAL</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>Seus primeiros <em>30 dias</em></h2>
+    <p>Post planejado é post publicado. A meta aqui não é perfeição — é <strong>presença consistente</strong>. Você ficou 8 semanas sem postar porque tentou fazer algo "grande" e travou. A partir de agora, bom e publicado vale mais que perfeito na gaveta.</p>
+
+    <!-- SEMANA 1 -->
+    <div class="week-block">
+      <div class="week-header">
+        <span class="week-num">SEMANA 1</span>
+        <span class="week-theme">Reapresentação — quem é Bruno Chaves hoje</span>
+        <div class="week-line"></div>
+      </div>
+      <div class="posts-list">
+
+        <div class="post-item">
+          <span class="post-day">Terça</span>
+          <span class="post-format fmt-reel">Reel</span>
+          <div class="post-content">
+            <div class="post-title">"Quem sou eu e por que você deveria me seguir"</div>
+            <div class="post-desc">30–60 segundos olhando para a câmera. Apresente-se: 20 anos de design, você também programa, tem agência. Sem roteiro decorado — fale como se fosse para um amigo.</div>
+            <div class="post-pillar pl-con">● Conexão</div>
+          </div>
+        </div>
+
+        <div class="post-item">
+          <span class="post-day">Quinta</span>
+          <span class="post-format fmt-carrossel">Carrossel</span>
+          <div class="post-content">
+            <div class="post-title">"5 erros de design que vi repetir nos últimos 20 anos"</div>
+            <div class="post-desc">Slide 1: gancho forte. Slides 2–6: um erro por slide com exemplo visual. Slide final: CTA para seguir. Fácil de salvar, fácil de compartilhar.</div>
+            <div class="post-pillar pl-edu">● Educação</div>
+          </div>
+        </div>
+
+        <div class="post-item">
+          <span class="post-day">Sábado</span>
+          <span class="post-format fmt-foto">Foto/Arte</span>
+          <div class="post-content">
+            <div class="post-title">"Antes e depois: projeto real da semana"</div>
+            <div class="post-desc">Pegue um projeto seu (mesmo antigo) e mostre o estado inicial vs o resultado final. Legenda conta a história: qual era o problema do cliente e como você resolveu.</div>
+            <div class="post-pillar pl-aut">● Autoridade</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SEMANA 2 -->
+    <div class="week-block">
+      <div class="week-header">
+        <span class="week-num">SEMANA 2</span>
+        <span class="week-theme">Tutorial — mostre o que você sabe fazer</span>
+        <div class="week-line"></div>
+      </div>
+      <div class="posts-list">
+
+        <div class="post-item">
+          <span class="post-day">Terça</span>
+          <span class="post-format fmt-reel">Reel</span>
+          <div class="post-content">
+            <div class="post-title">"Como criar um botão de CTA que converte em 60 segundos"</div>
+            <div class="post-desc">Tela gravada do Figma ou do VS Code. Resultado visual impressionante, processo simples. Para designers: aprendem algo. Para empresários: provam que você domina o assunto.</div>
+            <div class="post-pillar pl-edu">● Educação</div>
+          </div>
+        </div>
+
+        <div class="post-item">
+          <span class="post-day">Quarta</span>
+          <span class="post-format fmt-carrossel">Carrossel</span>
+          <div class="post-content">
+            <div class="post-title">"Designer ou desenvolvedor? Por que você precisa dos dois — e como eu faço os dois sozinho"</div>
+            <div class="post-desc">Posicionamento claro do seu diferencial. Explique a diferença, os custos de contratar separado, e como você resolve isso em um único contrato.</div>
+            <div class="post-pillar pl-conv">● Conversão</div>
+          </div>
+        </div>
+
+        <div class="post-item">
+          <span class="post-day">Sexta</span>
+          <span class="post-format fmt-reel">Reel</span>
+          <div class="post-content">
+            <div class="post-title">"Bastidores: como é meu processo de criação de um site do zero"</div>
+            <div class="post-desc">Mostra o fluxo real: briefing → wireframe → design → código → entrega. Vídeo rápido, visual, com música. Mostra competência sem precisar explicar muito.</div>
+            <div class="post-pillar pl-aut">● Autoridade</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SEMANA 3 -->
+    <div class="week-block">
+      <div class="week-header">
+        <span class="week-num">SEMANA 3</span>
+        <span class="week-theme">Case + Conversão — resultado real gera confiança</span>
+        <div class="week-line"></div>
+      </div>
+      <div class="posts-list">
+
+        <div class="post-item">
+          <span class="post-day">Segunda</span>
+          <span class="post-format fmt-carrossel">Carrossel</span>
+          <div class="post-content">
+            <div class="post-title">"Case completo: como transformamos a marca X em [resultado concreto]"</div>
+            <div class="post-desc">Apresente um cliente real (com permissão) ou anônimo. Problema → processo → solução → resultado. Slides com imagens reais. É o conteúdo que mais vende.</div>
+            <div class="post-pillar pl-conv">● Conversão</div>
+          </div>
+        </div>
+
+        <div class="post-item">
+          <span class="post-day">Quarta</span>
+          <span class="post-format fmt-reel">Reel</span>
+          <div class="post-content">
+            <div class="post-title">"Por que sua landing page não está convertendo (e como consertar)"</div>
+            <div class="post-desc">Fala diretamente para empresários. Liste 3–4 erros comuns (sem CTA forte, hierarquia visual bagunçada, sem prova social). Encerra com CTA para o link da BBold.</div>
+            <div class="post-pillar pl-conv">● Conversão</div>
+          </div>
+        </div>
+
+        <div class="post-item">
+          <span class="post-day">Sábado</span>
+          <span class="post-format fmt-carrossel">Carrossel</span>
+          <div class="post-content">
+            <div class="post-title">"As 7 fontes que todo designer deveria ter no arsenal"</div>
+            <div class="post-desc">Conteúdo leve, fácil de salvar, high engagement. Combine tipografia prática com contexto de uso. Um clássico que sempre performa bem.</div>
+            <div class="post-pillar pl-edu">● Educação</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SEMANA 4 -->
+    <div class="week-block">
+      <div class="week-header">
+        <span class="week-num">SEMANA 4</span>
+        <span class="week-theme">Opinião forte — 20 anos te dão credibilidade pra isso</span>
+        <div class="week-line"></div>
+      </div>
+      <div class="posts-list">
+
+        <div class="post-item">
+          <span class="post-day">Terça</span>
+          <span class="post-format fmt-reel">Reel</span>
+          <div class="post-content">
+            <div class="post-title">"Uma coisa que o mercado de design erra que ninguém fala"</div>
+            <div class="post-desc">Opinião forte baseada em experiência real. Discorde de algo que seja senso comum. Gera engajamento (concordo/discordo nos comentários = alcance orgânico).</div>
+            <div class="post-pillar pl-aut">● Autoridade</div>
+          </div>
+        </div>
+
+        <div class="post-item">
+          <span class="post-day">Quinta</span>
+          <span class="post-format fmt-carrossel">Carrossel</span>
+          <div class="post-content">
+            <div class="post-title">"O que aprendi em 20 anos de design que ninguém te conta no começo"</div>
+            <div class="post-desc">Post de autoridade pura. 7–10 slides com aprendizados reais, escritos em linguagem direta. Excelente para salvar e compartilhar.</div>
+            <div class="post-pillar pl-aut">● Autoridade</div>
+          </div>
+        </div>
+
+        <div class="post-item">
+          <span class="post-day">Sábado</span>
+          <span class="post-format fmt-reel">Reel</span>
+          <div class="post-content">
+            <div class="post-title">"Meu setup de trabalho atual — tudo que uso para criar sites e designs"</div>
+            <div class="post-desc">Conteúdo de conexão com toque de autoridade. Mostra equipamento, software, processo. Humaniza você e ainda desperta curiosidade nos designers que te seguem.</div>
+            <div class="post-pillar pl-con">● Conexão</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+  <!-- PRODUÇÃO -->
+  <section id="producao">
+    <div class="section-label">
+      <span class="section-num">06 — DICAS DE PRODUÇÃO</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>Produzir <em>rápido</em> sem perder qualidade</h2>
+    <p>Com 4–8 horas por semana, você precisa de um sistema. Aqui está o que funciona:</p>
+
+    <div class="tips-grid">
+      <div class="tip-card">
+        <h3>📅 Bloco semanal de gravação</h3>
+        <p>Reserve 1 dia por semana (ex: segunda) para gravar tudo de uma vez. Mude só a camiseta entre os vídeos. Grave 3–4 Reels em 2 horas e programe para a semana toda.</p>
+      </div>
+      <div class="tip-card">
+        <h3>🎬 Legenda antes do vídeo</h3>
+        <p>Escreva a legenda/roteiro antes de gravar. Com o texto na cabeça, o vídeo sai mais fluido. Legenda é SEO do Instagram — capriche nas primeiras 3 linhas.</p>
+      </div>
+      <div class="tip-card">
+        <h3>♻️ Reaproveitamento de conteúdo</h3>
+        <p>1 tutorial longo no YouTube → corte em 3 Reels → carrossel com os pontos principais → Story perguntando a opinião. Um conteúdo vira 5.</p>
+      </div>
+      <div class="tip-card">
+        <h3>📱 Stories: sem pressão</h3>
+        <p>Stories todo dia não precisam ser produzidos. Abra a câmera e fale por 30 segundos sobre o que você está trabalhando. Ou tire foto do monitor. Presença > perfeição.</p>
+      </div>
+      <div class="tip-card">
+        <h3>🎨 Template de carrossel</h3>
+        <p>Crie um template no Figma (você sabe fazer isso em 20 minutos) e use sempre. Visual consistente = identidade forte. Só troque o conteúdo em cada post.</p>
+      </div>
+      <div class="tip-card">
+        <h3>🏷️ Hashtags e áudio</h3>
+        <p>Use áudios em alta nos Reels (favorece o algoritmo). Hashtags: 3–5 nichos específicos (#designerbrasileiro, #webdesign, #figma) + 1 ou 2 grandes. Evite usar centenas.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MÉTRICAS -->
+  <section id="metricas">
+    <div class="section-label">
+      <span class="section-num">07 — MÉTRICAS</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>O que <em>medir</em> nos primeiros 90 dias</h2>
+    <p>Não obsede com seguidores no começo. O que importa primeiro é entender o que ressoa com o seu público.</p>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-val">500</div>
+        <div class="metric-label">Seguidores ao fim do mês 1<br/>(meta inicial realista)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">5%</div>
+        <div class="metric-label">Taxa de engajamento mínima<br/>(curtidas + comentários / alcance)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">1k</div>
+        <div class="metric-label">Seguidores ao fim dos 90 dias<br/>(com consistência de 4x/semana)</div>
+      </div>
+    </div>
+
+    <p>As métricas que importam mais que seguidores: <strong>salvamentos</strong> (indica conteúdo de valor), <strong>compartilhamentos</strong> (alcance orgânico) e <strong>cliques no link da bio</strong> (intenção de contratar). Acompanhe semanalmente.</p>
+
+    <div class="hero-phrase" style="margin-top: 32px;">
+      <div class="quote" style="font-size: clamp(18px, 3vw, 26px);">A consistência por 90 dias vale mais do que<br/>o post perfeito que você nunca publicou.</div>
+      <p class="sub">Regra número 1 do crescimento orgânico.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>Estratégia elaborada para <strong>Bruno Chaves</strong> — Maio 2026</p>
+  <p style="margin-top: 8px; font-size: 12px;">Revise a cada 30 dias e ajuste com base nos dados reais do Instagram Insights.</p>
+</footer>
+
+</body>
+</html>

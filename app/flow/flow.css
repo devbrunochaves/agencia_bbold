@@ -1193,3 +1193,218 @@
   .f-clients-grid { grid-template-columns: 1fr; }
   .f-header { padding: 0 12px; gap: 8px; }
 }
+
+/* ─── Modal & Toast Animations ───────────────────────────────────────────── */
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(10px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ─── Form Inputs (shared by modals) ─────────────────────────────────────── */
+
+.f-input {
+  width: 100%;
+  padding: 9px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--f-r-sm);
+  color: var(--f-text);
+  font-size: 13px;
+  font-family: var(--f-font);
+  outline: none;
+  transition: border-color var(--f-transition), box-shadow var(--f-transition);
+  box-sizing: border-box;
+}
+
+.f-input:focus {
+  border-color: rgba(255,210,46,0.4);
+  box-shadow: 0 0 0 3px rgba(255,210,46,0.08);
+}
+
+.f-input.has-error { border-color: var(--f-red); }
+
+.f-select {
+  width: 100%;
+  padding: 9px 32px 9px 12px;
+  background: #2A2A2A;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--f-r-sm);
+  color: var(--f-text);
+  font-size: 13px;
+  font-family: var(--f-font);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A1A1AA' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  transition: border-color var(--f-transition);
+  box-sizing: border-box;
+}
+
+.f-select:focus { border-color: rgba(255,210,46,0.4); }
+
+.f-field-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--f-muted-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 6px;
+}
+
+.f-field-error {
+  display: block;
+  font-size: 11px;
+  color: var(--f-red);
+  margin-top: 4px;
+}
+
+/* ─── Client card (full, used in /clientes) ──────────────────────────────── */
+
+.f-cfc {
+  background: var(--f-card);
+  border: 1px solid var(--f-border);
+  border-radius: var(--f-r-lg);
+  overflow: hidden;
+  transition: background var(--f-transition), transform var(--f-transition), box-shadow var(--f-transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.f-cfc:hover {
+  background: var(--f-card-h);
+  transform: translateY(-2px);
+  box-shadow: var(--f-shadow-lg);
+}
+
+.f-cfc-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--f-border);
+}
+
+.f-cfc-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.f-cfc-info { flex: 1; min-width: 0; }
+.f-cfc-name { display: block; font-weight: 700; font-size: 14px; color: var(--f-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.f-cfc-niche { display: block; font-size: 12px; color: var(--f-muted); margin-top: 2px; }
+
+.f-cfc-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity var(--f-transition);
+}
+
+.f-cfc:hover .f-cfc-actions { opacity: 1; }
+
+.f-cfc-action-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--f-border);
+  color: var(--f-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--f-transition), color var(--f-transition);
+  flex-shrink: 0;
+}
+
+.f-cfc-action-btn:hover { background: rgba(255,255,255,0.12); color: var(--f-text); }
+.f-cfc-action-btn.danger:hover { background: rgba(239,68,68,0.15); color: var(--f-red); border-color: rgba(239,68,68,0.25); }
+
+.f-cfc-body {
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.f-cfc-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.f-cfc-lbl { font-size: 12px; color: var(--f-muted); flex-shrink: 0; }
+.f-cfc-val { font-size: 13px; font-weight: 600; color: var(--f-text); text-align: right; }
+
+.f-plan-badge {
+  background: rgba(255,255,255,0.07);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.f-cfc-foot {
+  border-top: 1px solid var(--f-border);
+  padding: 10px 14px;
+}
+
+/* Toast */
+.f-toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 400;
+  background: #2D2D2D;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 13px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--f-text);
+  animation: toastIn 0.22s ease;
+  max-width: 320px;
+}
+
+/* Empty state */
+.f-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--f-muted);
+  text-align: center;
+  gap: 10px;
+}
+
+.f-empty-state svg { opacity: 0.3; }
+.f-empty-state h3 { font-size: 15px; font-weight: 600; color: var(--f-muted); margin: 0; }
+.f-empty-state p { font-size: 13px; color: var(--f-muted-dim); margin: 0; }
+
+/* Mobile actions always visible */
+@media (max-width: 768px) {
+  .f-cfc-actions { opacity: 1; }
+}

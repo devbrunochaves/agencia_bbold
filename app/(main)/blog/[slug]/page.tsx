@@ -30,8 +30,12 @@ function formatDate(iso: string) {
 }
 
 export async function generateStaticParams() {
-  const posts = await client.fetch(allPostsQuery);
-  return posts.map((p: { slug: { current: string } }) => ({ slug: p.slug.current }));
+  try {
+    const posts = await client.fetch(allPostsQuery);
+    return posts.map((p: { slug: { current: string } }) => ({ slug: p.slug.current }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

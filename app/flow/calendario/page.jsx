@@ -47,7 +47,7 @@ const LEGEND = [
 // May 2026: 31 days, starts on Friday (index 5)
 const START_DAY = 5
 const TOTAL_DAYS = 31
-const TODAY = 26
+const TODAY = 27
 
 function buildCalendarCells() {
   const cells = []
@@ -138,20 +138,16 @@ export default function CalendarioPage() {
               </div>
             </div>
 
-            {/* Week header */}
-            <div className="f-cal-week-row">
-              {WEEK_LABELS.map((w) => (
-                <span key={w} className="f-cal-week-label">{w}</span>
-              ))}
-            </div>
-
-            {/* Day grid */}
+            {/* Single unified grid: week labels + day cells */}
             <div className="f-cal-grid">
+              {WEEK_LABELS.map((w) => (
+                <span key={w} className="f-cal-week-label" style={{ padding:'4px 0 10px' }}>{w}</span>
+              ))}
               {CELLS.map((day, idx) => (
                 <div
                   key={idx}
                   className={`f-cal-day${!day ? ' is-empty' : ''}${day === TODAY ? ' is-today' : ''}`}
-                  style={{ minHeight:52, flexDirection:'column', padding:'4px 2px', cursor: day ? 'pointer' : 'default' }}
+                  style={{ minHeight:48, cursor: day ? 'pointer' : 'default' }}
                 >
                   {day && (
                     <>

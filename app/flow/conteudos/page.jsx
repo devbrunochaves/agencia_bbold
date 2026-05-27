@@ -7,14 +7,12 @@ import StatusBadge from '@/components/flow/StatusBadge'
 import Icon from '@/components/flow/FlowIcons'
 import ContentModal from '@/components/flow/ContentModal'
 import ContentDetailModal from '@/components/flow/ContentDetailModal'
+import { supabase } from '@/lib/supabase'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const LS_KEY = 'bbold_flow_contents'
-
-const STATUSES    = ['Briefing','Produção','Revisão','Aguardando Aprovação','Agendado','Publicado','Atrasado']
-const FORMATS     = ['Reels','Feed','Stories','Carrossel','Blog','Landing Page']
-const CLIENTS     = ['Academia Alpha','Clínica Essenza','Restaurante Origem','Urban Fit Store','Studio Bella Forma','Odonto Prime']
+const STATUSES     = ['Briefing','Produção','Revisão','Aguardando Aprovação','Agendado','Publicado','Atrasado']
+const FORMATS      = ['Reels','Feed','Stories','Carrossel','Blog','Landing Page']
 const RESPONSIBLES = ['Bruno','Ana Lima','Rafael Souza','Camila Rocha']
 
 const STATUS_CFG = {
@@ -27,22 +25,47 @@ const STATUS_CFG = {
   'Atrasado':             { color:'#EF4444', bg:'rgba(239,68,68,0.15)' },
 }
 
-const INITIAL_CONTENTS = [
-  { id:'1',  title:'Reels — Antes e Depois',         client:'Academia Alpha',     format:'Reels',        channel:'Instagram',      status:'Produção',             pubDate:'2026-05-28', pubTime:'18:00', responsible:'Ana Lima',     priority:'Alta',   copy:'', observations:'', link:'' },
-  { id:'2',  title:'Post Feed — Cardápio Novo',       client:'Restaurante Origem', format:'Feed',         channel:'Instagram',      status:'Aguardando Aprovação', pubDate:'2026-05-27', pubTime:'12:00', responsible:'Camila Rocha', priority:'Alta',   copy:'', observations:'', link:'' },
-  { id:'3',  title:'Stories — Promoção Junho',        client:'Urban Fit Store',    format:'Stories',      channel:'Instagram',      status:'Briefing',             pubDate:'2026-05-30', pubTime:'09:00', responsible:'Ana Lima',     priority:'Média',  copy:'', observations:'', link:'' },
-  { id:'4',  title:'Carrossel — Tratamentos',         client:'Clínica Essenza',    format:'Carrossel',    channel:'Instagram',      status:'Atrasado',             pubDate:'2026-05-26', pubTime:'10:00', responsible:'Bruno',        priority:'Alta',   copy:'', observations:'', link:'' },
-  { id:'5',  title:'Reels — Treino do Mês',           client:'Academia Alpha',     format:'Reels',        channel:'Instagram',      status:'Revisão',              pubDate:'2026-05-29', pubTime:'18:00', responsible:'Rafael Souza', priority:'Média',  copy:'', observations:'', link:'' },
-  { id:'6',  title:'Post Feed — Lançamento SS',       client:'Urban Fit Store',    format:'Feed',         channel:'Facebook',       status:'Agendado',             pubDate:'2026-06-01', pubTime:'14:00', responsible:'Camila Rocha', priority:'Baixa',  copy:'', observations:'', link:'' },
-  { id:'7',  title:'Stories — Depoimento Cliente',    client:'Clínica Essenza',    format:'Stories',      channel:'Instagram',      status:'Publicado',            pubDate:'2026-05-25', pubTime:'11:00', responsible:'Ana Lima',     priority:'Baixa',  copy:'', observations:'', link:'' },
-  { id:'8',  title:'Carrossel — Dicas Nutrição',      client:'Academia Alpha',     format:'Carrossel',    channel:'Instagram',      status:'Produção',             pubDate:'2026-05-31', pubTime:'17:00', responsible:'Rafael Souza', priority:'Média',  copy:'', observations:'', link:'' },
-  { id:'9',  title:'Blog — Saúde Bucal em Foco',      client:'Odonto Prime',       format:'Blog',         channel:'Blog',           status:'Briefing',             pubDate:'2026-06-02', pubTime:'09:00', responsible:'Bruno',        priority:'Baixa',  copy:'', observations:'', link:'' },
-  { id:'10', title:'Reels — Look do Dia',             client:'Urban Fit Store',    format:'Reels',        channel:'Instagram',      status:'Produção',             pubDate:'2026-05-28', pubTime:'19:00', responsible:'Camila Rocha', priority:'Média',  copy:'', observations:'', link:'' },
-  { id:'11', title:'Landing — Campanha Inverno',      client:'Urban Fit Store',    format:'Landing Page', channel:'Landing Page',   status:'Briefing',             pubDate:'2026-06-05', pubTime:'09:00', responsible:'Rafael Souza', priority:'Alta',   copy:'', observations:'', link:'' },
-  { id:'12', title:'Carrossel — Resultados Clientes', client:'Studio Bella Forma', format:'Carrossel',    channel:'Instagram',      status:'Revisão',              pubDate:'2026-05-29', pubTime:'16:00', responsible:'Ana Lima',     priority:'Média',  copy:'', observations:'', link:'' },
-]
+const selectStyle = {
+  background:'var(--f-card)', border:'1px solid var(--f-border)', borderRadius:8,
+  color:'var(--f-muted)', fontSize:13, padding:'7px 10px', cursor:'pointer', outline:'none', width:'100%',
+}
 
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2) }
+// ─── Field mapping ────────────────────────────────────────────────────────────
+
+function fromDB(row) {
+  return {
+    id:           row.id,
+    title:        row.title        ?? '',
+    client:       row.client       ?? '',
+    format:       row.format       ?? '',
+    channel:      row.channel      ?? '',
+    status:       row.status       ?? 'Briefing',
+    pubDate:      row.pub_date     ?? '',
+    pubTime:      row.pub_time     ?? '',
+    responsible:  row.responsible  ?? '',
+    priority:     row.priority     ?? 'Média',
+    copy:         row.copy         ?? '',
+    observations: row.observations ?? '',
+    link:         row.link         ?? '',
+  }
+}
+
+function toDB(form) {
+  return {
+    title:        form.title        || '',
+    client:       form.client       || '',
+    format:       form.format       || '',
+    channel:      form.channel      || '',
+    status:       form.status       || 'Briefing',
+    pub_date:     form.pubDate      || null,
+    pub_time:     form.pubTime      || null,
+    responsible:  form.responsible  || '',
+    priority:     form.priority     || 'Média',
+    copy:         form.copy         || '',
+    observations: form.observations || '',
+    link:         form.link         || '',
+  }
+}
 
 function fmtDate(iso) {
   if (!iso) return ''
@@ -51,47 +74,36 @@ function fmtDate(iso) {
   return `${Number(d)} ${months[Number(m) - 1]}`
 }
 
-// ─── Select style helper ──────────────────────────────────────────────────────
-
-const selectStyle = {
-  background: 'var(--f-card)',
-  border: '1px solid var(--f-border)',
-  borderRadius: 8,
-  color: 'var(--f-muted)',
-  fontSize: 13,
-  padding: '7px 10px',
-  cursor: 'pointer',
-  outline: 'none',
-  width: '100%',
-}
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ConteudosPage() {
-  const [contents, setContents]   = useState([])
-  const [loaded, setLoaded]       = useState(false)
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editing, setEditing]     = useState(null)
-  const [delTarget, setDelTarget] = useState(null)
-  const [viewing,   setViewing]   = useState(null)
-  const [search, setSearch]       = useState('')
-  const [fClient, setFClient]     = useState('')
-  const [fStatus, setFStatus]     = useState('')
-  const [fFormat, setFFormat]     = useState('')
-  const [fResp,   setFResp]       = useState('')
-  const [toast,   setToast]       = useState(null)
+  const [contents,   setContents]  = useState([])
+  const [clientNames,setClientNames]= useState([])
+  const [loading,    setLoading]   = useState(true)
+  const [modalOpen,  setModalOpen] = useState(false)
+  const [editing,    setEditing]   = useState(null)
+  const [delTarget,  setDelTarget] = useState(null)
+  const [viewing,    setViewing]   = useState(null)
+  const [search,     setSearch]    = useState('')
+  const [fClient,    setFClient]   = useState('')
+  const [fStatus,    setFStatus]   = useState('')
+  const [fFormat,    setFFormat]   = useState('')
+  const [fResp,      setFResp]     = useState('')
+  const [toast,      setToast]     = useState(null)
 
+  // ─── Load ───────────────────────────────────────────────────────────────────
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(LS_KEY)
-      setContents(raw ? JSON.parse(raw) : INITIAL_CONTENTS)
-    } catch { setContents(INITIAL_CONTENTS) }
-    setLoaded(true)
+    async function load() {
+      const [{ data: rows }, { data: clientRows }] = await Promise.all([
+        supabase.from('contents').select('*').order('created_at', { ascending: false }),
+        supabase.from('clients').select('name').order('name'),
+      ])
+      setContents((rows ?? []).map(fromDB))
+      setClientNames((clientRows ?? []).map(r => r.name))
+      setLoading(false)
+    }
+    load()
   }, [])
-
-  useEffect(() => {
-    if (loaded) localStorage.setItem(LS_KEY, JSON.stringify(contents))
-  }, [contents, loaded])
 
   function flash(msg, type = 'success') {
     setToast({ msg, type })
@@ -99,17 +111,17 @@ export default function ConteudosPage() {
   }
 
   const metrics = useMemo(() => ({
-    total:    contents.length,
-    producao: contents.filter(c => c.status === 'Produção').length,
-    aprovacao:contents.filter(c => c.status === 'Aguardando Aprovação').length,
-    atrasado: contents.filter(c => c.status === 'Atrasado').length,
+    total:     contents.length,
+    producao:  contents.filter(c => c.status === 'Produção').length,
+    aprovacao: contents.filter(c => c.status === 'Aguardando Aprovação').length,
+    atrasado:  contents.filter(c => c.status === 'Atrasado').length,
   }), [contents])
 
   const filtered = useMemo(() => contents.filter(c => {
-    if (fClient && c.client    !== fClient) return false
-    if (fStatus && c.status    !== fStatus) return false
-    if (fFormat && c.format    !== fFormat) return false
-    if (fResp   && c.responsible !== fResp) return false
+    if (fClient && c.client      !== fClient) return false
+    if (fStatus && c.status      !== fStatus) return false
+    if (fFormat && c.format      !== fFormat) return false
+    if (fResp   && c.responsible !== fResp)   return false
     if (search) {
       const q = search.toLowerCase()
       return (
@@ -126,31 +138,45 @@ export default function ConteudosPage() {
   function openCreate() { setEditing(null); setModalOpen(true) }
   function openEdit(item) { setEditing(item); setModalOpen(true) }
 
-  function handleSave(form) {
+  // ─── CRUD ───────────────────────────────────────────────────────────────────
+
+  async function handleSave(form) {
     if (editing) {
-      setContents(prev => prev.map(c => c.id === editing.id ? { ...form, id: editing.id } : c))
+      const { data, error } = await supabase
+        .from('contents').update(toDB(form)).eq('id', editing.id).select().single()
+      if (error) { flash('Erro ao salvar.', 'warn'); return }
+      setContents(prev => prev.map(c => c.id === editing.id ? fromDB(data) : c))
       flash('Conteúdo atualizado!')
     } else {
-      setContents(prev => [{ ...form, id: uid() }, ...prev])
+      const { data, error } = await supabase
+        .from('contents').insert(toDB(form)).select().single()
+      if (error) { flash('Erro ao criar.', 'warn'); return }
+      setContents(prev => [fromDB(data), ...prev])
       flash('Conteúdo criado!')
     }
-    setModalOpen(false)
-    setEditing(null)
+    setModalOpen(false); setEditing(null)
   }
 
-  function handleDuplicate(item) {
-    setContents(prev => [{ ...item, id: uid(), title: `Cópia — ${item.title}` }, ...prev])
+  async function handleDuplicate(item) {
+    const { data, error } = await supabase
+      .from('contents').insert({ ...toDB(item), title: `Cópia — ${item.title}` }).select().single()
+    if (error) { flash('Erro ao duplicar.', 'warn'); return }
+    setContents(prev => [fromDB(data), ...prev])
     flash('Conteúdo duplicado!')
   }
 
-  function handleDelete(item) {
+  async function handleDelete(item) {
+    const { error } = await supabase.from('contents').delete().eq('id', item.id)
+    if (error) { flash('Erro ao excluir.', 'warn'); return }
     setContents(prev => prev.filter(c => c.id !== item.id))
     setDelTarget(null)
     flash('Conteúdo excluído.', 'warn')
   }
 
-  function handleStatusChange(id, newStatus) {
-    setContents(prev => prev.map(c => c.id === id ? { ...c, status: newStatus } : c))
+  async function handleStatusChange(id, newStatus) {
+    const { data, error } = await supabase
+      .from('contents').update({ status: newStatus }).eq('id', id).select().single()
+    if (!error && data) setContents(prev => prev.map(c => c.id === id ? fromDB(data) : c))
   }
 
   return (
@@ -166,20 +192,17 @@ export default function ConteudosPage() {
       />
 
       <main className="f-content">
-
-        {/* Metrics */}
         <div className="f-metrics-grid">
-          <MetricCard icon="file"    value={String(metrics.total)}     label="Total"                 desc="conteúdos cadastrados"   accentColor="#FFD22E" trend={0}  />
-          <MetricCard icon="trending" value={String(metrics.producao)} label="Em Produção"           desc="em andamento agora"      accentColor="#3B82F6" trend={12} />
-          <MetricCard icon="clock"   value={String(metrics.aprovacao)} label="Aguard. Aprovação"    desc="pendentes de revisão"    accentColor="#F59E0B" trend={0}  />
-          <MetricCard icon="alert"   value={String(metrics.atrasado)}  label="Atrasados"            desc="precisam de atenção"     accentColor="#EF4444" trend={-2} />
+          <MetricCard icon="file"     value={String(metrics.total)}     label="Total"              desc="conteúdos cadastrados"   accentColor="#FFD22E" trend={0}  />
+          <MetricCard icon="trending" value={String(metrics.producao)}  label="Em Produção"        desc="em andamento agora"      accentColor="#3B82F6" trend={12} />
+          <MetricCard icon="clock"    value={String(metrics.aprovacao)} label="Aguard. Aprovação"  desc="pendentes de revisão"    accentColor="#F59E0B" trend={0}  />
+          <MetricCard icon="alert"    value={String(metrics.atrasado)}  label="Atrasados"          desc="precisam de atenção"     accentColor="#EF4444" trend={-2} />
         </div>
 
-        {/* Filters */}
         <div className="f-filter-row">
           <select style={selectStyle} value={fClient} onChange={e => setFClient(e.target.value)}>
             <option value="">Todos os clientes</option>
-            {CLIENTS.map(c => <option key={c} value={c}>{c}</option>)}
+            {clientNames.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
           <select style={selectStyle} value={fStatus} onChange={e => setFStatus(e.target.value)}>
             <option value="">Todos os status</option>
@@ -195,23 +218,19 @@ export default function ConteudosPage() {
           </select>
         </div>
 
-        {/* Search bar (mobile-visible) */}
-        {search !== undefined && (
-          <div style={{ position:'relative' }}>
-            <div style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--f-muted)', pointerEvents:'none' }}>
-              <Icon name="search" size={14}/>
-            </div>
-            <input
-              className="f-input"
-              style={{ paddingLeft:36 }}
-              placeholder="Buscar por título, cliente, formato, responsável..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
+        <div style={{ position:'relative' }}>
+          <div style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--f-muted)', pointerEvents:'none' }}>
+            <Icon name="search" size={14}/>
           </div>
-        )}
+          <input
+            className="f-input"
+            style={{ paddingLeft:36 }}
+            placeholder="Buscar por título, cliente, formato, responsável..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
 
-        {/* Content list */}
         <div className="f-card">
           <div className="f-card-header">
             <div>
@@ -219,17 +238,19 @@ export default function ConteudosPage() {
               <p className="f-card-subtitle">{filtered.length} {filtered.length === 1 ? 'item' : 'itens'}</p>
             </div>
             {(fClient || fStatus || fFormat || fResp || search) && (
-              <button
-                className="f-btn-ghost"
-                style={{ fontSize:12 }}
-                onClick={() => { setFClient(''); setFStatus(''); setFFormat(''); setFResp(''); setSearch('') }}
-              >
+              <button className="f-btn-ghost" style={{ fontSize:12 }}
+                onClick={() => { setFClient(''); setFStatus(''); setFFormat(''); setFResp(''); setSearch('') }}>
                 Limpar filtros
               </button>
             )}
           </div>
 
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="f-empty-state" style={{ padding:'60px 20px' }}>
+              <Icon name="refresh" size={32}/>
+              <h3>Carregando…</h3>
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="f-empty-state" style={{ padding:'60px 20px' }}>
               <Icon name="file" size={40}/>
               <h3>Nenhum conteúdo encontrado</h3>
@@ -257,7 +278,6 @@ export default function ConteudosPage() {
         </div>
       </main>
 
-      {/* Detail view modal */}
       <ContentDetailModal
         isOpen={!!viewing}
         content={viewing}
@@ -265,15 +285,14 @@ export default function ConteudosPage() {
         onEdit={() => { openEdit(viewing) }}
       />
 
-      {/* Create / Edit modal */}
       <ContentModal
         isOpen={modalOpen}
         onClose={() => { setModalOpen(false); setEditing(null) }}
         onSave={handleSave}
         editingContent={editing}
+        clients={clientNames}
       />
 
-      {/* Delete confirmation */}
       {delTarget && (
         <div
           style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.72)', backdropFilter:'blur(5px)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}
@@ -300,20 +319,17 @@ export default function ConteudosPage() {
               <button
                 onClick={() => handleDelete(delTarget)}
                 style={{ padding:'7px 16px', borderRadius:8, background:'rgba(239,68,68,0.15)', border:'1px solid rgba(239,68,68,0.3)', color:'#EF4444', cursor:'pointer', fontWeight:600, fontSize:13 }}
-              >
-                Excluir
-              </button>
+              >Excluir</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Toast */}
       {toast && (
         <div style={{
           position:'fixed', bottom:24, right:24, zIndex:300,
           background: toast.type === 'warn' ? 'rgba(239,68,68,0.15)' : 'rgba(34,197,94,0.15)',
-          border: `1px solid ${toast.type === 'warn' ? 'rgba(239,68,68,0.35)' : 'rgba(34,197,94,0.35)'}`,
+          border:`1px solid ${toast.type === 'warn' ? 'rgba(239,68,68,0.35)' : 'rgba(34,197,94,0.35)'}`,
           borderRadius:10, padding:'11px 18px',
           color: toast.type === 'warn' ? '#EF4444' : '#22C55E',
           fontSize:13, fontWeight:600, animation:'toastIn 0.2s ease',
@@ -338,54 +354,38 @@ function ContentItem({ item, isLast, onView, onEdit, onDuplicate, onDelete, onSt
       onClick={onView}
     >
       <div className="f-con-top">
-        {/* Left: title + meta */}
         <div style={{ flex:1, minWidth:0 }}>
           <div className="f-con-title">{item.title}</div>
           <div className="f-con-meta">
             <span style={{ fontSize:12, fontWeight:600, color:'var(--f-muted)' }}>{item.client}</span>
-            {item.format && (
-              <span className="f-format-chip" style={{ fontSize:11 }}>{item.format}</span>
-            )}
-            {item.channel && (
-              <span style={{ fontSize:11, color:'var(--f-muted)' }}>{item.channel}</span>
-            )}
+            {item.format && <span className="f-format-chip" style={{ fontSize:11 }}>{item.format}</span>}
+            {item.channel && <span style={{ fontSize:11, color:'var(--f-muted)' }}>{item.channel}</span>}
             {item.pubDate && (
               <span style={{ display:'flex', alignItems:'center', gap:3, fontSize:11, color:'var(--f-muted)' }}>
                 <Icon name="calendar" size={10}/>
                 {fmtDate(item.pubDate)}{item.pubTime ? ` · ${item.pubTime}` : ''}
               </span>
             )}
-            {item.responsible && (
-              <span style={{ fontSize:11, color:'var(--f-muted)' }}>{item.responsible}</span>
-            )}
+            {item.responsible && <span style={{ fontSize:11, color:'var(--f-muted)' }}>{item.responsible}</span>}
           </div>
         </div>
 
-        {/* Right: badges + actions — stopPropagation prevents opening detail modal */}
         <div className="f-con-right" onClick={e => e.stopPropagation()}>
-          {/* Status select + priority */}
           <div style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'wrap', justifyContent:'flex-end' }}>
             <StatusBadge status={item.priority}/>
             <select
               className="f-status-select"
               value={item.status}
               onChange={e => onStatusChange(item.id, e.target.value)}
-              style={{ color: cfg.color, background: cfg.bg, border: `1px solid ${cfg.color}30` }}
+              style={{ color:cfg.color, background:cfg.bg, border:`1px solid ${cfg.color}30` }}
             >
               {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
-          {/* Action buttons */}
           <div className="f-con-actions">
-            <button className="f-cfc-action-btn" onClick={onEdit} title="Editar">
-              <Icon name="edit" size={13}/>
-            </button>
-            <button className="f-cfc-action-btn" onClick={onDuplicate} title="Duplicar">
-              <Icon name="copy" size={13}/>
-            </button>
-            <button className="f-cfc-action-btn danger" onClick={onDelete} title="Excluir">
-              <Icon name="trash" size={13}/>
-            </button>
+            <button className="f-cfc-action-btn" onClick={onEdit} title="Editar"><Icon name="edit" size={13}/></button>
+            <button className="f-cfc-action-btn" onClick={onDuplicate} title="Duplicar"><Icon name="copy" size={13}/></button>
+            <button className="f-cfc-action-btn danger" onClick={onDelete} title="Excluir"><Icon name="trash" size={13}/></button>
           </div>
         </div>
       </div>

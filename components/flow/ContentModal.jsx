@@ -8,15 +8,13 @@ const FORMATS     = ['Reels','Feed','Stories','Carrossel','Blog','Landing Page']
 const CHANNELS    = ['Instagram','Facebook','Blog','Landing Page','Google Meu Negócio']
 const PRIORITIES  = ['Baixa','Média','Alta','Urgente']
 const RESPONSIBLES = ['Bruno','Ana Lima','Rafael Souza','Camila Rocha']
-const CLIENTS     = ['Academia Alpha','Clínica Essenza','Restaurante Origem','Urban Fit Store','Studio Bella Forma','Odonto Prime']
-
 const EMPTY = {
-  title:'', client:'Academia Alpha', format:'Reels', channel:'Instagram',
+  title:'', client:'', format:'Reels', channel:'Instagram',
   status:'Briefing', pubDate:'', pubTime:'', responsible:'Ana Lima',
   priority:'Média', copy:'', observations:'', link:'',
 }
 
-export default function ContentModal({ isOpen, onClose, onSave, editingContent }) {
+export default function ContentModal({ isOpen, onClose, onSave, editingContent, clients = [] }) {
   const [form, setForm]     = useState(EMPTY)
   const [errors, setErrors] = useState({})
   const firstRef            = useRef(null)
@@ -26,7 +24,7 @@ export default function ContentModal({ isOpen, onClose, onSave, editingContent }
     setErrors({})
     setForm(editingContent ? {
       title:        editingContent.title        ?? '',
-      client:       editingContent.client       ?? 'Academia Alpha',
+      client:       editingContent.client       ?? '',
       format:       editingContent.format       ?? 'Reels',
       channel:      editingContent.channel      ?? 'Instagram',
       status:       editingContent.status       ?? 'Briefing',
@@ -114,7 +112,7 @@ export default function ContentModal({ isOpen, onClose, onSave, editingContent }
           <TwoCol>
             <Field label="Cliente *" error={errors.client}>
               <select className="f-select" value={form.client} onChange={e => set('client', e.target.value)}>
-                {CLIENTS.map(c => <option key={c} value={c}>{c}</option>)}
+                {clients.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </Field>
             <Field label="Formato">

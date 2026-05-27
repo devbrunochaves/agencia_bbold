@@ -6,15 +6,13 @@ import Icon from './FlowIcons'
 const FORMATS     = ['Reels','Feed','Stories','Carrossel','Blog','Landing Page']
 const PRIORITIES  = ['Baixa','Média','Alta','Urgente']
 const RESPONSIBLES = ['Bruno','Ana Lima','Rafael Souza','Camila Rocha']
-const CLIENTS     = ['Academia Alpha','Clínica Essenza','Restaurante Origem','Urban Fit Store','Studio Bella Forma','Odonto Prime']
-
 const EMPTY = {
-  title:'', client:'Academia Alpha', format:'Reels',
+  title:'', client:'', format:'Reels',
   responsible:'Ana Lima', deadline:'', priority:'Média',
   copy:'', observations:'',
 }
 
-export default function ApprovalModal({ isOpen, onClose, onSave, editing }) {
+export default function ApprovalModal({ isOpen, onClose, onSave, editing, clients = [] }) {
   const [form, setForm]     = useState(EMPTY)
   const [errors, setErrors] = useState({})
   const firstRef            = useRef(null)
@@ -24,7 +22,7 @@ export default function ApprovalModal({ isOpen, onClose, onSave, editing }) {
     setErrors({})
     setForm(editing ? {
       title:        editing.title        ?? '',
-      client:       editing.client       ?? 'Academia Alpha',
+      client:       editing.client       ?? '',
       format:       editing.format       ?? 'Reels',
       responsible:  editing.responsible  ?? 'Ana Lima',
       deadline:     editing.deadline     ?? '',
@@ -91,7 +89,7 @@ export default function ApprovalModal({ isOpen, onClose, onSave, editing }) {
           <TwoCol>
             <Field label="Cliente *" error={errors.client}>
               <select className="f-select" value={form.client} onChange={e => set('client', e.target.value)}>
-                {CLIENTS.map(c => <option key={c} value={c}>{c}</option>)}
+                {clients.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </Field>
             <Field label="Formato">

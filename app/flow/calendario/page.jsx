@@ -121,7 +121,7 @@ export default function CalendarioPage() {
         </div>
 
         {/* Two-column layout */}
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 340px', gap:16, alignItems:'start' }}>
+        <div className="f-detail-grid" style={{ gap:16 }}>
           {/* Calendar card */}
           <div className="f-card">
             <div className="f-card-header">

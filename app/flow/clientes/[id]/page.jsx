@@ -121,6 +121,41 @@ function InfoRow({ label, children, full }) {
   )
 }
 
+function Sparkline({ records, color = '#FFD22E' }) {
+  if (records.length < 2) return null
+  const vals = records.map(r => r.value)
+  const minV = Math.min(...vals)
+  const maxV = Math.max(...vals)
+  const range = maxV - minV || 1
+  const W = 800, H = 36, PX = 6, PY = 5
+
+  const pts = records.map((r, i) => ({
+    x: PX + (i / (records.length - 1)) * (W - PX * 2),
+    y: (H - PY) - ((r.value - minV) / range) * (H - PY * 2),
+    v: r.value,
+  }))
+
+  const line = pts.map(p => `${p.x},${p.y}`).join(' ')
+  const area = `${pts[0].x},${H} ${line} ${pts[pts.length-1].x},${H}`
+  const gradId = `sg${color.replace(/[^a-zA-Z0-9]/g,'')}`
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width:'100%', height:H, display:'block' }} preserveAspectRatio="none">
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.18"/>
+          <stop offset="100%" stopColor={color} stopOpacity="0"/>
+        </linearGradient>
+      </defs>
+      <polygon points={area} fill={`url(#${gradId})`}/>
+      <polyline points={line} fill="none" stroke={color} strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round"/>
+      {pts.map((p, i) => (
+        <circle key={i} cx={p.x} cy={p.y} r="3.5" fill={color}/>
+      ))}
+    </svg>
+  )
+}
+
 function GrowthBadge({ pct }) {
   if (pct == null) return <span style={{ fontSize:11, color:'var(--f-muted)' }}>Base</span>
   const color = pct > 0 ? '#22C55E' : pct < 0 ? '#EF4444' : 'var(--f-muted)'
@@ -488,18 +523,16 @@ function PerformanceTab({ client, records, onAdd, onDelete }) {
                   </table>
                 </div>
 
-                {/* Growth bar (from baseline to latest) */}
+                {/* Sparkline — evolução no tempo */}
                 {recs.length > 1 && (() => {
-                  const base  = recs[0].value
-                  const curr  = recs[recs.length-1].value
-                  const total = calcGrowthPct(base, curr)
+                  const total = calcGrowthPct(recs[0].value, recs[recs.length-1].value)
                   return (
-                    <div style={{ padding:'12px 16px', borderTop:'1px solid var(--f-border)', display:'flex', alignItems:'center', gap:12 }}>
-                      <span style={{ fontSize:11, color:'var(--f-muted)', whiteSpace:'nowrap' }}>Crescimento total desde o início:</span>
-                      <div style={{ flex:1, height:6, background:'rgba(255,255,255,0.06)', borderRadius:99, overflow:'hidden' }}>
-                        <div style={{ height:'100%', width:`${Math.min(100, Math.max(0, total || 0))}%`, background:accentColor, borderRadius:99, transition:'width 0.6s ease' }}/>
+                    <div style={{ padding:'10px 16px 12px', borderTop:'1px solid var(--f-border)' }}>
+                      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
+                        <span style={{ fontSize:11, color:'var(--f-muted)' }}>Evolução desde o início</span>
+                        <GrowthBadge pct={total}/>
                       </div>
-                      <GrowthBadge pct={total}/>
+                      <Sparkline records={recs} color={accentColor}/>
                     </div>
                   )
                 })()}

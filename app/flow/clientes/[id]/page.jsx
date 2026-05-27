@@ -669,11 +669,13 @@ export default function ClientDetailPage() {
           <>
             {/* Client profile card */}
             <div className="f-card">
-              <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 24, alignItems: 'flex-start' }}>
-                <div style={{ width: 72, height: 72, borderRadius: 18, background: `${accentColor}20`, border: `2px solid ${accentColor}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 900, color: accentColor, flexShrink: 0 }}>
-                  {client.initials}
+              <div className="client-profile-inner">
+                <div className="client-avatar-wrap">
+                  <div style={{ width: 72, height: 72, borderRadius: 18, background: `${accentColor}20`, border: `2px solid ${accentColor}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 900, color: accentColor }}>
+                    {client.initials}
+                  </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px 24px' }}>
+                <div className="client-info-grid">
                   <InfoRow label="Status"><StatusBadge status={client.status} /></InfoRow>
                   <InfoRow label="Plano">{client.plan}</InfoRow>
                   <InfoRow label="Responsável">{client.responsible}</InfoRow>
@@ -690,6 +692,36 @@ export default function ClientDetailPage() {
                   )}
                 </div>
               </div>
+              <style>{`
+                .client-profile-inner {
+                  padding: 24px;
+                  display: grid;
+                  grid-template-columns: auto 1fr;
+                  gap: 24px;
+                  align-items: flex-start;
+                }
+                .client-avatar-wrap { flex-shrink: 0; }
+                .client-info-grid {
+                  display: grid;
+                  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                  gap: 12px 24px;
+                }
+                @media (max-width: 600px) {
+                  .client-profile-inner {
+                    grid-template-columns: 1fr;
+                    gap: 16px;
+                    padding: 20px;
+                  }
+                  .client-avatar-wrap {
+                    display: flex;
+                    justify-content: center;
+                  }
+                  .client-info-grid {
+                    grid-template-columns: 1fr 1fr;
+                    gap: 14px 16px;
+                  }
+                }
+              `}</style>
             </div>
 
             {/* Operation metrics */}

@@ -7,10 +7,9 @@ import MetricCard from '@/components/flow/MetricCard'
 import StatusBadge from '@/components/flow/StatusBadge'
 import Icon from '@/components/flow/FlowIcons'
 import ClientModal from '@/components/flow/ClientModal'
+import { supabase } from '@/lib/supabase'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
-const LS_KEY = 'bbold_flow_clients'
 
 const CLIENT_COLORS = [
   '#FFD22E','#3B82F6','#22C55E','#8B5CF6',
@@ -19,19 +18,14 @@ const CLIENT_COLORS = [
 
 const FILTERS = ['Todos', 'Ativos', 'Pausados', 'Em onboarding']
 
-const INITIAL_CLIENTS = [
-  { id:'1', name:'Academia Alpha',     niche:'Fitness & Academia', plan:'Premium', responsible:'Ana Lima',   contents:12, status:'Ativo',         initials:'AA', color:'#FFD22E', instagram:'@academialpha',     whatsapp:'(11) 99999-0001', email:'contato@academialpha.com',  observations:'Cliente desde 2024. Foco em reels e carrosséis.' },
-  { id:'2', name:'Clínica Essenza',    niche:'Saúde & Estética',   plan:'Growth',  responsible:'Carlos M.',  contents:8,  status:'Ativo',         initials:'CE', color:'#3B82F6', instagram:'@clinicaessenza',    whatsapp:'(11) 99999-0002', email:'contato@essenza.com',       observations:'Preferência por conteúdo educativo.' },
-  { id:'3', name:'Restaurante Origem', niche:'Gastronomia',         plan:'Start',   responsible:'Juliana K.', contents:6,  status:'Atenção',       initials:'RO', color:'#F59E0B', instagram:'@restauranteorigem', whatsapp:'(11) 99999-0003', email:'contato@origem.com',        observations:'Dificuldade em enviar fotos a tempo.' },
-  { id:'4', name:'Urban Fit Store',    niche:'Moda & Lifestyle',    plan:'Premium', responsible:'Pedro H.',   contents:10, status:'Ativo',         initials:'UF', color:'#22C55E', instagram:'@urbanfitstore',     whatsapp:'(11) 99999-0004', email:'contato@urbanfit.com',      observations:'' },
-  { id:'5', name:'Studio Bella Forma', niche:'Beleza & Estética',   plan:'Growth',  responsible:'Ana Lima',   contents:7,  status:'Em onboarding', initials:'SB', color:'#8B5CF6', instagram:'@studiobella',       whatsapp:'(11) 99999-0005', email:'contato@bellaforma.com',    observations:'Novo cliente — onboarding em andamento.' },
-  { id:'6', name:'Odonto Prime',       niche:'Odontologia',          plan:'Start',   responsible:'Carlos M.',  contents:4,  status:'Pausado',       initials:'OP', color:'#EF4444', instagram:'@odontoprime',       whatsapp:'(11) 99999-0006', email:'contato@odontoprime.com',   observations:'Pausado por férias do responsável.' },
-]
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getInitials(name) {
   return name.trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase()
+}
+
+function pickColor(list) {
+  return CLIENT_COLORS[list.length % CLIENT_COLORS.length]
 }
 
 function matchesFilter(c, f) {
@@ -47,13 +41,11 @@ function matchesSearch(c, q) {
   const s = q.toLowerCase()
   return (
     c.name.toLowerCase().includes(s) ||
-    c.niche.toLowerCase().includes(s) ||
-    c.responsible.toLowerCase().includes(s) ||
-    c.plan.toLowerCase().includes(s)
+    (c.niche || '').toLowerCase().includes(s) ||
+    (c.responsible || '').toLowerCase().includes(s) ||
+    (c.plan || '').toLowerCase().includes(s)
   )
 }
-
-const SC = { Ativo:'#22C55E', Pausado:'#EF4444', 'Em onboarding':'#3B82F6', Atenção:'#F59E0B' }
 
 // ─── Client Card ──────────────────────────────────────────────────────────────
 
@@ -75,7 +67,7 @@ function ClientCard({ client, onEdit, onToggle, onDelete }) {
           <button
             className="f-cfc-action-btn"
             title={client.status === 'Pausado' ? 'Ativar' : 'Pausar'}
-            onClick={() => onToggle(client.id)}
+            onClick={() => onToggle(client)}
           >
             <Icon name={client.status === 'Pausado' ? 'zap' : 'clock'} size={13}/>
           </button>
@@ -171,8 +163,8 @@ function Toast({ toast }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ClientesPage() {
-  const [clients,      setClients]  = useState(INITIAL_CLIENTS)
-  const [loaded,       setLoaded]   = useState(false)
+  const [clients,      setClients]  = useState([])
+  const [loading,      setLoading]  = useState(true)
   const [modalOpen,    setModal]    = useState(false)
   const [editing,      setEditing]  = useState(null)
   const [deleteTarget, setDelTarget]= useState(null)
@@ -181,25 +173,25 @@ export default function ClientesPage() {
   const [toast,        setToast]    = useState(null)
   const timer = useRef(null)
 
-  // Load from localStorage
+  // ─── Load from Supabase ──────────────────────────────────────────────────────
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(LS_KEY)
-      if (raw) {
-        const parsed = JSON.parse(raw)
-        if (Array.isArray(parsed) && parsed.length) setClients(parsed)
+    async function load() {
+      const { data, error } = await supabase
+        .from('clients')
+        .select('*')
+        .order('created_at', { ascending: true })
+
+      if (error) {
+        flash('Erro ao carregar clientes.', 'error')
+      } else {
+        setClients(data ?? [])
       }
-    } catch {}
-    setLoaded(true)
+      setLoading(false)
+    }
+    load()
   }, [])
 
-  // Persist to localStorage
-  useEffect(() => {
-    if (!loaded) return
-    localStorage.setItem(LS_KEY, JSON.stringify(clients))
-  }, [clients, loaded])
-
-  // Metrics
+  // ─── Metrics ─────────────────────────────────────────────────────────────────
   const metrics = useMemo(() => ({
     ativos:     clients.filter(c => c.status === 'Ativo' || c.status === 'Atenção').length,
     onboarding: clients.filter(c => c.status === 'Em onboarding').length,
@@ -207,7 +199,7 @@ export default function ClientesPage() {
     contents:   clients.filter(c => c.status !== 'Pausado').reduce((s, c) => s + (c.contents || 0), 0),
   }), [clients])
 
-  // Filtered list
+  // ─── Filtered list ────────────────────────────────────────────────────────────
   const filtered = useMemo(
     () => clients.filter(c => matchesFilter(c, filter) && matchesSearch(c, search)),
     [clients, filter, search]
@@ -222,36 +214,66 @@ export default function ClientesPage() {
   function openCreate() { setEditing(null); setModal(true) }
   function openEdit(c)  { setEditing(c);    setModal(true) }
 
-  function handleSave(data) {
+  // ─── Save (create or update) ──────────────────────────────────────────────────
+  async function handleSave(data) {
+    const payload = {
+      ...data,
+      contents: Number(data.contents) || 0,
+      initials: getInitials(data.name),
+    }
+
     if (editing) {
-      setClients(prev => prev.map(c =>
-        c.id === editing.id ? { ...c, ...data, initials: getInitials(data.name) } : c
-      ))
+      const { data: updated, error } = await supabase
+        .from('clients')
+        .update(payload)
+        .eq('id', editing.id)
+        .select()
+        .single()
+
+      if (error) { flash('Erro ao salvar cliente.', 'error'); return }
+      setClients(prev => prev.map(c => c.id === editing.id ? updated : c))
       flash('Cliente atualizado com sucesso!')
     } else {
-      setClients(prev => [...prev, {
-        ...data,
-        id:       Date.now().toString(),
-        initials: getInitials(data.name),
-        color:    CLIENT_COLORS[prev.length % CLIENT_COLORS.length],
-      }])
+      const color = pickColor(clients)
+      const { data: created, error } = await supabase
+        .from('clients')
+        .insert({ ...payload, color })
+        .select()
+        .single()
+
+      if (error) { flash('Erro ao cadastrar cliente.', 'error'); return }
+      setClients(prev => [...prev, created])
       flash('Novo cliente cadastrado!')
     }
+
     setModal(false)
     setEditing(null)
   }
 
-  function handleToggle(id) {
-    setClients(prev => prev.map(c => {
-      if (c.id !== id) return c
-      const next = c.status === 'Pausado' ? 'Ativo' : 'Pausado'
-      flash(`${c.name} foi ${next === 'Pausado' ? 'pausado' : 'reativado'}.`)
-      return { ...c, status: next }
-    }))
+  // ─── Toggle status ────────────────────────────────────────────────────────────
+  async function handleToggle(client) {
+    const next = client.status === 'Pausado' ? 'Ativo' : 'Pausado'
+    const { data: updated, error } = await supabase
+      .from('clients')
+      .update({ status: next })
+      .eq('id', client.id)
+      .select()
+      .single()
+
+    if (error) { flash('Erro ao atualizar status.', 'error'); return }
+    setClients(prev => prev.map(c => c.id === client.id ? updated : c))
+    flash(`${client.name} foi ${next === 'Pausado' ? 'pausado' : 'reativado'}.`)
   }
 
-  function handleDelete() {
+  // ─── Delete ───────────────────────────────────────────────────────────────────
+  async function handleDelete() {
     if (!deleteTarget) return
+    const { error } = await supabase
+      .from('clients')
+      .delete()
+      .eq('id', deleteTarget.id)
+
+    if (error) { flash('Erro ao excluir cliente.', 'error'); setDelTarget(null); return }
     setClients(prev => prev.filter(c => c.id !== deleteTarget.id))
     flash(`${deleteTarget.name} removido.`)
     setDelTarget(null)
@@ -315,7 +337,12 @@ export default function ClientesPage() {
             </span>
           </div>
 
-          {filtered.length > 0 ? (
+          {loading ? (
+            <div className="f-empty-state">
+              <Icon name="refresh" size={32}/>
+              <h3>Carregando clientes…</h3>
+            </div>
+          ) : filtered.length > 0 ? (
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(280px, 1fr))', gap:16, padding:20 }}>
               {filtered.map(c => (
                 <ClientCard

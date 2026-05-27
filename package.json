@@ -11,13 +11,11 @@
   "dependencies": {
     "@portabletext/react": "^3.1.0",
     "@sanity/image-url": "^1.1.0",
-    "@supabase/supabase-js": "^2.39.0",
+    "@supabase/supabase-js": "^2.106.2",
     "next": "15.3.6",
     "next-sanity": "^9.8.9",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-router-dom": "^6.30.3",
-    "recharts": "^3.8.1"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@types/node": "^20",

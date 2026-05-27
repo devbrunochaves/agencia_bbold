@@ -1204,9 +1204,76 @@
   .f-btn-primary { padding: 7px 12px; }
   .f-clients-grid { grid-template-columns: 1fr; }
   .f-header { padding: 0 12px; gap: 8px; }
+  .f-filter-row { grid-template-columns: 1fr; }
 }
 
-/* ─── Modal & Toast Animations ───────────────────────────────────────────── */
+/* ─── Content Filter Row ────────────────────────────────────────────────── */
+
+.f-filter-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 900px) {
+  .f-filter-row { grid-template-columns: 1fr 1fr; }
+}
+
+/* ─── Content Item List ─────────────────────────────────────────────────── */
+
+.f-con-item {
+  padding: 14px 18px;
+  transition: background var(--f-transition);
+}
+
+.f-con-item:hover { background: rgba(255,255,255,0.02); }
+
+.f-con-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.f-con-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--f-text);
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+.f-con-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.f-con-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.f-con-actions {
+  display: flex;
+  gap: 4px;
+}
+
+/* Inline status select styled as badge */
+.f-status-select {
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  font-family: var(--f-font);
+  max-width: 160px;
+}
 
 @keyframes modalIn {
   from { opacity: 0; transform: scale(0.96) translateY(10px); }

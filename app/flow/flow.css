@@ -1294,6 +1294,11 @@
   to   { opacity: 1; }
 }
 
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(48px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ─── Form Inputs (shared by modals) ─────────────────────────────────────── */
 
 .f-input {

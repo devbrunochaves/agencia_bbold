@@ -6,6 +6,7 @@ import MetricCard from '@/components/flow/MetricCard'
 import StatusBadge from '@/components/flow/StatusBadge'
 import Icon from '@/components/flow/FlowIcons'
 import ContentModal from '@/components/flow/ContentModal'
+import ContentDetailModal from '@/components/flow/ContentDetailModal'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -72,6 +73,7 @@ export default function ConteudosPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing]     = useState(null)
   const [delTarget, setDelTarget] = useState(null)
+  const [viewing,   setViewing]   = useState(null)
   const [search, setSearch]       = useState('')
   const [fClient, setFClient]     = useState('')
   const [fStatus, setFStatus]     = useState('')
@@ -243,6 +245,7 @@ export default function ConteudosPage() {
                   key={item.id}
                   item={item}
                   isLast={i === filtered.length - 1}
+                  onView={() => setViewing(item)}
                   onEdit={() => openEdit(item)}
                   onDuplicate={() => handleDuplicate(item)}
                   onDelete={() => setDelTarget(item)}
@@ -253,6 +256,14 @@ export default function ConteudosPage() {
           )}
         </div>
       </main>
+
+      {/* Detail view modal */}
+      <ContentDetailModal
+        isOpen={!!viewing}
+        content={viewing}
+        onClose={() => setViewing(null)}
+        onEdit={() => { openEdit(viewing) }}
+      />
 
       {/* Create / Edit modal */}
       <ContentModal
@@ -317,13 +328,14 @@ export default function ConteudosPage() {
 
 // ─── Content Item ─────────────────────────────────────────────────────────────
 
-function ContentItem({ item, isLast, onEdit, onDuplicate, onDelete, onStatusChange }) {
+function ContentItem({ item, isLast, onView, onEdit, onDuplicate, onDelete, onStatusChange }) {
   const cfg = STATUS_CFG[item.status] ?? { color:'#A1A1AA', bg:'rgba(161,161,170,0.15)' }
 
   return (
     <div
       className="f-con-item"
-      style={{ borderBottom: isLast ? 'none' : '1px solid var(--f-border)' }}
+      style={{ borderBottom: isLast ? 'none' : '1px solid var(--f-border)', cursor:'pointer' }}
+      onClick={onView}
     >
       <div className="f-con-top">
         {/* Left: title + meta */}
@@ -349,8 +361,8 @@ function ContentItem({ item, isLast, onEdit, onDuplicate, onDelete, onStatusChan
           </div>
         </div>
 
-        {/* Right: badges + actions */}
-        <div className="f-con-right">
+        {/* Right: badges + actions — stopPropagation prevents opening detail modal */}
+        <div className="f-con-right" onClick={e => e.stopPropagation()}>
           {/* Status select + priority */}
           <div style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'wrap', justifyContent:'flex-end' }}>
             <StatusBadge status={item.priority}/>

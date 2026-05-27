@@ -167,6 +167,7 @@
   font-size: 13.5px;
   font-weight: 500;
   text-align: left;
+  text-decoration: none;
   transition: background var(--f-transition), color var(--f-transition);
   margin-bottom: 2px;
   position: relative;

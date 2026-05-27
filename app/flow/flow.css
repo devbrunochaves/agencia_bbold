@@ -1080,11 +1080,11 @@
 @media (max-width: 1024px) {
   .f-root { --f-sidebar-w: 60px; }
 
-  .f-nav-text,
-  .f-nav-badge,
+  .f-sidebar .f-nav-text,
+  .f-sidebar .f-nav-badge,
   .f-logo-text,
   .f-user-info,
-  .f-nav-label {
+  .f-sidebar .f-nav-label {
     display: none;
   }
 
@@ -1093,12 +1093,12 @@
     padding: 16px 10px;
   }
 
-  .f-nav-item {
+  .f-sidebar .f-nav-item {
     justify-content: center;
     padding: 10px;
   }
 
-  .f-nav-item.is-active::before { display: none; }
+  .f-sidebar .f-nav-item.is-active::before { display: none; }
   .f-user-row { justify-content: center; }
   .f-sidebar-footer { padding: 12px 8px; }
   .f-header-left .f-header-sub { display: none; }

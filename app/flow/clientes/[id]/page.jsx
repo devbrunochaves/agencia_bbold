@@ -18,6 +18,22 @@ const METRIC_NAMES = [
   'Impressões', 'Curtidas', 'Comentários', 'Compartilhamentos', 'Saves',
 ]
 
+const METRIC_COLORS = {
+  'Seguidores Instagram': '#EC4899',
+  'Seguidores YouTube':   '#EF4444',
+  'Alcance médio':        '#4ADE80',
+  'Engajamento (%)':      '#A78BFA',
+  'Impressões':           '#FFD22E',
+  'Curtidas':             '#3B82F6',
+  'Comentários':          '#A3E635',
+  'Compartilhamentos':    '#F9A8D4',
+  'Saves':                '#FEF08A',
+}
+
+function metricColor(name) {
+  return METRIC_COLORS[name] ?? '#FFD22E'
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmtDate(iso) {
@@ -210,12 +226,13 @@ function PerformanceTab({ perf, onAdd, onDelete, clientName }) {
           {metricEntries.map(([metric, records]) => {
             const latest = records[records.length - 1]
             const total  = totalGrowth(records)
+            const color  = metricColor(metric)
             return (
-              <div key={metric} className="f-card" style={{ flexShrink: 0, minWidth: 150, padding: '14px 16px' }}>
+              <div key={metric} className="f-card" style={{ flexShrink: 0, minWidth: 150, padding: '14px 16px', borderTop: `2px solid ${color}` }}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--f-muted-dim)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 140 }}>
                   {metric}
                 </div>
-                <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--f-yellow)', lineHeight: 1 }}>
+                <div style={{ fontSize: 22, fontWeight: 800, color, lineHeight: 1 }}>
                   {fmtVal(latest.value)}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
@@ -252,17 +269,19 @@ function PerformanceTab({ perf, onAdd, onDelete, clientName }) {
       {metricEntries.map(([metric, records]) => {
         const latest = records[records.length - 1]
         const total  = totalGrowth(records)
+        const color  = metricColor(metric)
         return (
-          <div key={metric} className="f-card">
+          <div key={metric} className="f-card" style={{ borderLeft: `3px solid ${color}` }}>
             {/* Card header */}
             <div className="f-card-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: color, flexShrink: 0, display: 'inline-block' }} />
                 <h2 className="f-card-title">{metric}</h2>
                 <span style={{ fontSize: 11, color: 'var(--f-muted-dim)' }}>{records.length} registro{records.length !== 1 ? 's' : ''}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <GrowthBadge pct={total} />
-                <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--f-yellow)', lineHeight: 1 }}>
+                <span style={{ fontSize: 20, fontWeight: 800, color, lineHeight: 1 }}>
                   {fmtVal(latest.value)}
                 </span>
               </div>
@@ -270,7 +289,7 @@ function PerformanceTab({ perf, onAdd, onDelete, clientName }) {
 
             {/* Sparkline with scale + legend */}
             <div style={{ padding: '4px 20px 16px' }}>
-              <Sparkline records={records} color="#FFD22E" metricName={metric} />
+              <Sparkline records={records} color={color} metricName={metric} />
             </div>
 
             {/* Compact table */}
@@ -295,7 +314,7 @@ function PerformanceTab({ perf, onAdd, onDelete, clientName }) {
                         <td style={{ padding: '7px 12px', color: 'var(--f-muted)', whiteSpace: 'nowrap' }}>
                           {fmtDate(r.recordedAt)}
                         </td>
-                        <td style={{ padding: '7px 12px', fontWeight: 700, color: 'var(--f-yellow)', whiteSpace: 'nowrap' }}>
+                        <td style={{ padding: '7px 12px', fontWeight: 700, color, whiteSpace: 'nowrap' }}>
                           {r.value.toLocaleString('pt-BR')}
                         </td>
                         <td className="perf-col-var" style={{ padding: '7px 12px' }}>
@@ -364,7 +383,14 @@ function PerformanceTab({ perf, onAdd, onDelete, clientName }) {
               </div>
               <div>
                 <label className="f-label">Data do registro</label>
-                <input className="f-input" type="date" required value={form.recordedAt} onChange={e => setForm(f => ({ ...f, recordedAt: e.target.value }))} />
+                <input
+                  className="f-input"
+                  type="date"
+                  required
+                  value={form.recordedAt}
+                  onChange={e => setForm(f => ({ ...f, recordedAt: e.target.value }))}
+                  style={{ minHeight: 42, colorScheme: 'dark', WebkitAppearance: 'none' }}
+                />
               </div>
               <div>
                 <label className="f-label">Observações (opcional)</label>

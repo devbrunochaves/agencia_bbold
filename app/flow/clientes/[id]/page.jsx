@@ -145,7 +145,7 @@ export default function ClientDetailPage() {
         </div>
 
         {/* Two-column grid */}
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 340px', gap:20, alignItems:'start' }}>
+        <div className="f-detail-grid">
           {/* Conteúdos */}
           <div className="f-card">
             <div className="f-card-header">

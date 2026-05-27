@@ -813,6 +813,15 @@
   align-items: start;
 }
 
+/* ─── Client Detail Two-Column Grid ─────────────────────────────────────── */
+
+.f-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+  align-items: start;
+}
+
 /* ─── Calendar ───────────────────────────────────────────────────────────── */
 
 .f-calendar-card { }
@@ -1180,6 +1189,9 @@
   /* Bottom row */
   .f-bottom-row { grid-template-columns: 1fr; }
   .f-clients-grid { grid-template-columns: 1fr 1fr; }
+
+  /* Client detail grid */
+  .f-detail-grid { grid-template-columns: 1fr; }
 
   /* Card headers */
   .f-card-header { padding: 14px 16px 12px; }

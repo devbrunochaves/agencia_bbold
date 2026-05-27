@@ -1322,11 +1322,34 @@
 
 .f-input.has-error { border-color: var(--f-red); }
 
+/* Select elements need a solid bg so the native dropdown popup is dark */
+select.f-input {
+  background: #1E1E1E;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23FFD22E' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  border-color: rgba(255,210,46,0.25);
+}
+
+select.f-input:focus {
+  border-color: rgba(255,210,46,0.55);
+  box-shadow: 0 0 0 3px rgba(255,210,46,0.10);
+}
+
+select.f-input option {
+  background: #1E1E1E;
+  color: var(--f-text);
+}
+
 .f-select {
   width: 100%;
   padding: 9px 32px 9px 12px;
-  background: #2A2A2A;
-  border: 1px solid rgba(255,255,255,0.1);
+  background: #1E1E1E;
+  border: 1px solid rgba(255,210,46,0.25);
   border-radius: var(--f-r-sm);
   color: var(--f-text);
   font-size: 13px;
@@ -1335,14 +1358,22 @@
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A1A1AA' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23FFD22E' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
-  transition: border-color var(--f-transition);
+  transition: border-color var(--f-transition), box-shadow var(--f-transition);
   box-sizing: border-box;
 }
 
-.f-select:focus { border-color: rgba(255,210,46,0.4); }
+.f-select:focus {
+  border-color: rgba(255,210,46,0.55);
+  box-shadow: 0 0 0 3px rgba(255,210,46,0.10);
+}
+
+.f-select option {
+  background: #1E1E1E;
+  color: var(--f-text);
+}
 
 .f-field-label {
   display: block;

@@ -80,14 +80,18 @@ export default function CalendarioPage() {
         <div style={{ display:'flex', gap:10, flexWrap:'wrap', paddingBottom:4 }}>
           <select
             style={{
-              background:'transparent',
-              border:'1px solid var(--f-border)',
+              backgroundColor:'#1E1E1E',
+              backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23FFD22E' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
+              backgroundRepeat:'no-repeat', backgroundPosition:'right 10px center',
+              border:'1px solid rgba(255,210,46,0.25)',
               borderRadius:'var(--f-r-sm)',
-              color:'var(--f-muted)',
+              color:'var(--f-text)',
               fontSize:13,
-              padding:'6px 10px',
+              padding:'6px 28px 6px 10px',
               cursor:'pointer',
               outline:'none',
+              appearance:'none',
+              WebkitAppearance:'none',
             }}
           >
             <option value="">Todos os clientes</option>
@@ -100,14 +104,18 @@ export default function CalendarioPage() {
           </select>
           <select
             style={{
-              background:'transparent',
-              border:'1px solid var(--f-border)',
+              backgroundColor:'#1E1E1E',
+              backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23FFD22E' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
+              backgroundRepeat:'no-repeat', backgroundPosition:'right 10px center',
+              border:'1px solid rgba(255,210,46,0.25)',
               borderRadius:'var(--f-r-sm)',
-              color:'var(--f-muted)',
+              color:'var(--f-text)',
               fontSize:13,
-              padding:'6px 10px',
+              padding:'6px 28px 6px 10px',
               cursor:'pointer',
               outline:'none',
+              appearance:'none',
+              WebkitAppearance:'none',
             }}
           >
             <option value="">Todos os formatos</option>

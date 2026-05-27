@@ -64,6 +64,8 @@ export default function ClientBibliotecaPage() {
   const [menuOpen,    setMenuOpen]    = useState(false)
   const [fileModal,   setFileModal]   = useState(false)
   const [folderModal, setFolderModal] = useState(false)
+  const [renamingSf,  setRenamingSf]  = useState(null)
+  const [deletingSf,  setDeletingSf]  = useState(null)
   const [editing,     setEditing]     = useState(null)
   const [viewing,     setViewing]     = useState(null)
   const [delTarget,   setDelTarget]   = useState(null)
@@ -113,6 +115,26 @@ export default function ClientBibliotecaPage() {
     setSubfolders(prev => [...prev, next])
     setFolderModal(false)
     flash(`Pasta "${name}" criada!`)
+  }
+
+  function handleRenameSf(sf, newName) {
+    setSubfolders(prev => prev.map(s => s.id === sf.id ? { ...s, name: newName } : s))
+    setFiles(prev => prev.map(f => f.client === clientName && f.subfolder === sf.name ? { ...f, subfolder: newName } : f))
+    setRenamingSf(null)
+    flash(`Pasta renomeada para "${newName}"!`)
+  }
+
+  function handleDeleteSf(sf) {
+    setFiles(prev => prev.map(f => f.client === clientName && f.subfolder === sf.name ? { ...f, subfolder: '' } : f))
+    setSubfolders(prev => prev.filter(s => s.id !== sf.id))
+    setDeletingSf(null)
+    flash(`Pasta "${sf.name}" excluída.`, 'warn')
+  }
+
+  function handleShareSf(sf) {
+    const url = `${window.location.origin}/flow/biblioteca/${encodeURIComponent(clientName)}/${encodeURIComponent(sf.name)}`
+    navigator.clipboard.writeText(url).catch(() => {})
+    flash('Link copiado para a área de transferência!')
   }
 
   function handleDelete(file) {
@@ -247,6 +269,9 @@ export default function ClientBibliotecaPage() {
                     subfolder={sf}
                     fileCount={sfFiles.length}
                     onClick={() => router.push(`/flow/biblioteca/${encodeURIComponent(clientName)}/${encodeURIComponent(sf.name)}`)}
+                    onRename={() => setRenamingSf(sf)}
+                    onDelete={() => setDeletingSf(sf)}
+                    onShare={() => handleShareSf(sf)}
                   />
                 )
               })}
@@ -277,6 +302,39 @@ export default function ClientBibliotecaPage() {
           </div>
         )}
       </main>
+
+      {/* Rename subfolder modal */}
+      {renamingSf && (
+        <RenameFolderModal
+          current={renamingSf}
+          onClose={() => setRenamingSf(null)}
+          onSave={(newName) => handleRenameSf(renamingSf, newName)}
+        />
+      )}
+
+      {/* Delete subfolder confirmation */}
+      {deletingSf && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.72)', backdropFilter:'blur(5px)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }} onClick={() => setDeletingSf(null)}>
+          <div style={{ background:'#232323', border:'1px solid rgba(255,255,255,0.1)', borderRadius:16, padding:28, maxWidth:360, width:'100%' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
+              <div style={{ width:40, height:40, borderRadius:10, background:'rgba(239,68,68,0.15)', display:'flex', alignItems:'center', justifyContent:'center', color:'#EF4444', flexShrink:0 }}>
+                <Icon name="trash" size={18}/>
+              </div>
+              <div>
+                <div style={{ fontWeight:700, color:'#fff', fontSize:15 }}>Excluir pasta?</div>
+                <div style={{ fontSize:12, color:'#A1A1AA', marginTop:2 }}>Os arquivos serão movidos para a raiz.</div>
+              </div>
+            </div>
+            <p style={{ fontSize:13, color:'#A1A1AA', marginBottom:20, lineHeight:1.5 }}>
+              A pasta "<strong style={{ color:'#fff' }}>{deletingSf.name}</strong>" será excluída. Os arquivos dentro dela serão mantidos na raiz do cliente.
+            </p>
+            <div style={{ display:'flex', gap:8, justifyContent:'flex-end' }}>
+              <button className="f-btn-ghost" onClick={() => setDeletingSf(null)}>Cancelar</button>
+              <button onClick={() => handleDeleteSf(deletingSf)} style={{ padding:'7px 16px', borderRadius:8, background:'rgba(239,68,68,0.15)', border:'1px solid rgba(239,68,68,0.3)', color:'#EF4444', cursor:'pointer', fontWeight:600, fontSize:13, fontFamily:'var(--f-font)' }}>Excluir pasta</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* New subfolder modal */}
       {folderModal && (
@@ -342,22 +400,111 @@ export default function ClientBibliotecaPage() {
 
 // ─── Subfolder Card ───────────────────────────────────────────────────────────
 
-function SubfolderCard({ subfolder, fileCount, onClick }) {
-  const [hov, setHov] = useState(false)
+function SubfolderCard({ subfolder, fileCount, onClick, onRename, onDelete, onShare }) {
+  const [hov,      setHov]      = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef(null)
   const color = subfolder.color ?? '#A1A1AA'
+
+  useEffect(() => {
+    if (!menuOpen) return
+    function h(e) { if (!menuRef.current?.contains(e.target)) setMenuOpen(false) }
+    document.addEventListener('mousedown', h)
+    return () => document.removeEventListener('mousedown', h)
+  }, [menuOpen])
+
   return (
     <div
       onClick={onClick}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
-      style={{ background: hov ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)', border:`1px solid ${hov ? color + '50' : 'rgba(255,255,255,0.08)'}`, borderRadius:14, padding:'16px 14px', cursor:'pointer', transition:'all 0.18s ease', display:'flex', flexDirection:'column', gap:10, transform: hov ? 'translateY(-2px)' : 'none' }}
+      style={{ position:'relative', background: hov ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)', border:`1px solid ${hov ? color + '50' : 'rgba(255,255,255,0.08)'}`, borderRadius:14, padding:'16px 14px', cursor:'pointer', transition:'all 0.18s ease', display:'flex', flexDirection:'column', gap:10, transform: hov ? 'translateY(-2px)' : 'none' }}
     >
+      {/* Three dots button */}
+      <div
+        ref={menuRef}
+        style={{ position:'absolute', top:8, right:8, zIndex:10 }}
+        onClick={e => e.stopPropagation()}
+      >
+        <button
+          onClick={() => setMenuOpen(v => !v)}
+          style={{ width:28, height:28, borderRadius:8, background: menuOpen ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.35)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', opacity: hov || menuOpen ? 1 : 0, transition:'opacity 0.15s' }}
+        >
+          <DotsVerticalSVG size={14}/>
+        </button>
+        {menuOpen && (
+          <div style={{ position:'absolute', top:'calc(100% + 4px)', right:0, background:'#232323', border:'1px solid rgba(255,255,255,0.12)', borderRadius:10, padding:6, minWidth:160, zIndex:300, boxShadow:'0 8px 32px rgba(0,0,0,0.6)', animation:'modalIn 0.15s ease' }}>
+            <SfMenuItem icon="edit"  label="Renomear"     onClick={() => { setMenuOpen(false); onRename() }}/>
+            <SfMenuItem icon="share" label="Compartilhar" onClick={() => { setMenuOpen(false); onShare() }}/>
+            <div style={{ height:1, background:'rgba(255,255,255,0.08)', margin:'4px 2px' }}/>
+            <SfMenuItem icon="trash" label="Excluir" danger onClick={() => { setMenuOpen(false); onDelete() }}/>
+          </div>
+        )}
+      </div>
+
       <div style={{ width:42, height:42, borderRadius:12, background:`${color}18`, border:`1px solid ${color}30`, display:'flex', alignItems:'center', justifyContent:'center' }}>
         <FolderSVG size={22} color={color}/>
       </div>
       <div>
         <div style={{ fontSize:12, fontWeight:700, color:'#fff', marginBottom:3, lineHeight:1.3 }}>{subfolder.name}</div>
         <div style={{ fontSize:11, color:'var(--f-muted)' }}>{fileCount} {fileCount === 1 ? 'arquivo' : 'arquivos'}</div>
+      </div>
+    </div>
+  )
+}
+
+function SfMenuItem({ icon, label, danger, onClick }) {
+  const [hov, setHov] = useState(false)
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{ display:'flex', alignItems:'center', gap:8, width:'100%', padding:'8px 10px', borderRadius:7, background: hov ? 'rgba(255,255,255,0.06)' : 'none', border:'none', cursor:'pointer', color: danger ? (hov ? '#EF4444' : '#A1A1AA') : (hov ? '#fff' : '#A1A1AA'), fontSize:13, fontFamily:'var(--f-font)', transition:'all 0.12s' }}
+    >
+      <Icon name={icon} size={13}/> {label}
+    </button>
+  )
+}
+
+// ─── Rename Folder Modal ──────────────────────────────────────────────────────
+
+function RenameFolderModal({ current, onClose, onSave }) {
+  const [name, setName] = useState(current.name)
+  const [error, setError] = useState(null)
+  const inputRef = useRef(null)
+
+  useEffect(() => { setTimeout(() => { inputRef.current?.focus(); inputRef.current?.select() }, 80) }, [])
+  useEffect(() => {
+    const h = e => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', h)
+    return () => window.removeEventListener('keydown', h)
+  }, [onClose])
+
+  function submit(e) {
+    e.preventDefault()
+    if (!name.trim()) { setError('Nome obrigatório'); return }
+    onSave(name.trim())
+  }
+
+  return (
+    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.72)', backdropFilter:'blur(5px)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16, animation:'overlayIn 0.18s ease' }} onClick={onClose}>
+      <div style={{ width:'100%', maxWidth:360, background:'#232323', border:'1px solid rgba(255,255,255,0.1)', borderRadius:18, boxShadow:'0 32px 96px rgba(0,0,0,0.7)', animation:'modalIn 0.22s cubic-bezier(.4,0,.2,1)' }} onClick={e => e.stopPropagation()}>
+        <div style={{ padding:'18px 20px 14px', borderBottom:'1px solid rgba(255,255,255,0.07)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <h2 style={{ fontSize:15, fontWeight:700, color:'#fff', margin:0 }}>Renomear pasta</h2>
+          <button onClick={onClose} style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:8, width:30, height:30, cursor:'pointer', color:'#A1A1AA', display:'flex', alignItems:'center', justifyContent:'center' }}><Icon name="xmark" size={14}/></button>
+        </div>
+        <form onSubmit={submit} style={{ padding:'16px 20px 18px', display:'flex', flexDirection:'column', gap:14 }}>
+          <div>
+            <label className="f-field-label">Novo nome</label>
+            <input ref={inputRef} className={`f-input ${error ? 'has-error' : ''}`} value={name} onChange={e => { setName(e.target.value); setError(null) }} placeholder="Nome da pasta"/>
+            {error && <span className="f-field-error">{error}</span>}
+          </div>
+          <div style={{ display:'flex', gap:8, justifyContent:'flex-end' }}>
+            <button type="button" className="f-btn-ghost" onClick={onClose}>Cancelar</button>
+            <button type="submit" className="f-btn-primary"><Icon name="check" size={13}/> Renomear</button>
+          </div>
+        </form>
       </div>
     </div>
   )
@@ -617,6 +764,16 @@ function FField({ label, error, children }) {
 }
 
 // ─── SVG helpers ──────────────────────────────────────────────────────────────
+
+function DotsVerticalSVG({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <circle cx="12" cy="5"  r="1.5"/>
+      <circle cx="12" cy="12" r="1.5"/>
+      <circle cx="12" cy="19" r="1.5"/>
+    </svg>
+  )
+}
 
 function FolderSVG({ size = 24, color = '#A1A1AA' }) {
   return (

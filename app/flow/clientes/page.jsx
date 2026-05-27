@@ -51,63 +51,58 @@ function matchesSearch(c, q) {
 
 function ClientCard({ client, onEdit, onToggle, onDelete }) {
   return (
-    <div className="f-cfc">
-      <div className="f-cfc-head">
-        <div className="f-cfc-avatar" style={{ background:`${client.color}20`, color:client.color, border:`1px solid ${client.color}30` }}>
-          {client.initials}
+    <Link
+      href={`/flow/clientes/${client.id}`}
+      style={{ textDecoration: 'none', display: 'block' }}
+    >
+      <div className="f-cfc" style={{ cursor: 'pointer' }}>
+        <div className="f-cfc-head">
+          <div className="f-cfc-avatar" style={{ background:`${client.color}20`, color:client.color, border:`1px solid ${client.color}30` }}>
+            {client.initials}
+          </div>
+          <div className="f-cfc-info">
+            <span className="f-cfc-name">{client.name}</span>
+            <span className="f-cfc-niche">{client.niche}</span>
+          </div>
+          <div className="f-cfc-actions">
+            <button className="f-cfc-action-btn" title="Editar" onClick={e => { e.preventDefault(); onEdit(client) }}>
+              <Icon name="edit" size={13}/>
+            </button>
+            <button
+              className="f-cfc-action-btn"
+              title={client.status === 'Pausado' ? 'Ativar' : 'Pausar'}
+              onClick={e => { e.preventDefault(); onToggle(client) }}
+            >
+              <Icon name={client.status === 'Pausado' ? 'zap' : 'clock'} size={13}/>
+            </button>
+            <button className="f-cfc-action-btn danger" title="Excluir" onClick={e => { e.preventDefault(); onDelete(client) }}>
+              <Icon name="trash" size={13}/>
+            </button>
+          </div>
         </div>
-        <div className="f-cfc-info">
-          <span className="f-cfc-name">{client.name}</span>
-          <span className="f-cfc-niche">{client.niche}</span>
-        </div>
-        <div className="f-cfc-actions">
-          <button className="f-cfc-action-btn" title="Editar" onClick={() => onEdit(client)}>
-            <Icon name="edit" size={13}/>
-          </button>
-          <button
-            className="f-cfc-action-btn"
-            title={client.status === 'Pausado' ? 'Ativar' : 'Pausar'}
-            onClick={() => onToggle(client)}
-          >
-            <Icon name={client.status === 'Pausado' ? 'zap' : 'clock'} size={13}/>
-          </button>
-          <button className="f-cfc-action-btn danger" title="Excluir" onClick={() => onDelete(client)}>
-            <Icon name="trash" size={13}/>
-          </button>
-        </div>
-      </div>
 
-      <div className="f-cfc-body">
-        <div className="f-cfc-row">
-          <span className="f-cfc-lbl">Plano</span>
-          <span className="f-cfc-val f-plan-badge">{client.plan}</span>
-        </div>
-        <div className="f-cfc-row">
-          <span className="f-cfc-lbl">Responsável</span>
-          <span className="f-cfc-val">{client.responsible}</span>
-        </div>
-        <div className="f-cfc-row">
-          <span className="f-cfc-lbl">Conteúdos/mês</span>
-          <span className="f-cfc-val" style={{ color:'var(--f-yellow)', fontWeight:800, fontSize:16 }}>
-            {client.contents}
-          </span>
-        </div>
-        <div className="f-cfc-row">
-          <span className="f-cfc-lbl">Status</span>
-          <StatusBadge status={client.status}/>
+        <div className="f-cfc-body">
+          <div className="f-cfc-row">
+            <span className="f-cfc-lbl">Plano</span>
+            <span className="f-cfc-val f-plan-badge">{client.plan}</span>
+          </div>
+          <div className="f-cfc-row">
+            <span className="f-cfc-lbl">Responsável</span>
+            <span className="f-cfc-val">{client.responsible}</span>
+          </div>
+          <div className="f-cfc-row">
+            <span className="f-cfc-lbl">Conteúdos/mês</span>
+            <span className="f-cfc-val" style={{ color:'var(--f-yellow)', fontWeight:800, fontSize:16 }}>
+              {client.contents}
+            </span>
+          </div>
+          <div className="f-cfc-row">
+            <span className="f-cfc-lbl">Status</span>
+            <StatusBadge status={client.status}/>
+          </div>
         </div>
       </div>
-
-      <div className="f-cfc-foot">
-        <Link
-          href={`/flow/clientes/${client.id}`}
-          className="f-btn-ghost"
-          style={{ width:'100%', justifyContent:'center', fontSize:13 }}
-        >
-          Ver operação <Icon name="arrow" size={13}/>
-        </Link>
-      </div>
-    </div>
+    </Link>
   )
 }
 

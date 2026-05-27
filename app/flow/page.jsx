@@ -134,6 +134,8 @@ function Icon({ name, size = 18 }) {
     clock:    <svg {...p}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
     lightning:<svg {...p}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
     arrow:    <svg {...p}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>,
+    menu:     <svg {...p}><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
+    xmark:    <svg {...p}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
   }
   return map[name] ?? null
 }
@@ -151,12 +153,17 @@ function StatusBadge({ status }) {
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 
-function Sidebar({ active, onNav }) {
+function Sidebar({ active, onNav, mobileOpen, onClose }) {
   const principal = NAV_ITEMS.filter(i => i.group === 'principal')
   const recursos  = NAV_ITEMS.filter(i => i.group === 'recursos')
 
+  function handleNav(id) {
+    onNav(id)
+    onClose()
+  }
+
   return (
-    <aside className="f-sidebar">
+    <aside className={`f-sidebar ${mobileOpen ? 'is-mobile-open' : ''}`}>
       {/* Logo */}
       <div className="f-sidebar-logo">
         <div className="f-logo-mark">
@@ -167,6 +174,9 @@ function Sidebar({ active, onNav }) {
           <span className="f-logo-name">BBOLD</span>
           <span className="f-logo-sub">Flow</span>
         </div>
+        <button className="f-sidebar-close" onClick={onClose} aria-label="Fechar menu">
+          <Icon name="xmark" size={18} />
+        </button>
       </div>
 
       {/* Nav */}
@@ -176,7 +186,7 @@ function Sidebar({ active, onNav }) {
           <button
             key={item.id}
             className={`f-nav-item ${active === item.id ? 'is-active' : ''}`}
-            onClick={() => onNav(item.id)}
+            onClick={() => handleNav(item.id)}
           >
             <span className="f-nav-icon"><Icon name={item.icon} size={16} /></span>
             <span className="f-nav-text">{item.label}</span>
@@ -189,7 +199,7 @@ function Sidebar({ active, onNav }) {
           <button
             key={item.id}
             className={`f-nav-item ${active === item.id ? 'is-active' : ''}`}
-            onClick={() => onNav(item.id)}
+            onClick={() => handleNav(item.id)}
           >
             <span className="f-nav-icon"><Icon name={item.icon} size={16} /></span>
             <span className="f-nav-text">{item.label}</span>
@@ -444,19 +454,47 @@ function ClientCards() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function FlowPage() {
-  const [activeNav, setActiveNav] = useState('dashboard')
+  const [activeNav, setActiveNav]       = useState('dashboard')
+  const [mobileMenuOpen, setMobileMenu] = useState(false)
 
   return (
     <div className="f-root">
-      <Sidebar active={activeNav} onNav={setActiveNav} />
+      {/* Mobile overlay */}
+      {mobileMenuOpen && (
+        <div className="f-mobile-overlay" onClick={() => setMobileMenu(false)} />
+      )}
+
+      <Sidebar
+        active={activeNav}
+        onNav={setActiveNav}
+        mobileOpen={mobileMenuOpen}
+        onClose={() => setMobileMenu(false)}
+      />
 
       <div className="f-main">
         {/* Header */}
         <header className="f-header">
+          {/* Hamburger — visível só no mobile */}
+          <button
+            className="f-hamburger"
+            onClick={() => setMobileMenu(true)}
+            aria-label="Abrir menu"
+          >
+            <Icon name="menu" size={20} />
+          </button>
+
           <div className="f-header-left">
+            {/* Logo compacto no mobile */}
+            <div className="f-header-logo-mobile">
+              <div className="f-logo-mark" style={{ width: 28, height: 28, fontSize: 13 }}>
+                <span>B</span>
+              </div>
+              <span className="f-logo-name" style={{ fontSize: 13 }}>BBOLD <span style={{ color: 'var(--f-yellow)' }}>Flow</span></span>
+            </div>
             <h1 className="f-header-title">Cockpit Interno</h1>
             <p className="f-header-sub">Controle sua operação de conteúdo em um único fluxo.</p>
           </div>
+
           <div className="f-header-right">
             <div className="f-search">
               <Icon name="search" size={14} />

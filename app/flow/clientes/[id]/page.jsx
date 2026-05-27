@@ -408,6 +408,202 @@ function PerformanceTab({ perf, onAdd, onDelete, clientName }) {
   )
 }
 
+// ─── Conteúdo Tab ────────────────────────────────────────────────────────────
+
+const CONTENT_FORMATS  = ['Reels', 'Feed', 'Stories', 'Carrossel', 'Blog', 'Landing']
+const CONTENT_STATUSES = ['Briefing', 'Produção', 'Revisão', 'Aguardando Aprovação', 'Agendado', 'Publicado']
+
+function ConteudoTab({ client }) {
+  const [contents,   setContents]   = useState([])
+  const [loadingC,   setLoadingC]   = useState(true)
+  const [showModal,  setShowModal]  = useState(false)
+  const [editItem,   setEditItem]   = useState(null)
+  const [form, setForm] = useState({ title: '', format: 'Reels', status: 'Briefing', responsible: '', pubDate: '' })
+
+  useEffect(() => {
+    supabase
+      .from('contents')
+      .select('*')
+      .eq('client', client.name)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        setContents((data ?? []).map(r => ({
+          id:          r.id,
+          title:       r.title,
+          format:      r.format      ?? '',
+          status:      r.status      ?? 'Briefing',
+          responsible: r.responsible ?? '',
+          pubDate:     r.pub_date    ?? '',
+        })))
+        setLoadingC(false)
+      })
+  }, [client.name])
+
+  function openCreate() {
+    setEditItem(null)
+    setForm({ title: '', format: 'Reels', status: 'Briefing', responsible: '', pubDate: '' })
+    setShowModal(true)
+  }
+
+  function openEdit(c) {
+    setEditItem(c)
+    setForm({ title: c.title, format: c.format, status: c.status, responsible: c.responsible, pubDate: c.pubDate ?? '' })
+    setShowModal(true)
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    if (!form.title.trim()) return
+    const payload = {
+      title:       form.title.trim(),
+      client:      client.name,
+      format:      form.format,
+      status:      form.status,
+      responsible: form.responsible,
+      pub_date:    form.pubDate || null,
+    }
+    if (editItem) {
+      const { data } = await supabase.from('contents').update(payload).eq('id', editItem.id).select().single()
+      if (data) setContents(prev => prev.map(c => c.id === editItem.id ? { ...c, ...form } : c))
+    } else {
+      const { data } = await supabase.from('contents').insert({ ...payload, channel: '', priority: 'Normal' }).select().single()
+      if (data) setContents(prev => [{ id: data.id, title: data.title, format: data.format, status: data.status, responsible: data.responsible, pubDate: data.pub_date ?? '' }, ...prev])
+    }
+    setShowModal(false)
+  }
+
+  async function handleDelete(cid) {
+    await supabase.from('contents').delete().eq('id', cid)
+    setContents(prev => prev.filter(c => c.id !== cid))
+  }
+
+  async function handleStatusChange(cid, newStatus) {
+    await supabase.from('contents').update({ status: newStatus }).eq('id', cid)
+    setContents(prev => prev.map(c => c.id === cid ? { ...c, status: newStatus } : c))
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--f-text)', margin: 0 }}>
+            CONTEÚDO — {client.name.toUpperCase()}
+          </h2>
+          <p style={{ fontSize: 12, color: 'var(--f-muted)', marginTop: 3 }}>
+            Produções e publicações deste cliente
+          </p>
+        </div>
+        <button className="f-btn-primary" onClick={openCreate}>
+          <Icon name="plus" size={13} />
+          <span>Novo conteúdo</span>
+        </button>
+      </div>
+
+      {/* List */}
+      {loadingC ? (
+        <div style={{ padding: 40, textAlign: 'center', color: 'var(--f-muted)' }}>
+          <Icon name="refresh" size={22} />
+        </div>
+      ) : contents.length === 0 ? (
+        <div className="f-card">
+          <div className="f-empty-state" style={{ padding: '56px 20px' }}>
+            <Icon name="file" size={36} />
+            <h3>Nenhum conteúdo ainda</h3>
+            <p>Crie o primeiro conteúdo para este cliente.</p>
+            <button className="f-btn-primary" onClick={openCreate} style={{ marginTop: 12 }}>
+              <Icon name="plus" size={13} /> Criar agora
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="f-card">
+          {contents.map((c, i) => (
+            <div
+              key={c.id}
+              style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: i < contents.length - 1 ? '1px solid var(--f-border)' : 'none' }}
+            >
+              <div style={{ width: 34, height: 34, borderRadius: 9, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--f-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--f-muted)', flexShrink: 0 }}>
+                <Icon name="file" size={14} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--f-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.title}</div>
+                <div style={{ fontSize: 11, color: 'var(--f-muted)', marginTop: 2 }}>
+                  {c.format}{c.responsible ? ` · ${c.responsible}` : ''}
+                  {c.pubDate ? ` · ${fmtDate(c.pubDate)}` : ''}
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                <select
+                  value={c.status}
+                  onChange={e => handleStatusChange(c.id, e.target.value)}
+                  style={{ background: 'transparent', border: 'none', fontSize: 11, color: 'var(--f-muted)', cursor: 'pointer', outline: 'none', fontFamily: 'inherit' }}
+                >
+                  {CONTENT_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+                <StatusBadge status={c.status} />
+                <button onClick={() => openEdit(c)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--f-muted-dim)', padding: 4, opacity: 0.7, lineHeight: 1 }} title="Editar">
+                  <Icon name="edit" size={13} />
+                </button>
+                <button onClick={() => handleDelete(c.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--f-muted-dim)', padding: 4, opacity: 0.6, lineHeight: 1 }} title="Remover">
+                  <Icon name="trash" size={13} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Modal */}
+      {showModal && (
+        <div className="f-modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="f-modal" onClick={e => e.stopPropagation()}>
+            <div className="f-modal-header">
+              <h3 className="f-modal-title">{editItem ? 'Editar Conteúdo' : 'Novo Conteúdo'}</h3>
+              <button className="f-modal-close" onClick={() => setShowModal(false)}><Icon name="close" size={16} /></button>
+            </div>
+            <form onSubmit={handleSubmit} style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
+                <label className="f-label">Título *</label>
+                <input className="f-input" type="text" required placeholder="ex: Reels — Antes e Depois" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <label className="f-label">Formato</label>
+                  <select className="f-input" value={form.format} onChange={e => setForm(f => ({ ...f, format: e.target.value }))}>
+                    {CONTENT_FORMATS.map(v => <option key={v} value={v}>{v}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="f-label">Status</label>
+                  <select className="f-input" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
+                    {CONTENT_STATUSES.map(v => <option key={v} value={v}>{v}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <label className="f-label">Responsável</label>
+                  <input className="f-input" type="text" placeholder="Nome" value={form.responsible} onChange={e => setForm(f => ({ ...f, responsible: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="f-label">Data de publicação</label>
+                  <input className="f-input" type="date" value={form.pubDate} onChange={e => setForm(f => ({ ...f, pubDate: e.target.value }))} style={{ minHeight: 42, colorScheme: 'dark' }} />
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 4 }}>
+                <button type="button" className="f-btn-ghost" onClick={() => setShowModal(false)}>Cancelar</button>
+                <button type="submit" className="f-btn-primary">{editItem ? 'Salvar' : 'Criar conteúdo'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Calendar Tab ─────────────────────────────────────────────────────────────
 
 const CAL_EVENTS = {
@@ -658,6 +854,7 @@ export default function ClientDetailPage() {
 
   const TABS = [
     { key: 'visao',       label: 'Visão Geral' },
+    { key: 'conteudo',    label: 'Conteúdo' },
     { key: 'calendario',  label: 'Calendário' },
     { key: 'performance', label: 'Performance' },
   ]
@@ -767,104 +964,12 @@ export default function ClientDetailPage() {
               <MetricCard icon="trending" value="6.4%"                     label="Engajamento médio" desc="vs. mês anterior"      accentColor="#3B82F6"     trend={15} />
             </div>
 
-            {/* Two-column grid */}
-            <div className="f-detail-grid">
-              {/* Conteúdos */}
-              <div className="f-card">
-                <div className="f-card-header">
-                  <div>
-                    <h2 className="f-card-title">Conteúdos do Cliente</h2>
-                    <p className="f-card-subtitle">Produção em andamento</p>
-                  </div>
-                  <Link href="/flow/conteudos" className="f-btn-ghost" style={{ textDecoration: 'none', fontSize: 12 }}>
-                    Ver todos <Icon name="arrow" size={13} />
-                  </Link>
-                </div>
-                <div>
-                  {[
-                    { title:'Reels — Antes e Depois',  format:'Reels',     deadline:'28 Mai', status:'Produção',             responsible:'Ana Lima'  },
-                    { title:'Carrossel — Dicas',        format:'Carrossel', deadline:'31 Mai', status:'Briefing',             responsible:'Pedro H.'  },
-                    { title:'Stories — Semana 4',       format:'Stories',   deadline:'01 Jun', status:'Agendado',             responsible:'Ana Lima'  },
-                    { title:'Post Feed — Resultado',    format:'Feed',      deadline:'25 Mai', status:'Publicado',            responsible:'Carlos M.' },
-                    { title:'Reels — Treino Especial',  format:'Reels',     deadline:'26 Mai', status:'Aguardando Aprovação', responsible:'Pedro H.'  },
-                  ].map((c, i, arr) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px', borderBottom: i < arr.length - 1 ? '1px solid var(--f-border)' : 'none' }}>
-                      <div style={{ width: 34, height: 34, borderRadius: 9, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--f-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--f-muted)', flexShrink: 0 }}>
-                        <Icon name="file" size={14} />
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--f-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.title}</div>
-                        <div style={{ fontSize: 11, color: 'var(--f-muted)', marginTop: 2 }}>{c.format} · {c.responsible}</div>
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
-                        <StatusBadge status={c.status} />
-                        <span style={{ fontSize: 10, color: 'var(--f-muted)' }}>{c.deadline}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Right column */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {/* Aprovações */}
-                <div className="f-card">
-                  <div className="f-card-header" style={{ padding: '14px 18px 12px' }}>
-                    <div>
-                      <h2 className="f-card-title" style={{ fontSize: 14 }}>Aprovações</h2>
-                      <p className="f-card-subtitle">Pendentes de revisão</p>
-                    </div>
-                    <Link href="/flow/aprovacoes" className="f-btn-ghost" style={{ textDecoration: 'none', fontSize: 11 }}>
-                      Ver <Icon name="arrow" size={12} />
-                    </Link>
-                  </div>
-                  <div>
-                    {[
-                      { title:'Reels — Treino Especial', status:'Aguardando revisão',  date:'26 Mai' },
-                      { title:'Post — Semana 3',         status:'Liberado p/ cliente', date:'22 Mai' },
-                    ].map((a, i, arr) => (
-                      <div key={i} style={{ padding: '10px 18px', borderBottom: i < arr.length - 1 ? '1px solid var(--f-border)' : 'none' }}>
-                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--f-text)', marginBottom: 4 }}>{a.title}</div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <StatusBadge status={a.status} />
-                          <span style={{ fontSize: 10, color: 'var(--f-muted)' }}>{a.date}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Quick links */}
-                <div className="f-card">
-                  <div className="f-card-header" style={{ padding: '14px 18px 12px' }}>
-                    <h2 className="f-card-title" style={{ fontSize: 14 }}>Acesso Rápido</h2>
-                  </div>
-                  <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <button onClick={() => setTab('calendario')} className="f-nav-item" style={{ background:'none', border:'none', cursor:'pointer', borderRadius:8, padding:'8px 10px', width:'100%', textAlign:'left' }}>
-                      <span className="f-nav-icon"><Icon name="calendar" size={15}/></span>
-                      <span className="f-nav-text">Calendário</span>
-                      <Icon name="arrow" size={13}/>
-                    </button>
-                    <button onClick={() => setTab('performance')} className="f-nav-item" style={{ background:'none', border:'none', cursor:'pointer', borderRadius:8, padding:'8px 10px', width:'100%', textAlign:'left' }}>
-                      <span className="f-nav-icon"><Icon name="chart" size={15}/></span>
-                      <span className="f-nav-text">Performance</span>
-                      <Icon name="arrow" size={13}/>
-                    </button>
-                    <Link href={`/flow/biblioteca/${clientSlug}`} className="f-nav-item" style={{ textDecoration:'none', borderRadius:8, padding:'8px 10px' }}>
-                      <span className="f-nav-icon"><Icon name="folder" size={15}/></span>
-                      <span className="f-nav-text">Biblioteca</span>
-                      <Icon name="arrow" size={13}/>
-                    </Link>
-                    <Link href="/flow/workflow" className="f-nav-item" style={{ textDecoration:'none', borderRadius:8, padding:'8px 10px' }}>
-                      <span className="f-nav-icon"><Icon name="workflow" size={15}/></span>
-                      <span className="f-nav-text">Workflow</span>
-                      <Icon name="arrow" size={13}/>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
           </>
+        )}
+
+        {/* ── Conteúdo ── */}
+        {tab === 'conteudo' && (
+          <ConteudoTab client={client} />
         )}
 
         {/* ── Calendário ── */}

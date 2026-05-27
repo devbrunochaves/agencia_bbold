@@ -56,17 +56,19 @@ export default function ClientBibliotecaPage() {
   const clientName = decodeURIComponent(params.clientSlug)
   const clientColor = CLIENT_COLOR[clientName] ?? '#A1A1AA'
 
-  const [files,       setFiles]     = useState([])
+  const [files,       setFiles]       = useState([])
   const [clientNames, setClientNames] = useState(FALLBACK_CLIENTS)
-  const [loaded,      setLoaded]    = useState(false)
-  const [search,    setSearch]    = useState('')
-  const [fType,     setFType]     = useState('')
-  const [sort,      setSort]      = useState('Mais recentes')
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editing,   setEditing]   = useState(null)
-  const [viewing,   setViewing]   = useState(null)
-  const [delTarget, setDelTarget] = useState(null)
-  const [toast,     setToast]     = useState(null)
+  const [loaded,      setLoaded]      = useState(false)
+  const [search,      setSearch]      = useState('')
+  const [fType,       setFType]       = useState('')
+  const [sort,        setSort]        = useState('Mais recentes')
+  const [menuOpen,    setMenuOpen]    = useState(false)
+  const [modalOpen,   setModalOpen]   = useState(false)
+  const [editing,     setEditing]     = useState(null)
+  const [viewing,     setViewing]     = useState(null)
+  const [delTarget,   setDelTarget]   = useState(null)
+  const [toast,       setToast]       = useState(null)
+  const menuRef = useRef(null)
 
   useEffect(() => {
     try {
@@ -81,6 +83,13 @@ export default function ClientBibliotecaPage() {
   useEffect(() => {
     if (loaded) localStorage.setItem(LS_KEY, JSON.stringify(files))
   }, [files, loaded])
+
+  useEffect(() => {
+    if (!menuOpen) return
+    function h(e) { if (!menuRef.current?.contains(e.target)) setMenuOpen(false) }
+    document.addEventListener('mousedown', h)
+    return () => document.removeEventListener('mousedown', h)
+  }, [menuOpen])
 
   function flash(msg, type = 'success') {
     setToast({ msg, type })
@@ -138,9 +147,27 @@ export default function ClientBibliotecaPage() {
         title={clientName}
         subtitle={`${clientFiles.length} arquivos · ${fmtSize(totalKB)}`}
         actions={
-          <button className="f-btn-primary" onClick={() => { setEditing(null); setModalOpen(true) }}>
-            <Icon name="plus" size={14}/> <span>Novo Arquivo</span>
-          </button>
+          <div style={{ position:'relative' }} ref={menuRef}>
+            <button className="f-btn-primary" onClick={() => setMenuOpen(v => !v)} style={{ gap:6 }}>
+              <Icon name="plus" size={14}/> <span>Novo</span>
+            </button>
+            {menuOpen && (
+              <div style={{ position:'absolute', top:'calc(100% + 8px)', right:0, background:'#232323', border:'1px solid rgba(255,255,255,0.1)', borderRadius:12, padding:6, minWidth:180, zIndex:300, boxShadow:'0 16px 48px rgba(0,0,0,0.6)', animation:'modalIn 0.15s ease' }}>
+                <DropItem
+                  icon={<FolderSVG size={15} color={clientColor}/>}
+                  label="Nova pasta"
+                  sub="Criar subpasta"
+                  onClick={() => { setMenuOpen(false); router.push('/flow/biblioteca') }}
+                />
+                <DropItem
+                  icon={<Icon name="upload" size={15}/>}
+                  label="Enviar arquivo"
+                  sub="Adicionar ao acervo"
+                  onClick={() => { setMenuOpen(false); setEditing(null); setModalOpen(true) }}
+                />
+              </div>
+            )}
+          </div>
         }
       />
 
@@ -560,5 +587,31 @@ function BackArrowSVG({ size = 14 }) {
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="15 18 9 12 15 6"/>
     </svg>
+  )
+}
+
+function FolderSVG({ size = 24, color = '#A1A1AA' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+    </svg>
+  )
+}
+
+function DropItem({ icon, label, sub, onClick }) {
+  const [hov, setHov] = useState(false)
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{ display:'flex', alignItems:'center', gap:10, width:'100%', padding:'10px 12px', borderRadius:8, background: hov ? 'rgba(255,255,255,0.06)' : 'none', border:'none', cursor:'pointer', textAlign:'left', transition:'background 0.15s' }}
+    >
+      <div style={{ color:'var(--f-muted)', flexShrink:0 }}>{icon}</div>
+      <div>
+        <div style={{ fontSize:13, fontWeight:600, color:'#fff' }}>{label}</div>
+        {sub && <div style={{ fontSize:11, color:'var(--f-muted)', marginTop:1 }}>{sub}</div>}
+      </div>
+    </button>
   )
 }

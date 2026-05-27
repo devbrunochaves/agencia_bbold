@@ -10,8 +10,6 @@ import Icon from '@/components/flow/FlowIcons'
 const LS_LIBRARY  = 'bbold_flow_library'
 const LS_CLIENTS  = 'bbold_flow_clients'
 
-const TYPES       = ['Logo','Brandbook','Foto','Vídeo','Contrato','Briefing','Campanha']
-
 const FOLDER_COLORS = ['#FFD22E','#3B82F6','#22C55E','#8B5CF6','#F59E0B','#EF4444','#06B6D4','#EC4899']
 
 const INITIAL_CLIENTS = [
@@ -69,11 +67,8 @@ export default function BibliotecaPage() {
   const [files,       setFiles]       = useState([])
   const [loaded,      setLoaded]      = useState(false)
   const [search,      setSearch]      = useState('')
-  const [menuOpen,    setMenuOpen]    = useState(false)
-  const [fileModal,   setFileModal]   = useState(false)
   const [folderModal, setFolderModal] = useState(false)
   const [toast,       setToast]       = useState(null)
-  const menuRef = useRef(null)
   const router  = useRouter()
 
   // Load from localStorage
@@ -94,14 +89,6 @@ export default function BibliotecaPage() {
   useEffect(() => { if (loaded) localStorage.setItem(LS_CLIENTS, JSON.stringify(clients)) }, [clients, loaded])
   useEffect(() => { if (loaded) localStorage.setItem(LS_LIBRARY, JSON.stringify(files))   }, [files,   loaded])
 
-  // Close menu on outside click
-  useEffect(() => {
-    if (!menuOpen) return
-    function h(e) { if (!menuRef.current?.contains(e.target)) setMenuOpen(false) }
-    document.addEventListener('mousedown', h)
-    return () => document.removeEventListener('mousedown', h)
-  }, [menuOpen])
-
   function flash(msg) {
     setToast(msg)
     setTimeout(() => setToast(null), 3000)
@@ -113,12 +100,6 @@ export default function BibliotecaPage() {
     setFolderModal(false)
     flash(`Pasta "${name}" criada!`)
     setTimeout(() => router.push(`/flow/biblioteca/${encodeURIComponent(name)}`), 400)
-  }
-
-  function handleNewFile(form) {
-    setFiles(prev => [{ ...form, id: uid() }, ...prev])
-    setFileModal(false)
-    flash('Arquivo adicionado!')
   }
 
   const folders = useMemo(() => {
@@ -141,32 +122,9 @@ export default function BibliotecaPage() {
         title="Biblioteca"
         subtitle={`${totalFiles} arquivos · ${fmtSize(totalSize)} total`}
         actions={
-          <div style={{ position:'relative' }} ref={menuRef}>
-            <button
-              className="f-btn-primary"
-              onClick={() => setMenuOpen(v => !v)}
-              style={{ gap:6 }}
-            >
-              <Icon name="plus" size={14}/> <span>Novo</span>
-            </button>
-
-            {menuOpen && (
-              <div style={{ position:'absolute', top:'calc(100% + 8px)', right:0, background:'#232323', border:'1px solid rgba(255,255,255,0.1)', borderRadius:12, padding:6, minWidth:176, zIndex:300, boxShadow:'0 16px 48px rgba(0,0,0,0.6)', animation:'modalIn 0.15s ease' }}>
-                <MenuItem
-                  icon={<FolderSVG size={15} color="#FFD22E"/>}
-                  label="Nova pasta"
-                  sub="Criar pasta de cliente"
-                  onClick={() => { setMenuOpen(false); setFolderModal(true) }}
-                />
-                <MenuItem
-                  icon={<Icon name="upload" size={15}/>}
-                  label="Enviar arquivo"
-                  sub="Adicionar ao acervo"
-                  onClick={() => { setMenuOpen(false); setFileModal(true) }}
-                />
-              </div>
-            )}
-          </div>
+          <button className="f-btn-primary" onClick={() => setFolderModal(true)} style={{ gap:6 }}>
+            <Icon name="plus" size={14}/> <span>Nova pasta</span>
+          </button>
         }
       />
 
@@ -221,42 +179,12 @@ export default function BibliotecaPage() {
         />
       )}
 
-      {/* New file modal */}
-      {fileModal && (
-        <FileFormModal
-          clientNames={clients.map(c => c.name)}
-          defaultClient={clients[0]?.name ?? ''}
-          onClose={() => setFileModal(false)}
-          onSave={handleNewFile}
-        />
-      )}
-
       {toast && (
         <div style={{ position:'fixed', bottom:24, right:24, zIndex:400, background:'rgba(34,197,94,0.15)', border:'1px solid rgba(34,197,94,0.35)', borderRadius:10, padding:'11px 18px', color:'#22C55E', fontSize:13, fontWeight:600, animation:'toastIn 0.2s ease', boxShadow:'0 8px 32px rgba(0,0,0,0.5)' }}>
           {toast}
         </div>
       )}
     </>
-  )
-}
-
-// ─── Dropdown Menu Item ───────────────────────────────────────────────────────
-
-function MenuItem({ icon, label, sub, onClick }) {
-  const [hov, setHov] = useState(false)
-  return (
-    <button
-      onClick={onClick}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{ display:'flex', alignItems:'center', gap:10, width:'100%', padding:'10px 12px', borderRadius:8, background: hov ? 'rgba(255,255,255,0.06)' : 'none', border:'none', cursor:'pointer', textAlign:'left', transition:'background 0.15s' }}
-    >
-      <div style={{ color:'var(--f-muted)', flexShrink:0 }}>{icon}</div>
-      <div>
-        <div style={{ fontSize:13, fontWeight:600, color:'#fff' }}>{label}</div>
-        {sub && <div style={{ fontSize:11, color:'var(--f-muted)', marginTop:1 }}>{sub}</div>}
-      </div>
-    </button>
   )
 }
 
@@ -390,114 +318,6 @@ function NewFolderModal({ existingNames, onClose, onSave }) {
           </div>
         </form>
       </div>
-    </div>
-  )
-}
-
-// ─── File Form Modal ──────────────────────────────────────────────────────────
-
-function FileFormModal({ clientNames, defaultClient, onClose, onSave }) {
-  const [form, setForm] = useState({
-    name: '', client: defaultClient, type: 'Logo',
-    sizeKB: '', date: new Date().toISOString().slice(0,10), observations: '',
-  })
-  const [errors, setErrors] = useState({})
-  const firstRef = useRef(null)
-
-  useEffect(() => { setTimeout(() => firstRef.current?.focus(), 80) }, [])
-
-  useEffect(() => {
-    const h = e => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', h)
-    return () => window.removeEventListener('keydown', h)
-  }, [onClose])
-
-  function set(field, val) {
-    setForm(f => ({ ...f, [field]: val }))
-    if (errors[field]) setErrors(e => ({ ...e, [field]: null }))
-  }
-
-  function submit(e) {
-    e.preventDefault()
-    const errs = {}
-    if (!form.name.trim()) errs.name = 'Nome obrigatório'
-    if (Object.keys(errs).length) { setErrors(errs); return }
-    onSave({ ...form, sizeKB: Number(form.sizeKB) || 0 })
-  }
-
-  return (
-    <div
-      style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.72)', backdropFilter:'blur(5px)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16, animation:'overlayIn 0.18s ease' }}
-      onClick={onClose}
-    >
-      <div
-        style={{ width:'100%', maxWidth:520, maxHeight:'90vh', overflowY:'auto', background:'#232323', border:'1px solid rgba(255,255,255,0.1)', borderRadius:20, boxShadow:'0 32px 96px rgba(0,0,0,0.7)', animation:'modalIn 0.22s cubic-bezier(.4,0,.2,1)', scrollbarWidth:'thin' }}
-        onClick={e => e.stopPropagation()}
-      >
-        <div style={{ padding:'20px 22px 14px', borderBottom:'1px solid rgba(255,255,255,0.07)', display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12, position:'sticky', top:0, background:'#232323', zIndex:1 }}>
-          <div>
-            <h2 style={{ fontSize:16, fontWeight:700, color:'#fff', margin:0 }}>Adicionar Arquivo</h2>
-            <p style={{ fontSize:12, color:'#A1A1AA', margin:'3px 0 0' }}>Preencha os dados do arquivo.</p>
-          </div>
-          <button onClick={onClose} style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:8, width:32, height:32, cursor:'pointer', color:'#A1A1AA', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-            <Icon name="xmark" size={16}/>
-          </button>
-        </div>
-
-        <div style={{ margin:'16px 22px 0', padding:'12px 14px', background:'rgba(255,210,46,0.06)', border:'1px solid rgba(255,210,46,0.2)', borderRadius:10, display:'flex', alignItems:'center', gap:10 }}>
-          <Icon name="upload" size={16} style={{ color:'#FFD22E', flexShrink:0 }}/>
-          <span style={{ fontSize:12, color:'#A1A1AA' }}>Upload real será habilitado em breve. Preencha os dados manualmente por ora.</span>
-        </div>
-
-        <form onSubmit={submit} style={{ padding:'16px 22px 22px', display:'flex', flexDirection:'column', gap:14 }}>
-          <FField label="Nome do arquivo *" error={errors.name}>
-            <input ref={firstRef} className={`f-input ${errors.name ? 'has-error' : ''}`} value={form.name} onChange={e => set('name', e.target.value)} placeholder="Ex: logo-cliente.svg"/>
-          </FField>
-
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-            <FField label="Cliente">
-              <select className="f-select" value={form.client} onChange={e => set('client', e.target.value)}>
-                {clientNames.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </FField>
-            <FField label="Tipo">
-              <select className="f-select" value={form.type} onChange={e => set('type', e.target.value)}>
-                {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </FField>
-          </div>
-
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-            <FField label="Tamanho (KB)">
-              <input className="f-input" type="number" min="0" value={form.sizeKB} onChange={e => set('sizeKB', e.target.value)} placeholder="Ex: 2048"/>
-            </FField>
-            <FField label="Data">
-              <input className="f-input" type="date" value={form.date} onChange={e => set('date', e.target.value)}/>
-            </FField>
-          </div>
-
-          <FField label="Observações">
-            <textarea className="f-input" value={form.observations} onChange={e => set('observations', e.target.value)} placeholder="Anotações sobre o arquivo..." rows={3} style={{ resize:'vertical', minHeight:68 }}/>
-          </FField>
-
-          <div style={{ display:'flex', gap:10, justifyContent:'flex-end', paddingTop:14, borderTop:'1px solid rgba(255,255,255,0.07)' }}>
-            <button type="button" className="f-btn-ghost" onClick={onClose}>Cancelar</button>
-            <button type="submit" className="f-btn-primary">
-              <Icon name="upload" size={14}/> Adicionar arquivo
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  )
-}
-
-function FField({ label, error, children }) {
-  return (
-    <div>
-      <label className="f-field-label">{label}</label>
-      {children}
-      {error && <span className="f-field-error">{error}</span>}
     </div>
   )
 }

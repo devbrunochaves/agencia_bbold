@@ -15,7 +15,12 @@
     "next": "15.3.6",
     "next-sanity": "^9.8.9",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-is": "^19.2.6",
+    "react-router-dom": "^6.30.3",
+    "recharts": "^3.8.1",
+    "sanity": "^3.99.0",
+    "styled-components": "^6.4.2"
   },
   "devDependencies": {
     "@types/node": "^20",

@@ -14,44 +14,127 @@ const STATUS_COLOR = {
 }
 
 const METRIC_NAMES = [
-  'Seguidores', 'Alcance médio', 'Engajamento (%)', 'Impressões', 'Curtidas', 'Comentários', 'Compartilhamentos', 'Saves',
+  'Seguidores Instagram', 'Seguidores YouTube', 'Alcance médio', 'Engajamento (%)',
+  'Impressões', 'Curtidas', 'Comentários', 'Compartilhamentos', 'Saves',
 ]
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function fmtDate(iso) {
+  if (!iso) return ''
+  const M = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']
+  const parts = iso.split('-')
+  return `${parseInt(parts[2])} ${M[parseInt(parts[1]) - 1]}`
+}
+
+function fmtVal(v) {
+  if (v >= 1000000) return (v / 1000000).toFixed(1) + 'M'
+  if (v >= 10000)   return (v / 1000).toFixed(0) + 'K'
+  if (v >= 1000)    return (v / 1000).toFixed(1) + 'K'
+  return v % 1 !== 0 ? v.toFixed(1) : String(Math.round(v))
+}
 
 // ─── Sparkline ────────────────────────────────────────────────────────────────
 
-function Sparkline({ records, color = '#FFD22E' }) {
+function Sparkline({ records, color = '#FFD22E', metricName }) {
   if (!records || records.length < 2) {
     return (
-      <div style={{ height: 36, display: 'flex', alignItems: 'center' }}>
-        <span style={{ fontSize: 11, color: 'var(--f-muted-dim)' }}>poucos dados</span>
+      <div style={{ padding: '14px 0 6px', color: 'var(--f-muted-dim)', fontSize: 12, textAlign: 'center' }}>
+        Adicione mais um registro para ver o gráfico de evolução.
       </div>
     )
   }
-  const W = 800, H = 36, PX = 6, PY = 5
-  const vals = records.map(r => r.value)
-  const min = Math.min(...vals)
-  const max = Math.max(...vals)
+
+  const vals  = records.map(r => r.value)
+  const min   = Math.min(...vals)
+  const max   = Math.max(...vals)
   const range = max - min || 1
-  const pts = vals.map((v, i) => {
-    const x = PX + (i / (vals.length - 1)) * (W - 2 * PX)
-    const y = PY + (1 - (v - min) / range) * (H - 2 * PY)
-    return [x, y]
-  })
-  const line = pts.map(([x, y]) => `${x},${y}`).join(' ')
-  const area = `${pts[0][0]},${H} ` + pts.map(([x, y]) => `${x},${y}`).join(' ') + ` ${pts[pts.length - 1][0]},${H}`
+
+  const pts = vals.map((v, i) => ({
+    x: vals.length === 1 ? 50 : (i / (vals.length - 1)) * 100,
+    y: (1 - (v - min) / range) * 100,
+    value: v,
+    date: records[i].recordedAt,
+  }))
+
+  const lineStr = pts.map(p => `${p.x},${p.y}`).join(' ')
+  const areaStr = `0,100 ${lineStr} 100,100`
+
+  const totalG = (() => {
+    if (records.length < 2 || !records[0].value) return null
+    return ((records[records.length - 1].value - records[0].value) / records[0].value) * 100
+  })()
+
+  const Y_W      = 44
+  const CHART_H  = 76
 
   return (
-    <svg
-      viewBox={`0 0 ${W} ${H}`}
-      preserveAspectRatio="none"
-      style={{ width: '100%', height: 36, display: 'block' }}
-    >
-      <polygon points={area} fill={color} fillOpacity="0.12" />
-      <polyline points={line} fill="none" stroke={color} strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round" />
-      {pts.map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r="3" fill={color} />
-      ))}
-    </svg>
+    <div>
+      {/* Chart: Y labels + SVG */}
+      <div style={{ display: 'flex', alignItems: 'stretch' }}>
+        {/* Y-axis */}
+        <div style={{ width: Y_W, flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', paddingRight: 8, height: CHART_H }}>
+          <span style={{ fontSize: 9, color: 'var(--f-muted-dim)', textAlign: 'right', display: 'block', lineHeight: 1 }}>{fmtVal(max)}</span>
+          <span style={{ fontSize: 9, color: 'var(--f-muted-dim)', textAlign: 'right', display: 'block', lineHeight: 1 }}>{fmtVal(min + range / 2)}</span>
+          <span style={{ fontSize: 9, color: 'var(--f-muted-dim)', textAlign: 'right', display: 'block', lineHeight: 1 }}>{fmtVal(min)}</span>
+        </div>
+
+        {/* SVG + HTML dots overlay */}
+        <div style={{ flex: 1, position: 'relative', height: CHART_H }}>
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ width: '100%', height: '100%', display: 'block' }}>
+            {[0, 50, 100].map(y => (
+              <line key={y} x1="0" y1={y} x2="100" y2={y}
+                stroke="rgba(255,255,255,0.07)" strokeWidth="0.4" vectorEffect="non-scaling-stroke" />
+            ))}
+            <polygon points={areaStr} fill={color} fillOpacity="0.13" />
+            <polyline points={lineStr} fill="none" stroke={color} strokeWidth="1.5"
+              strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+          </svg>
+          {/* Dots: HTML divs avoid SVG circle distortion with preserveAspectRatio="none" */}
+          {pts.map((p, i) => (
+            <div
+              key={i}
+              title={`${fmtDate(p.date)}: ${p.value.toLocaleString('pt-BR')}`}
+              style={{
+                position: 'absolute', left: `${p.x}%`, top: `${p.y}%`,
+                width: 7, height: 7, borderRadius: '50%',
+                background: color, border: '1.5px solid #111',
+                transform: 'translate(-50%, -50%)',
+                cursor: 'default', zIndex: 1,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* X-axis dates */}
+      <div style={{ position: 'relative', height: 18, marginLeft: Y_W, marginTop: 3 }}>
+        {pts.map((p, i) => (
+          <span key={i} style={{
+            position: 'absolute', left: `${p.x}%`, fontSize: 9,
+            color: 'var(--f-muted-dim)', transform: 'translateX(-50%)', whiteSpace: 'nowrap',
+          }}>
+            {fmtDate(p.date)}
+          </span>
+        ))}
+      </div>
+
+      {/* Legend */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, marginLeft: Y_W }}>
+        <span style={{ width: 18, height: 2, background: color, borderRadius: 99, display: 'inline-block', flexShrink: 0 }} />
+        <span style={{ fontSize: 11, color: 'var(--f-muted)', flex: 1 }}>Evolução — {metricName}</span>
+        {totalG !== null && (
+          <span style={{
+            fontSize: 11, fontWeight: 700,
+            color: totalG >= 0 ? '#22C55E' : '#EF4444',
+            background: totalG >= 0 ? '#22C55E18' : '#EF444418',
+            borderRadius: 99, padding: '2px 8px', flexShrink: 0,
+          }}>
+            {totalG >= 0 ? '+' : ''}{totalG.toFixed(1)}% desde o início
+          </span>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -88,11 +171,8 @@ function PerformanceTab({ perf, onAdd, onDelete, clientName }) {
   }
 
   function totalGrowth(records) {
-    if (records.length < 2) return null
-    const first = records[0].value
-    const last  = records[records.length - 1].value
-    if (!first) return null
-    return ((last - first) / first) * 100
+    if (records.length < 2 || !records[0].value) return null
+    return ((records[records.length - 1].value - records[0].value) / records[0].value) * 100
   }
 
   function handleSubmit(e) {
@@ -103,9 +183,12 @@ function PerformanceTab({ perf, onAdd, onDelete, clientName }) {
     setShowModal(false)
   }
 
+  const metricEntries = Object.entries(groups)
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {/* Header action */}
+
+      {/* ── Header ── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--f-text)', margin: 0 }}>
@@ -121,8 +204,38 @@ function PerformanceTab({ perf, onAdd, onDelete, clientName }) {
         </button>
       </div>
 
-      {/* Empty state */}
-      {Object.keys(groups).length === 0 && (
+      {/* ── Summary cards strip ── */}
+      {metricEntries.length > 0 && (
+        <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4 }}>
+          {metricEntries.map(([metric, records]) => {
+            const latest = records[records.length - 1]
+            const total  = totalGrowth(records)
+            return (
+              <div key={metric} className="f-card" style={{ flexShrink: 0, minWidth: 150, padding: '14px 16px' }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--f-muted-dim)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 140 }}>
+                  {metric}
+                </div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--f-yellow)', lineHeight: 1 }}>
+                  {fmtVal(latest.value)}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
+                  {total !== null
+                    ? <GrowthBadge pct={total} />
+                    : <span style={{ fontSize: 10, color: 'var(--f-muted-dim)' }}>Base</span>
+                  }
+                  <span style={{ fontSize: 10, color: 'var(--f-muted-dim)' }}>vs. início</span>
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--f-muted-dim)', marginTop: 5 }}>
+                  Atualizado em {fmtDate(latest.recordedAt)}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* ── Empty state ── */}
+      {metricEntries.length === 0 && (
         <div className="f-card">
           <div className="f-empty-state" style={{ padding: '60px 20px' }}>
             <Icon name="chart" size={36} />
@@ -135,41 +248,40 @@ function PerformanceTab({ perf, onAdd, onDelete, clientName }) {
         </div>
       )}
 
-      {/* Metric groups */}
-      {Object.entries(groups).map(([metric, records]) => {
-        const total = totalGrowth(records)
+      {/* ── Metric cards ── */}
+      {metricEntries.map(([metric, records]) => {
         const latest = records[records.length - 1]
+        const total  = totalGrowth(records)
         return (
           <div key={metric} className="f-card">
+            {/* Card header */}
             <div className="f-card-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <h2 className="f-card-title">{metric}</h2>
+                <span style={{ fontSize: 11, color: 'var(--f-muted-dim)' }}>{records.length} registro{records.length !== 1 ? 's' : ''}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <GrowthBadge pct={total} />
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--f-yellow)' }}>
-                  {typeof latest.value === 'number' && latest.value >= 1000
-                    ? (latest.value / 1000).toFixed(1) + 'K'
-                    : latest.value}
+                <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--f-yellow)', lineHeight: 1 }}>
+                  {fmtVal(latest.value)}
                 </span>
-                <span style={{ fontSize: 11, color: 'var(--f-muted)', marginLeft: 4 }}>último registro</span>
               </div>
             </div>
 
-            {/* Sparkline */}
-            <div style={{ padding: '0 20px 8px' }}>
-              <Sparkline records={records} color="var(--f-yellow)" />
+            {/* Sparkline with scale + legend */}
+            <div style={{ padding: '4px 20px 16px' }}>
+              <Sparkline records={records} color="#FFD22E" metricName={metric} />
             </div>
 
-            {/* History table */}
-            <div style={{ overflowX: 'auto' }}>
+            {/* Compact table */}
+            <div style={{ borderTop: '1px solid var(--f-border)', overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
                 <thead>
-                  <tr style={{ borderBottom: '1px solid var(--f-border)' }}>
-                    {['Data', 'Valor', 'Variação', 'Crescimento%', 'Obs'].map(h => (
-                      <th key={h} style={{ padding: '8px 14px', textAlign: 'left', color: 'var(--f-muted-dim)', fontWeight: 700, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{h}</th>
+                  <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
+                    {['Data', 'Valor', 'Variação', 'Crescimento%', 'Obs.'].map(h => (
+                      <th key={h} style={{ padding: '7px 14px', textAlign: 'left', color: 'var(--f-muted-dim)', fontWeight: 700, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{h}</th>
                     ))}
-                    <th />
+                    <th style={{ width: 32 }} />
                   </tr>
                 </thead>
                 <tbody>
@@ -177,25 +289,37 @@ function PerformanceTab({ perf, onAdd, onDelete, clientName }) {
                     const growth = calcGrowth(records, i)
                     const delta  = i > 0 ? r.value - records[i - 1].value : null
                     return (
-                      <tr key={r.id} style={{ borderBottom: i < records.length - 1 ? '1px solid var(--f-border)' : 'none' }}>
-                        <td style={{ padding: '9px 14px', color: 'var(--f-muted)', whiteSpace: 'nowrap' }}>{r.recordedAt}</td>
-                        <td style={{ padding: '9px 14px', fontWeight: 700, color: 'var(--f-text)' }}>{r.value.toLocaleString('pt-BR')}</td>
-                        <td style={{ padding: '9px 14px' }}>
-                          {delta !== null && (
-                            <span style={{ color: delta >= 0 ? '#22C55E' : '#EF4444', fontWeight: 600 }}>
-                              {delta >= 0 ? '+' : ''}{delta.toLocaleString('pt-BR')}
-                            </span>
-                          )}
+                      <tr key={r.id} style={{ borderTop: '1px solid var(--f-border)' }}>
+                        <td style={{ padding: '7px 14px', color: 'var(--f-muted)', whiteSpace: 'nowrap' }}>
+                          {fmtDate(r.recordedAt)}
                         </td>
-                        <td style={{ padding: '9px 14px' }}><GrowthBadge pct={growth} /></td>
-                        <td style={{ padding: '9px 14px', color: 'var(--f-muted)', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.notes}</td>
-                        <td style={{ padding: '9px 14px', textAlign: 'right' }}>
+                        <td style={{ padding: '7px 14px', fontWeight: 700, color: 'var(--f-yellow)' }}>
+                          {r.value.toLocaleString('pt-BR')}
+                        </td>
+                        <td style={{ padding: '7px 14px' }}>
+                          {delta !== null
+                            ? <span style={{ color: delta >= 0 ? '#22C55E' : '#EF4444', fontWeight: 600 }}>
+                                {delta >= 0 ? '+' : ''}{delta.toLocaleString('pt-BR')}
+                              </span>
+                            : <span style={{ color: 'var(--f-muted-dim)' }}>—</span>
+                          }
+                        </td>
+                        <td style={{ padding: '7px 14px' }}>
+                          {growth !== null
+                            ? <GrowthBadge pct={growth} />
+                            : <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--f-muted-dim)', background: 'rgba(255,255,255,0.05)', borderRadius: 99, padding: '2px 8px' }}>Base</span>
+                          }
+                        </td>
+                        <td style={{ padding: '7px 14px', color: 'var(--f-muted)', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {r.notes || <span style={{ color: 'var(--f-muted-dim)' }}>—</span>}
+                        </td>
+                        <td style={{ padding: '7px 10px', textAlign: 'right' }}>
                           <button
                             onClick={() => onDelete(r.id)}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--f-muted-dim)', padding: 4 }}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--f-muted-dim)', padding: 4, opacity: 0.6, lineHeight: 1 }}
                             title="Remover"
                           >
-                            <Icon name="trash" size={13} />
+                            <Icon name="trash" size={12} />
                           </button>
                         </td>
                       </tr>
@@ -208,7 +332,7 @@ function PerformanceTab({ perf, onAdd, onDelete, clientName }) {
         )
       })}
 
-      {/* Add record modal */}
+      {/* ── Modal ── */}
       {showModal && (
         <div className="f-modal-overlay" onClick={() => setShowModal(false)}>
           <div className="f-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 420 }}>

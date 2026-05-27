@@ -275,12 +275,14 @@ function PerformanceTab({ perf, onAdd, onDelete, clientName }) {
 
             {/* Compact table */}
             <div style={{ borderTop: '1px solid var(--f-border)', overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+              <table className="perf-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
                 <thead>
                   <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
-                    {['Data', 'Valor', 'Variação', 'Crescimento%', 'Obs.'].map(h => (
-                      <th key={h} style={{ padding: '7px 14px', textAlign: 'left', color: 'var(--f-muted-dim)', fontWeight: 700, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{h}</th>
-                    ))}
+                    <th style={{ padding: '7px 12px', textAlign: 'left', color: 'var(--f-muted-dim)', fontWeight: 700, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>Data</th>
+                    <th style={{ padding: '7px 12px', textAlign: 'left', color: 'var(--f-muted-dim)', fontWeight: 700, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>Valor</th>
+                    <th className="perf-col-var" style={{ padding: '7px 12px', textAlign: 'left', color: 'var(--f-muted-dim)', fontWeight: 700, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>Variação</th>
+                    <th style={{ padding: '7px 12px', textAlign: 'left', color: 'var(--f-muted-dim)', fontWeight: 700, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>Crescimento%</th>
+                    <th className="perf-col-obs" style={{ padding: '7px 12px', textAlign: 'left', color: 'var(--f-muted-dim)', fontWeight: 700, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>Obs.</th>
                     <th style={{ width: 32 }} />
                   </tr>
                 </thead>
@@ -290,30 +292,30 @@ function PerformanceTab({ perf, onAdd, onDelete, clientName }) {
                     const delta  = i > 0 ? r.value - records[i - 1].value : null
                     return (
                       <tr key={r.id} style={{ borderTop: '1px solid var(--f-border)' }}>
-                        <td style={{ padding: '7px 14px', color: 'var(--f-muted)', whiteSpace: 'nowrap' }}>
+                        <td style={{ padding: '7px 12px', color: 'var(--f-muted)', whiteSpace: 'nowrap' }}>
                           {fmtDate(r.recordedAt)}
                         </td>
-                        <td style={{ padding: '7px 14px', fontWeight: 700, color: 'var(--f-yellow)' }}>
+                        <td style={{ padding: '7px 12px', fontWeight: 700, color: 'var(--f-yellow)', whiteSpace: 'nowrap' }}>
                           {r.value.toLocaleString('pt-BR')}
                         </td>
-                        <td style={{ padding: '7px 14px' }}>
+                        <td className="perf-col-var" style={{ padding: '7px 12px' }}>
                           {delta !== null
-                            ? <span style={{ color: delta >= 0 ? '#22C55E' : '#EF4444', fontWeight: 600 }}>
+                            ? <span style={{ color: delta >= 0 ? '#22C55E' : '#EF4444', fontWeight: 600, whiteSpace: 'nowrap' }}>
                                 {delta >= 0 ? '+' : ''}{delta.toLocaleString('pt-BR')}
                               </span>
                             : <span style={{ color: 'var(--f-muted-dim)' }}>—</span>
                           }
                         </td>
-                        <td style={{ padding: '7px 14px' }}>
+                        <td style={{ padding: '7px 12px' }}>
                           {growth !== null
                             ? <GrowthBadge pct={growth} />
                             : <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--f-muted-dim)', background: 'rgba(255,255,255,0.05)', borderRadius: 99, padding: '2px 8px' }}>Base</span>
                           }
                         </td>
-                        <td style={{ padding: '7px 14px', color: 'var(--f-muted)', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <td className="perf-col-obs" style={{ padding: '7px 12px', color: 'var(--f-muted)', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {r.notes || <span style={{ color: 'var(--f-muted-dim)' }}>—</span>}
                         </td>
-                        <td style={{ padding: '7px 10px', textAlign: 'right' }}>
+                        <td style={{ padding: '7px 8px', textAlign: 'right' }}>
                           <button
                             onClick={() => onDelete(r.id)}
                             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--f-muted-dim)', padding: 4, opacity: 0.6, lineHeight: 1 }}
@@ -327,6 +329,13 @@ function PerformanceTab({ perf, onAdd, onDelete, clientName }) {
                   })}
                 </tbody>
               </table>
+              <style>{`
+                @media (max-width: 640px) {
+                  .perf-col-obs,
+                  .perf-col-var { display: none; }
+                  .perf-table td, .perf-table th { padding-left: 10px !important; padding-right: 10px !important; }
+                }
+              `}</style>
             </div>
           </div>
         )

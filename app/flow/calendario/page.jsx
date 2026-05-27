@@ -139,16 +139,14 @@ export default function CalendarioPage() {
             </div>
 
             {/* Week header */}
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:2, padding:'0 16px 8px' }}>
+            <div className="f-cal-week-row">
               {WEEK_LABELS.map((w) => (
-                <div key={w} style={{ textAlign:'center', fontSize:11, fontWeight:600, color:'var(--f-muted-dim)', padding:'4px 0' }}>
-                  {w}
-                </div>
+                <span key={w} className="f-cal-week-label">{w}</span>
               ))}
             </div>
 
             {/* Day grid */}
-            <div className="f-cal-grid" style={{ padding:'0 16px 16px' }}>
+            <div className="f-cal-grid">
               {CELLS.map((day, idx) => (
                 <div
                   key={idx}

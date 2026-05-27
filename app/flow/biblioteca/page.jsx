@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import FlowHeader from '@/components/flow/FlowHeader'
 import Icon from '@/components/flow/FlowIcons'
 
@@ -8,36 +9,43 @@ import Icon from '@/components/flow/FlowIcons'
 
 const LS_KEY = 'bbold_flow_library'
 
-const CLIENTS   = ['Academia Alpha','Clínica Essenza','Restaurante Origem','Urban Fit Store','Studio Bella Forma','Odonto Prime']
-const TYPES     = ['Logo','Brandbook','Foto','Vídeo','Contrato','Briefing','Campanha']
-const SORT_OPTS = ['Mais recentes','Mais antigos','Nome A-Z','Nome Z-A','Maior tamanho','Menor tamanho']
+const CLIENTS = ['Academia Alpha','Clínica Essenza','Restaurante Origem','Urban Fit Store','Studio Bella Forma','Odonto Prime']
+const TYPES   = ['Logo','Brandbook','Foto','Vídeo','Contrato','Briefing','Campanha']
+
+const CLIENT_COLOR = {
+  'Academia Alpha':     '#FFD22E',
+  'Clínica Essenza':    '#22C55E',
+  'Restaurante Origem': '#F59E0B',
+  'Urban Fit Store':    '#3B82F6',
+  'Studio Bella Forma': '#EC4899',
+  'Odonto Prime':       '#8B5CF6',
+}
 
 const TYPE_ICON  = { Logo:'star', Brandbook:'doc', Foto:'image', Vídeo:'video', Contrato:'lock', Briefing:'file', Campanha:'zap' }
-const TYPE_COLOR = { Logo:'#FFD22E', Brandbook:'#3B82F6', Foto:'#22C55E', Vídeo:'#8B5CF6', Contrato:'#EF4444', Briefing:'#F59E0B', Campanha:'#EC4899' }
 
 const INITIAL_FILES = [
-  { id:'1',  name:'logo-academia-alpha.svg',      client:'Academia Alpha',     type:'Logo',      sizeKB:240,      date:'2026-05-15', observations:'Logo principal em SVG vetorial.' },
-  { id:'2',  name:'brandbook-alpha-2025.pdf',     client:'Academia Alpha',     type:'Brandbook', sizeKB:4300,     date:'2026-01-10', observations:'Manual de identidade visual completo.' },
-  { id:'3',  name:'fotos-estudio-abril.zip',      client:'Academia Alpha',     type:'Foto',      sizeKB:89088,    date:'2026-04-02', observations:'Pack de fotos do estúdio — sessão de abril.' },
-  { id:'4',  name:'logo-essenza-principal.svg',   client:'Clínica Essenza',    type:'Logo',      sizeKB:180,      date:'2026-03-08', observations:'' },
-  { id:'5',  name:'contrato-essenza-2025.pdf',    client:'Clínica Essenza',    type:'Contrato',  sizeKB:320,      date:'2026-01-01', observations:'Contrato de prestação de serviços 2025.' },
-  { id:'6',  name:'briefing-junho-essenza.pdf',   client:'Clínica Essenza',    type:'Briefing',  sizeKB:156,      date:'2026-05-20', observations:'Briefing para campanha de junho.' },
-  { id:'7',  name:'logo-origem-vetor.svg',        client:'Restaurante Origem', type:'Logo',      sizeKB:95,       date:'2026-02-05', observations:'' },
-  { id:'8',  name:'fotos-restaurante-maio.zip',   client:'Restaurante Origem', type:'Foto',      sizeKB:126976,   date:'2026-05-18', observations:'Fotos dos pratos novos do cardápio.' },
-  { id:'9',  name:'reels-bastidores-cozinha.mp4', client:'Restaurante Origem', type:'Vídeo',     sizeKB:215040,   date:'2026-05-22', observations:'Bastidores da cozinha para Reels.' },
-  { id:'10', name:'logo-urbanfit-store.svg',      client:'Urban Fit Store',    type:'Logo',      sizeKB:310,      date:'2026-03-14', observations:'' },
-  { id:'11', name:'campanha-inverno-2026.pdf',    client:'Urban Fit Store',    type:'Campanha',  sizeKB:2150,     date:'2026-05-10', observations:'Apresentação da campanha de inverno.' },
-  { id:'12', name:'briefing-junho-urbanfit.pdf',  client:'Urban Fit Store',    type:'Briefing',  sizeKB:98,       date:'2026-05-19', observations:'' },
-  { id:'13', name:'logo-bella-forma.svg',         client:'Studio Bella Forma', type:'Logo',      sizeKB:220,      date:'2026-02-20', observations:'' },
-  { id:'14', name:'fotos-studio-abril.zip',       client:'Studio Bella Forma', type:'Foto',      sizeKB:57344,    date:'2026-04-05', observations:'Fotos de ensaio do studio — abril.' },
-  { id:'15', name:'logo-odonto-prime.svg',        client:'Odonto Prime',       type:'Logo',      sizeKB:175,      date:'2026-01-12', observations:'' },
-  { id:'16', name:'contrato-odonto-2025.pdf',     client:'Odonto Prime',       type:'Contrato',  sizeKB:290,      date:'2026-01-01', observations:'Contrato anual de serviços.' },
+  { id:'1',  name:'logo-academia-alpha.svg',      client:'Academia Alpha',     type:'Logo',      sizeKB:240,    date:'2026-05-15', observations:'Logo principal em SVG vetorial.' },
+  { id:'2',  name:'brandbook-alpha-2025.pdf',     client:'Academia Alpha',     type:'Brandbook', sizeKB:4300,   date:'2026-01-10', observations:'Manual de identidade visual completo.' },
+  { id:'3',  name:'fotos-estudio-abril.zip',      client:'Academia Alpha',     type:'Foto',      sizeKB:89088,  date:'2026-04-02', observations:'Pack de fotos do estúdio — sessão de abril.' },
+  { id:'4',  name:'logo-essenza-principal.svg',   client:'Clínica Essenza',    type:'Logo',      sizeKB:180,    date:'2026-03-08', observations:'' },
+  { id:'5',  name:'contrato-essenza-2025.pdf',    client:'Clínica Essenza',    type:'Contrato',  sizeKB:320,    date:'2026-01-01', observations:'Contrato de prestação de serviços 2025.' },
+  { id:'6',  name:'briefing-junho-essenza.pdf',   client:'Clínica Essenza',    type:'Briefing',  sizeKB:156,    date:'2026-05-20', observations:'Briefing para campanha de junho.' },
+  { id:'7',  name:'logo-origem-vetor.svg',        client:'Restaurante Origem', type:'Logo',      sizeKB:95,     date:'2026-02-05', observations:'' },
+  { id:'8',  name:'fotos-restaurante-maio.zip',   client:'Restaurante Origem', type:'Foto',      sizeKB:126976, date:'2026-05-18', observations:'Fotos dos pratos novos do cardápio.' },
+  { id:'9',  name:'reels-bastidores-cozinha.mp4', client:'Restaurante Origem', type:'Vídeo',     sizeKB:215040, date:'2026-05-22', observations:'Bastidores da cozinha para Reels.' },
+  { id:'10', name:'logo-urbanfit-store.svg',      client:'Urban Fit Store',    type:'Logo',      sizeKB:310,    date:'2026-03-14', observations:'' },
+  { id:'11', name:'campanha-inverno-2026.pdf',    client:'Urban Fit Store',    type:'Campanha',  sizeKB:2150,   date:'2026-05-10', observations:'Apresentação da campanha de inverno.' },
+  { id:'12', name:'briefing-junho-urbanfit.pdf',  client:'Urban Fit Store',    type:'Briefing',  sizeKB:98,     date:'2026-05-19', observations:'' },
+  { id:'13', name:'logo-bella-forma.svg',         client:'Studio Bella Forma', type:'Logo',      sizeKB:220,    date:'2026-02-20', observations:'' },
+  { id:'14', name:'fotos-studio-abril.zip',       client:'Studio Bella Forma', type:'Foto',      sizeKB:57344,  date:'2026-04-05', observations:'Fotos de ensaio do studio — abril.' },
+  { id:'15', name:'logo-odonto-prime.svg',        client:'Odonto Prime',       type:'Logo',      sizeKB:175,    date:'2026-01-12', observations:'' },
+  { id:'16', name:'contrato-odonto-2025.pdf',     client:'Odonto Prime',       type:'Contrato',  sizeKB:290,    date:'2026-01-01', observations:'Contrato anual de serviços.' },
 ]
 
-function uid()  { return Date.now().toString(36) + Math.random().toString(36).slice(2) }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2) }
 
 function fmtSize(kb) {
-  if (!kb) return '—'
+  if (!kb) return '0 KB'
   if (kb >= 1024 * 1024) return `${(kb / 1024 / 1024).toFixed(1)} GB`
   if (kb >= 1024)        return `${(kb / 1024).toFixed(1)} MB`
   return `${kb} KB`
@@ -50,26 +58,15 @@ function fmtDate(iso) {
   return `${Number(d)} ${months[Number(m)-1]}`
 }
 
-const selectStyle = {
-  background:'var(--f-card)', border:'1px solid var(--f-border)',
-  borderRadius:8, color:'var(--f-muted)', fontSize:13,
-  padding:'7px 10px', cursor:'pointer', outline:'none', width:'100%',
-}
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function BibliotecaPage() {
-  const [files,    setFiles]    = useState([])
-  const [loaded,   setLoaded]   = useState(false)
-  const [search,   setSearch]   = useState('')
-  const [fClient,  setFClient]  = useState('')
-  const [fType,    setFType]    = useState('')
-  const [sort,     setSort]     = useState('Mais recentes')
-  const [modalOpen,setModalOpen]= useState(false)
-  const [editing,  setEditing]  = useState(null)
-  const [viewing,  setViewing]  = useState(null)
-  const [delTarget,setDelTarget]= useState(null)
-  const [toast,    setToast]    = useState(null)
+  const [files,     setFiles]     = useState([])
+  const [loaded,    setLoaded]    = useState(false)
+  const [search,    setSearch]    = useState('')
+  const [modalOpen, setModalOpen] = useState(false)
+  const [toast,     setToast]     = useState(null)
+  const router = useRouter()
 
   useEffect(() => {
     try {
@@ -89,83 +86,38 @@ export default function BibliotecaPage() {
   }
 
   function handleSave(form) {
-    if (editing) {
-      setFiles(prev => prev.map(f => f.id === editing.id ? { ...f, ...form } : f))
-      flash('Arquivo atualizado!')
-    } else {
-      setFiles(prev => [{ ...form, id: uid() }, ...prev])
-      flash('Arquivo adicionado!')
-    }
-    setModalOpen(false); setEditing(null)
+    setFiles(prev => [{ ...form, id: uid() }, ...prev])
+    flash('Arquivo adicionado!')
+    setModalOpen(false)
   }
 
-  function handleDelete(file) {
-    setFiles(prev => prev.filter(f => f.id !== file.id))
-    setDelTarget(null)
-    flash('Arquivo removido.', 'warn')
-  }
+  const folders = useMemo(() => {
+    return CLIENTS
+      .map(client => {
+        const cf = files.filter(f => f.client === client)
+        const totalKB  = cf.reduce((acc, f) => acc + (f.sizeKB || 0), 0)
+        const lastDate = cf.length > 0 ? cf.reduce((l, f) => f.date > l ? f.date : l, '') : null
+        return { client, count: cf.length, totalKB, lastDate }
+      })
+      .filter(f => !search || f.client.toLowerCase().includes(search.toLowerCase()))
+  }, [files, search])
 
-  function handleDownload(file) {
-    flash(`Iniciando download: ${file.name}`)
-  }
-
-  const filtered = useMemo(() => {
-    let list = files.filter(f => {
-      if (fClient && f.client !== fClient) return false
-      if (fType   && f.type   !== fType)   return false
-      if (search) {
-        const q = search.toLowerCase()
-        return f.name.toLowerCase().includes(q) ||
-               f.client.toLowerCase().includes(q) ||
-               f.type.toLowerCase().includes(q)
-      }
-      return true
-    })
-
-    list = [...list].sort((a, b) => {
-      if (sort === 'Mais recentes') return (b.date || '').localeCompare(a.date || '')
-      if (sort === 'Mais antigos')  return (a.date || '').localeCompare(b.date || '')
-      if (sort === 'Nome A-Z')      return a.name.localeCompare(b.name)
-      if (sort === 'Nome Z-A')      return b.name.localeCompare(a.name)
-      if (sort === 'Maior tamanho') return (b.sizeKB || 0) - (a.sizeKB || 0)
-      if (sort === 'Menor tamanho') return (a.sizeKB || 0) - (b.sizeKB || 0)
-      return 0
-    })
-
-    return list
-  }, [files, fClient, fType, sort, search])
-
-  const hasFilters = fClient || fType || search
+  const totalFiles = files.length
+  const totalSize  = files.reduce((acc, f) => acc + (f.sizeKB || 0), 0)
 
   return (
     <>
       <FlowHeader
         title="Biblioteca"
-        subtitle="Organize logos, fotos, vídeos, documentos e materiais de todos os clientes."
+        subtitle={`${totalFiles} arquivos · ${fmtSize(totalSize)} total`}
         actions={
-          <button className="f-btn-primary" onClick={() => { setEditing(null); setModalOpen(true) }}>
+          <button className="f-btn-primary" onClick={() => setModalOpen(true)}>
             <Icon name="upload" size={14}/> <span>Enviar Arquivo</span>
           </button>
         }
       />
 
       <main className="f-content">
-
-        {/* Filters */}
-        <div className="f-filter-row" style={{ gridTemplateColumns:'1fr 1fr 1fr' }}>
-          <select style={selectStyle} value={fClient} onChange={e => setFClient(e.target.value)}>
-            <option value="">Todos os clientes</option>
-            {CLIENTS.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
-          <select style={selectStyle} value={fType} onChange={e => setFType(e.target.value)}>
-            <option value="">Todos os tipos</option>
-            {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-          </select>
-          <select style={selectStyle} value={sort} onChange={e => setSort(e.target.value)}>
-            {SORT_OPTS.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-        </div>
-
         {/* Search */}
         <div style={{ position:'relative' }}>
           <div style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--f-muted)', pointerEvents:'none' }}>
@@ -174,112 +126,44 @@ export default function BibliotecaPage() {
           <input
             className="f-input"
             style={{ paddingLeft:36 }}
-            placeholder="Buscar por nome, cliente ou tipo..."
+            placeholder="Buscar cliente..."
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
         </div>
 
-        {/* Count + clear */}
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-          <span style={{ fontSize:12, color:'var(--f-muted)' }}>
-            {filtered.length} arquivo{filtered.length !== 1 ? 's' : ''} encontrado{filtered.length !== 1 ? 's' : ''}
-          </span>
-          {hasFilters && (
-            <button className="f-btn-ghost" style={{ fontSize:12 }} onClick={() => { setFClient(''); setFType(''); setSearch('') }}>
-              Limpar filtros
-            </button>
-          )}
-        </div>
+        <span style={{ fontSize:12, color:'var(--f-muted)' }}>
+          {folders.length} {folders.length === 1 ? 'cliente' : 'clientes'}
+        </span>
 
-        {/* Grid */}
-        {filtered.length === 0 ? (
-          <div className="f-empty-state" style={{ padding:'60px 20px' }}>
-            <Icon name="folder" size={40}/>
-            <h3>Nenhum arquivo encontrado</h3>
-            <p>Envie um arquivo ou ajuste os filtros.</p>
-            <button className="f-btn-primary" style={{ marginTop:12 }} onClick={() => { setEditing(null); setModalOpen(true) }}>
-              <Icon name="upload" size={14}/> Enviar Arquivo
-            </button>
-          </div>
-        ) : (
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(200px, 1fr))', gap:12 }}>
-            {filtered.map(file => (
-              <FileCard
-                key={file.id}
-                file={file}
-                onView={() => setViewing(file)}
-                onEdit={() => { setEditing(file); setModalOpen(true) }}
-                onDownload={() => handleDownload(file)}
-                onDelete={() => setDelTarget(file)}
-              />
-            ))}
-          </div>
-        )}
+        {/* Folder Grid */}
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(160px, 1fr))', gap:14 }}>
+          {folders.map(folder => (
+            <FolderCard
+              key={folder.client}
+              folder={folder}
+              color={CLIENT_COLOR[folder.client] ?? '#A1A1AA'}
+              onClick={() => router.push(`/flow/biblioteca/${encodeURIComponent(folder.client)}`)}
+            />
+          ))}
+        </div>
       </main>
 
-      {/* Upload / Edit modal */}
+      {/* Add file modal (global — with client selector) */}
       {modalOpen && (
         <FileFormModal
-          editing={editing}
-          onClose={() => { setModalOpen(false); setEditing(null) }}
+          editing={null}
+          defaultClient={CLIENTS[0]}
+          onClose={() => setModalOpen(false)}
           onSave={handleSave}
         />
       )}
 
-      {/* Detail modal */}
-      {viewing && (
-        <FileDetailModal
-          file={viewing}
-          onClose={() => setViewing(null)}
-          onEdit={() => { setEditing(viewing); setViewing(null); setModalOpen(true) }}
-          onDownload={() => handleDownload(viewing)}
-        />
-      )}
-
-      {/* Delete confirmation */}
-      {delTarget && (
-        <div
-          style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.72)', backdropFilter:'blur(5px)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}
-          onClick={() => setDelTarget(null)}
-        >
-          <div
-            style={{ background:'#232323', border:'1px solid rgba(255,255,255,0.1)', borderRadius:16, padding:28, maxWidth:360, width:'100%' }}
-            onClick={e => e.stopPropagation()}
-          >
-            <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
-              <div style={{ width:40, height:40, borderRadius:10, background:'rgba(239,68,68,0.15)', display:'flex', alignItems:'center', justifyContent:'center', color:'#EF4444', flexShrink:0 }}>
-                <Icon name="trash" size={18}/>
-              </div>
-              <div>
-                <div style={{ fontWeight:700, color:'#fff', fontSize:15 }}>Excluir arquivo?</div>
-                <div style={{ fontSize:12, color:'#A1A1AA', marginTop:2 }}>Esta ação não pode ser desfeita.</div>
-              </div>
-            </div>
-            <p style={{ fontSize:13, color:'#A1A1AA', marginBottom:20, lineHeight:1.5 }}>
-              "<strong style={{ color:'#fff' }}>{delTarget.name}</strong>" será removido permanentemente.
-            </p>
-            <div style={{ display:'flex', gap:8, justifyContent:'flex-end' }}>
-              <button className="f-btn-ghost" onClick={() => setDelTarget(null)}>Cancelar</button>
-              <button
-                onClick={() => handleDelete(delTarget)}
-                style={{ padding:'7px 16px', borderRadius:8, background:'rgba(239,68,68,0.15)', border:'1px solid rgba(239,68,68,0.3)', color:'#EF4444', cursor:'pointer', fontWeight:600, fontSize:13, fontFamily:'var(--f-font)' }}
-              >
-                Excluir
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Toast */}
       {toast && (
         <div style={{
           position:'fixed', bottom:24, right:24, zIndex:300,
-          background: toast.type === 'warn' ? 'rgba(239,68,68,0.15)' : 'rgba(34,197,94,0.15)',
-          border:`1px solid ${toast.type === 'warn' ? 'rgba(239,68,68,0.35)' : 'rgba(34,197,94,0.35)'}`,
-          borderRadius:10, padding:'11px 18px',
-          color: toast.type === 'warn' ? '#EF4444' : '#22C55E',
+          background:'rgba(34,197,94,0.15)', border:'1px solid rgba(34,197,94,0.35)',
+          borderRadius:10, padding:'11px 18px', color:'#22C55E',
           fontSize:13, fontWeight:600, animation:'toastIn 0.2s ease',
           boxShadow:'0 8px 32px rgba(0,0,0,0.5)',
         }}>
@@ -290,165 +174,90 @@ export default function BibliotecaPage() {
   )
 }
 
-// ─── File Card ────────────────────────────────────────────────────────────────
+// ─── Folder Card ──────────────────────────────────────────────────────────────
 
-function FileCard({ file, onView, onEdit, onDownload, onDelete }) {
-  const color = TYPE_COLOR[file.type] || '#A1A1AA'
-  const icon  = TYPE_ICON[file.type]  || 'file'
+function FolderCard({ folder, color, onClick }) {
+  const [hovered, setHovered] = useState(false)
 
   return (
     <div
-      style={{ background:'var(--f-card)', border:'1px solid var(--f-border)', borderRadius:12, overflow:'hidden', cursor:'pointer', transition:'background 0.15s, transform 0.15s, box-shadow 0.15s' }}
-      onClick={onView}
-      onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 8px 32px rgba(0,0,0,0.4)' }}
-      onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='' }}
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: hovered ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)',
+        border: `1px solid ${hovered ? color + '50' : 'rgba(255,255,255,0.08)'}`,
+        borderRadius: 16,
+        padding: '20px 16px 16px',
+        cursor: 'pointer',
+        transition: 'all 0.18s ease',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        transform: hovered ? 'translateY(-2px)' : 'none',
+        boxShadow: hovered ? `0 8px 28px rgba(0,0,0,0.4)` : 'none',
+      }}
     >
-      {/* Preview */}
-      <div style={{ height:76, background:`${color}12`, borderBottom:'1px solid var(--f-border)', display:'flex', alignItems:'center', justifyContent:'center', color, position:'relative' }}>
-        <Icon name={icon} size={30}/>
-        <span style={{ position:'absolute', top:8, right:8, fontSize:9, fontWeight:700, padding:'2px 6px', borderRadius:5, background:`${color}20`, border:`1px solid ${color}30`, color }}>
-          {file.type}
-        </span>
+      {/* Folder icon */}
+      <div style={{
+        width: 50, height: 50,
+        borderRadius: 14,
+        background: `${color}18`,
+        border: `1px solid ${color}30`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <FolderSVG size={26} color={color}/>
       </div>
 
       {/* Info */}
-      <div style={{ padding:'10px 12px 8px' }}>
-        <div style={{ fontSize:12, fontWeight:600, color:'var(--f-text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginBottom:3 }}>
-          {file.name}
+      <div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 5, lineHeight: 1.3 }}>
+          {folder.client}
         </div>
-        <div style={{ fontSize:11, color:'var(--f-muted)', marginBottom:6, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-          {file.client}
+        <div style={{ fontSize: 11, color: 'var(--f-muted)', marginBottom: 3 }}>
+          {folder.count} {folder.count === 1 ? 'arquivo' : 'arquivos'}
         </div>
-        <div style={{ fontSize:10, color:'var(--f-muted-dim)' }}>
-          {fmtSize(file.sizeKB)} · {fmtDate(file.date)}
+        <div style={{ fontSize: 11, color: 'var(--f-muted-dim)' }}>
+          {fmtSize(folder.totalKB)}
+          {folder.lastDate ? ` · ${fmtDate(folder.lastDate)}` : ''}
         </div>
       </div>
 
-      {/* Actions — stop propagation */}
-      <div
-        style={{ borderTop:'1px solid var(--f-border)', padding:'6px 8px', display:'flex', gap:4, justifyContent:'flex-end' }}
-        onClick={e => e.stopPropagation()}
-      >
-        <ActionIcon icon="eye"      title="Visualizar" onClick={onView}/>
-        <ActionIcon icon="download" title="Baixar"     onClick={onDownload}/>
-        <ActionIcon icon="edit"     title="Editar"     onClick={onEdit}/>
-        <ActionIcon icon="trash"    title="Excluir"    onClick={onDelete} danger/>
+      {/* Open label */}
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'flex-end', gap:4, color }}>
+        <span style={{ fontSize:11, fontWeight:600 }}>Abrir</span>
+        <ChevronRightSVG size={13} color={color}/>
       </div>
     </div>
   )
 }
 
-function ActionIcon({ icon, title, onClick, danger }) {
+function FolderSVG({ size = 24, color = '#A1A1AA' }) {
   return (
-    <button
-      title={title}
-      onClick={onClick}
-      style={{ width:28, height:28, borderRadius:7, background:'rgba(255,255,255,0.04)', border:'1px solid var(--f-border)', color:'var(--f-muted)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', transition:'background 0.15s, color 0.15s' }}
-      onMouseEnter={e => { e.currentTarget.style.background = danger ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = danger ? '#EF4444' : '#fff' }}
-      onMouseLeave={e => { e.currentTarget.style.background = ''; e.currentTarget.style.color = '' }}
-    >
-      <Icon name={icon} size={13}/>
-    </button>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+    </svg>
   )
 }
 
-// ─── File Detail Modal ────────────────────────────────────────────────────────
-
-function FileDetailModal({ file, onClose, onEdit, onDownload }) {
-  const color = TYPE_COLOR[file.type] || '#A1A1AA'
-  const icon  = TYPE_ICON[file.type]  || 'file'
-
-  useEffect(() => {
-    const h = e => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', h)
-    return () => window.removeEventListener('keydown', h)
-  }, [onClose])
-
+function ChevronRightSVG({ size = 14, color = '#A1A1AA' }) {
   return (
-    <div
-      style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.75)', backdropFilter:'blur(6px)', zIndex:200, display:'flex', alignItems:'flex-end', justifyContent:'center', animation:'overlayIn 0.18s ease' }}
-      onClick={onClose}
-    >
-      <div
-        style={{ width:'100%', maxWidth:540, background:'#1E1E1E', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'20px 20px 0 0', boxShadow:'0 -24px 80px rgba(0,0,0,0.6)', animation:'slideUp 0.28s cubic-bezier(.4,0,.2,1)' }}
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Handle */}
-        <div style={{ display:'flex', justifyContent:'center', padding:'12px 0 4px' }}>
-          <div style={{ width:36, height:4, borderRadius:99, background:'rgba(255,255,255,0.15)' }}/>
-        </div>
-
-        {/* Preview area */}
-        <div style={{ height:100, background:`${color}10`, borderBottom:'1px solid rgba(255,255,255,0.07)', display:'flex', alignItems:'center', justifyContent:'center', color }}>
-          <Icon name={icon} size={40}/>
-        </div>
-
-        {/* Content */}
-        <div style={{ padding:'20px 22px' }}>
-          <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12, marginBottom:16 }}>
-            <div>
-              <div style={{ fontSize:16, fontWeight:700, color:'#fff', marginBottom:4 }}>{file.name}</div>
-              <span style={{ fontSize:11, fontWeight:700, padding:'3px 8px', borderRadius:6, color, background:`${color}18`, border:`1px solid ${color}30` }}>{file.type}</span>
-            </div>
-            <button onClick={onClose} style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:8, width:32, height:32, cursor:'pointer', color:'#A1A1AA', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-              <Icon name="xmark" size={16}/>
-            </button>
-          </div>
-
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginBottom:16 }}>
-            <DetailInfo label="Cliente"  value={file.client}/>
-            <DetailInfo label="Tipo"     value={file.type}/>
-            <DetailInfo label="Tamanho"  value={fmtSize(file.sizeKB)}/>
-            <DetailInfo label="Data"     value={fmtDate(file.date)}/>
-          </div>
-
-          {file.observations && (
-            <div style={{ marginBottom:16 }}>
-              <span style={{ display:'block', fontSize:10, fontWeight:700, color:'var(--f-muted-dim)', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:6 }}>Observações</span>
-              <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:10, padding:'10px 12px', fontSize:13, color:'var(--f-muted)', lineHeight:1.6 }}>
-                {file.observations}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div style={{ padding:'12px 22px 32px', borderTop:'1px solid rgba(255,255,255,0.07)', display:'flex', gap:8, justifyContent:'flex-end' }}>
-          <button className="f-btn-ghost" onClick={onClose}>Fechar</button>
-          <button className="f-btn-ghost" onClick={onEdit} style={{ display:'flex', alignItems:'center', gap:5 }}>
-            <Icon name="edit" size={13}/> Editar
-          </button>
-          <button
-            onClick={onDownload}
-            style={{ display:'flex', alignItems:'center', gap:6, padding:'7px 16px', borderRadius:8, background:'rgba(255,210,46,0.12)', border:'1px solid rgba(255,210,46,0.3)', color:'#FFD22E', cursor:'pointer', fontWeight:600, fontSize:13, fontFamily:'var(--f-font)' }}
-          >
-            <Icon name="download" size={14}/> Baixar
-          </button>
-        </div>
-      </div>
-    </div>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="9 18 15 12 9 6"/>
+    </svg>
   )
 }
 
-function DetailInfo({ label, value }) {
-  return (
-    <div>
-      <span style={{ display:'block', fontSize:10, fontWeight:700, color:'var(--f-muted-dim)', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:4 }}>{label}</span>
-      <span style={{ fontSize:13, fontWeight:600, color:'var(--f-text)' }}>{value || '—'}</span>
-    </div>
-  )
-}
+// ─── File Form Modal (add) ────────────────────────────────────────────────────
 
-// ─── File Form Modal (upload / edit) ─────────────────────────────────────────
-
-function FileFormModal({ editing, onClose, onSave }) {
+function FileFormModal({ editing, defaultClient, onClose, onSave }) {
   const [form, setForm] = useState({
-    name: editing?.name || '',
-    client: editing?.client || 'Academia Alpha',
-    type: editing?.type || 'Logo',
-    sizeKB: editing?.sizeKB || '',
-    date: editing?.date || new Date().toISOString().slice(0,10),
-    observations: editing?.observations || '',
+    name:         editing?.name         ?? '',
+    client:       editing?.client       ?? defaultClient ?? CLIENTS[0],
+    type:         editing?.type         ?? 'Logo',
+    sizeKB:       editing?.sizeKB       ?? '',
+    date:         editing?.date         ?? new Date().toISOString().slice(0,10),
+    observations: editing?.observations ?? '',
   })
   const [errors, setErrors] = useState({})
   const firstRef = useRef(null)
@@ -483,25 +292,20 @@ function FileFormModal({ editing, onClose, onSave }) {
         style={{ width:'100%', maxWidth:520, maxHeight:'90vh', overflowY:'auto', background:'#232323', border:'1px solid rgba(255,255,255,0.1)', borderRadius:20, boxShadow:'0 32px 96px rgba(0,0,0,0.7)', animation:'modalIn 0.22s cubic-bezier(.4,0,.2,1)', scrollbarWidth:'thin' }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
         <div style={{ padding:'20px 22px 14px', borderBottom:'1px solid rgba(255,255,255,0.07)', display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12, position:'sticky', top:0, background:'#232323', zIndex:1 }}>
           <div>
-            <h2 style={{ fontSize:16, fontWeight:700, color:'#fff', margin:0 }}>{editing ? 'Editar Arquivo' : 'Adicionar Arquivo'}</h2>
-            <p style={{ fontSize:12, color:'#A1A1AA', margin:'3px 0 0' }}>
-              {editing ? 'Atualize as informações do arquivo.' : 'Preencha os dados do arquivo a ser catalogado.'}
-            </p>
+            <h2 style={{ fontSize:16, fontWeight:700, color:'#fff', margin:0 }}>Adicionar Arquivo</h2>
+            <p style={{ fontSize:12, color:'#A1A1AA', margin:'3px 0 0' }}>Preencha os dados do arquivo a ser catalogado.</p>
           </div>
           <button onClick={onClose} style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:8, width:32, height:32, cursor:'pointer', color:'#A1A1AA', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
             <Icon name="xmark" size={16}/>
           </button>
         </div>
 
-        {!editing && (
-          <div style={{ margin:'16px 22px 0', padding:'12px 14px', background:'rgba(255,210,46,0.06)', border:'1px solid rgba(255,210,46,0.2)', borderRadius:10, display:'flex', alignItems:'center', gap:10 }}>
-            <Icon name="upload" size={16} style={{ color:'#FFD22E', flexShrink:0 }}/>
-            <span style={{ fontSize:12, color:'#A1A1AA' }}>Upload real de arquivos será habilitado em breve. Preencha os dados manualmente por ora.</span>
-          </div>
-        )}
+        <div style={{ margin:'16px 22px 0', padding:'12px 14px', background:'rgba(255,210,46,0.06)', border:'1px solid rgba(255,210,46,0.2)', borderRadius:10, display:'flex', alignItems:'center', gap:10 }}>
+          <Icon name="upload" size={16} style={{ color:'#FFD22E', flexShrink:0 }}/>
+          <span style={{ fontSize:12, color:'#A1A1AA' }}>Upload real será habilitado em breve. Preencha os dados manualmente por ora.</span>
+        </div>
 
         <form onSubmit={submit} style={{ padding:'16px 22px 22px', display:'flex', flexDirection:'column', gap:14 }}>
           <FField label="Nome do arquivo *" error={errors.name}>
@@ -522,7 +326,7 @@ function FileFormModal({ editing, onClose, onSave }) {
           </div>
 
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-            <FField label="Tamanho (em KB)">
+            <FField label="Tamanho (KB)">
               <input className="f-input" type="number" min="0" value={form.sizeKB} onChange={e => set('sizeKB', e.target.value)} placeholder="Ex: 2048"/>
             </FField>
             <FField label="Data">
@@ -537,8 +341,7 @@ function FileFormModal({ editing, onClose, onSave }) {
           <div style={{ display:'flex', gap:10, justifyContent:'flex-end', paddingTop:14, borderTop:'1px solid rgba(255,255,255,0.07)' }}>
             <button type="button" className="f-btn-ghost" onClick={onClose}>Cancelar</button>
             <button type="submit" className="f-btn-primary">
-              <Icon name={editing ? 'check' : 'upload'} size={14}/>
-              {editing ? 'Salvar alterações' : 'Adicionar arquivo'}
+              <Icon name="upload" size={14}/> Adicionar arquivo
             </button>
           </div>
         </form>

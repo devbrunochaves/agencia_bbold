@@ -33,7 +33,7 @@ function formatDate(iso: string) {
 }
 
 export default async function BlogPage() {
-  const posts = await client.fetch(allPostsQuery);
+  const posts = await client.fetch(allPostsQuery).catch(() => []);
 
   return (
     <main className="pt-28 pb-24 px-10 max-w-site mx-auto">

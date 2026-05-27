@@ -6,11 +6,9 @@ import MetricCard from '@/components/flow/MetricCard'
 import Icon from '@/components/flow/FlowIcons'
 import ApprovalModal from '@/components/flow/ApprovalModal'
 import ApprovalDetailModal from '@/components/flow/ApprovalDetailModal'
+import { supabase } from '@/lib/supabase'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
-const LS_KEY = 'bbold_flow_approvals'
-const TODAY  = new Date().toDateString()
 
 const STATUSES = ['Aguardando revisão','Ajustes solicitados','Liberado p/ cliente','Aprovado','Reprovado']
 
@@ -23,27 +21,41 @@ const STATUS_CFG = {
 }
 
 const PRIORITY_BORDER = {
-  'Urgente': '#EF4444',
-  'Alta':    '#F59E0B',
-  'Média':   '#3B82F6',
-  'Baixa':   '#4B5563',
+  'Urgente':'#EF4444', 'Alta':'#F59E0B', 'Média':'#3B82F6', 'Baixa':'#4B5563',
 }
 
-const INITIAL = [
-  { id:'1', title:'Reels — Antes e Depois',       client:'Academia Alpha',     format:'Reels',        responsible:'Ana Lima',     deadline:'2026-05-28', priority:'Alta',   status:'Aguardando revisão',  copy:'Transformação incrível em 30 dias! Confira o antes e depois. 💪 #fitness #academia', observations:'Verificar trilha sonora antes de publicar.', createdAt:'2026-05-20T10:00:00Z', updatedAt:'2026-05-20T10:00:00Z' },
-  { id:'2', title:'Post Feed — Cardápio Novo',     client:'Restaurante Origem', format:'Feed',         responsible:'Camila Rocha', deadline:'2026-05-27', priority:'Alta',   status:'Aguardando revisão',  copy:'Novidades no cardápio de maio! Venha experimentar nossos pratos sazonais 🍽️', observations:'', createdAt:'2026-05-21T09:00:00Z', updatedAt:'2026-05-21T09:00:00Z' },
-  { id:'3', title:'Carrossel — Tratamentos',       client:'Clínica Essenza',    format:'Carrossel',    responsible:'Bruno',        deadline:'2026-05-26', priority:'Urgente',status:'Aguardando revisão',  copy:'5 tratamentos que vão transformar sua pele! Deslize para ver 👉', observations:'Prazo vencido, priorizar revisão.', createdAt:'2026-05-19T14:00:00Z', updatedAt:'2026-05-19T14:00:00Z' },
-  { id:'4', title:'Reels — Treino do Mês',         client:'Academia Alpha',     format:'Reels',        responsible:'Rafael Souza', deadline:'2026-05-29', priority:'Média',  status:'Ajustes solicitados', copy:'Treino completo em 20 minutos! Sem desculpas 🔥', observations:'Ajuste: cortar os primeiros 5 segundos do vídeo e adicionar legenda no trecho 0:12.', createdAt:'2026-05-18T11:00:00Z', updatedAt:'2026-05-22T15:30:00Z' },
-  { id:'5', title:'Carrossel — Resultados',        client:'Studio Bella Forma', format:'Carrossel',    responsible:'Ana Lima',     deadline:'2026-05-29', priority:'Média',  status:'Ajustes solicitados', copy:'Resultados reais de quem confia na Bella Forma ✨', observations:'Ajuste solicitado: fonte do slide 3 está incorreta.', createdAt:'2026-05-17T10:00:00Z', updatedAt:'2026-05-23T09:00:00Z' },
-  { id:'6', title:'Stories — Depoimento',          client:'Clínica Essenza',    format:'Stories',      responsible:'Ana Lima',     deadline:'2026-05-25', priority:'Baixa',  status:'Liberado p/ cliente', copy:'Cliente satisfeita com os resultados! ⭐⭐⭐⭐⭐', observations:'', createdAt:'2026-05-15T10:00:00Z', updatedAt:'2026-05-24T11:00:00Z' },
-  { id:'7', title:'Post Feed — Semana 3',          client:'Restaurante Origem', format:'Feed',         responsible:'Camila Rocha', deadline:'2026-05-22', priority:'Baixa',  status:'Aprovado',            copy:'Mesa reservada para você! Venha nos visitar este final de semana 🌟', observations:'', createdAt:'2026-05-14T10:00:00Z', updatedAt:'2026-05-25T10:00:00Z' },
-  { id:'8', title:'Landing — Campanha Inverno',    client:'Urban Fit Store',    format:'Landing Page', responsible:'Rafael Souza', deadline:'2026-06-05', priority:'Alta',   status:'Aguardando revisão',  copy:'', observations:'Aguardando copy final do cliente.', createdAt:'2026-05-23T10:00:00Z', updatedAt:'2026-05-23T10:00:00Z' },
-  { id:'9', title:'Stories — Promoção Junho',      client:'Urban Fit Store',    format:'Stories',      responsible:'Ana Lima',     deadline:'2026-05-30', priority:'Média',  status:'Aguardando revisão',  copy:'Junho chegou com tudo! Aproveite -30% em toda a loja 🛍️', observations:'', createdAt:'2026-05-24T10:00:00Z', updatedAt:'2026-05-24T10:00:00Z' },
-  { id:'10',title:'Reels — Look do Dia',           client:'Urban Fit Store',    format:'Reels',        responsible:'Camila Rocha', deadline:'2026-05-28', priority:'Baixa',  status:'Reprovado',           copy:'Look do dia com as novidades da Urban Fit 👗', observations:'Reprovado: vídeo com qualidade insatisfatória, refazer.', createdAt:'2026-05-16T10:00:00Z', updatedAt:'2026-05-26T08:00:00Z' },
-]
+// ─── Field mapping ────────────────────────────────────────────────────────────
 
-function uid()    { return Date.now().toString(36) + Math.random().toString(36).slice(2) }
-function nowISO() { return new Date().toISOString() }
+function fromDB(row) {
+  return {
+    id:           row.id,
+    title:        row.title        ?? '',
+    client:       row.client       ?? '',
+    format:       row.format       ?? '',
+    responsible:  row.responsible  ?? '',
+    deadline:     row.deadline     ?? '',
+    priority:     row.priority     ?? 'Média',
+    status:       row.status       ?? 'Aguardando revisão',
+    copy:         row.copy         ?? '',
+    observations: row.observations ?? '',
+    createdAt:    row.created_at,
+    updatedAt:    row.updated_at,
+  }
+}
+
+function toDB(form) {
+  return {
+    title:        form.title        || '',
+    client:       form.client       || '',
+    format:       form.format       || '',
+    responsible:  form.responsible  || '',
+    deadline:     form.deadline     || null,
+    priority:     form.priority     || 'Média',
+    status:       form.status       || 'Aguardando revisão',
+    copy:         form.copy         || '',
+    observations: form.observations || '',
+  }
+}
 
 function fmtDeadline(iso) {
   if (!iso) return '—'
@@ -58,95 +70,100 @@ function isPast(iso) {
 }
 
 function isApprovedToday(item) {
-  return item.status === 'Aprovado' && new Date(item.updatedAt).toDateString() === TODAY
+  if (!item.updatedAt) return false
+  return item.status === 'Aprovado' && new Date(item.updatedAt).toDateString() === new Date().toDateString()
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function AprovacoesPage() {
-  const [items,    setItems]    = useState([])
-  const [loaded,   setLoaded]   = useState(false)
-  const [modalOpen,setModalOpen]= useState(false)
-  const [editing,  setEditing]  = useState(null)
-  const [viewing,  setViewing]  = useState(null)
-  const [search,   setSearch]   = useState('')
-  const [fStatus,  setFStatus]  = useState('')
-  const [toast,    setToast]    = useState(null)
-  // Small action modals
-  const [adjustTarget, setAdjustTarget] = useState(null)
-  const [rejectTarget, setRejectTarget] = useState(null)
-  const [adjustNote,   setAdjustNote]   = useState('')
-  const [rejectNote,   setRejectNote]   = useState('')
+  const [items,       setItems]      = useState([])
+  const [clientNames, setClientNames]= useState([])
+  const [loading,     setLoading]    = useState(true)
+  const [modalOpen,   setModalOpen]  = useState(false)
+  const [editing,     setEditing]    = useState(null)
+  const [viewing,     setViewing]    = useState(null)
+  const [search,      setSearch]     = useState('')
+  const [fStatus,     setFStatus]    = useState('')
+  const [toast,       setToast]      = useState(null)
+  const [adjustTarget,setAdjustTarget]=useState(null)
+  const [rejectTarget,setRejectTarget]=useState(null)
+  const [adjustNote,  setAdjustNote] = useState('')
+  const [rejectNote,  setRejectNote] = useState('')
 
+  // ─── Load ──────────────────────────────────────────────────────────────────
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(LS_KEY)
-      setItems(raw ? JSON.parse(raw) : INITIAL)
-    } catch { setItems(INITIAL) }
-    setLoaded(true)
+    async function load() {
+      const [{ data: rows }, { data: clientRows }] = await Promise.all([
+        supabase.from('approvals').select('*').order('created_at', { ascending: false }),
+        supabase.from('clients').select('name').order('name'),
+      ])
+      setItems((rows ?? []).map(fromDB))
+      setClientNames((clientRows ?? []).map(r => r.name))
+      setLoading(false)
+    }
+    load()
   }, [])
-
-  useEffect(() => {
-    if (loaded) localStorage.setItem(LS_KEY, JSON.stringify(items))
-  }, [items, loaded])
 
   function flash(msg, type = 'success') {
     setToast({ msg, type })
     setTimeout(() => setToast(null), 3000)
   }
 
-  function update(id, patch) {
-    setItems(prev => prev.map(i => i.id === id ? { ...i, ...patch, updatedAt: nowISO() } : i))
+  // ─── CRUD helpers ──────────────────────────────────────────────────────────
+
+  async function dbUpdate(id, patch) {
+    const current = items.find(i => i.id === id)
+    if (!current) return
+    const { data, error } = await supabase
+      .from('approvals').update(toDB({ ...current, ...patch })).eq('id', id).select().single()
+    if (!error && data) setItems(prev => prev.map(i => i.id === id ? fromDB(data) : i))
+    return error
   }
 
-  // ── Actions ────────────────────────────────────────────────────────────────
+  // ─── Actions ───────────────────────────────────────────────────────────────
 
-  function handleSave(form) {
+  async function handleSave(form) {
     if (editing) {
-      update(editing.id, form)
+      const { data, error } = await supabase
+        .from('approvals').update(toDB(form)).eq('id', editing.id).select().single()
+      if (error) { flash('Erro ao salvar.', 'warn'); return }
+      setItems(prev => prev.map(i => i.id === editing.id ? fromDB(data) : i))
       flash('Aprovação atualizada!')
     } else {
-      const now = nowISO()
-      setItems(prev => [{ ...form, id:uid(), status:'Aguardando revisão', createdAt:now, updatedAt:now }, ...prev])
+      const { data, error } = await supabase
+        .from('approvals').insert({ ...toDB(form), status:'Aguardando revisão' }).select().single()
+      if (error) { flash('Erro ao criar.', 'warn'); return }
+      setItems(prev => [fromDB(data), ...prev])
       flash('Aprovação criada!')
     }
     setModalOpen(false); setEditing(null)
   }
 
-  function handleApprove(id) {
-    update(id, { status:'Aprovado' })
-    flash('Conteúdo aprovado! ✓')
-  }
+  async function handleApprove(id)  { await dbUpdate(id, { status:'Aprovado' }); flash('Conteúdo aprovado! ✓') }
+  async function handleRelease(id)  { await dbUpdate(id, { status:'Liberado p/ cliente' }); flash('Liberado para o cliente!') }
 
-  function handleRelease(id) {
-    update(id, { status:'Liberado p/ cliente' })
-    flash('Liberado para o cliente!')
-  }
-
-  function handleAdjust() {
+  async function handleAdjust() {
     if (!adjustTarget) return
-    update(adjustTarget.id, { status:'Ajustes solicitados', observations: adjustNote || adjustTarget.observations })
-    flash('Ajuste solicitado.', 'warn')
+    const err = await dbUpdate(adjustTarget.id, { status:'Ajustes solicitados', observations: adjustNote || adjustTarget.observations })
+    if (!err) flash('Ajuste solicitado.', 'warn')
     setAdjustTarget(null); setAdjustNote('')
   }
 
-  function handleReject() {
+  async function handleReject() {
     if (!rejectTarget) return
-    update(rejectTarget.id, { status:'Reprovado', observations: rejectNote || rejectTarget.observations })
-    flash('Aprovação reprovada.', 'warn')
+    const err = await dbUpdate(rejectTarget.id, { status:'Reprovado', observations: rejectNote || rejectTarget.observations })
+    if (!err) flash('Aprovação reprovada.', 'warn')
     setRejectTarget(null); setRejectNote('')
   }
 
-  // ── Metrics ────────────────────────────────────────────────────────────────
-
+  // ─── Metrics ───────────────────────────────────────────────────────────────
   const metrics = useMemo(() => ({
-    pendentes:    items.filter(i => i.status === 'Aguardando revisão').length,
-    urgentes:     items.filter(i => i.priority === 'Urgente' || (isPast(i.deadline) && !['Aprovado','Liberado p/ cliente','Reprovado'].includes(i.status))).length,
-    aprovadosHoje:items.filter(isApprovedToday).length,
-    reprovados:   items.filter(i => i.status === 'Reprovado').length,
+    pendentes:     items.filter(i => i.status === 'Aguardando revisão').length,
+    urgentes:      items.filter(i => i.priority === 'Urgente' || (isPast(i.deadline) && !['Aprovado','Liberado p/ cliente','Reprovado'].includes(i.status))).length,
+    aprovadosHoje: items.filter(isApprovedToday).length,
+    reprovados:    items.filter(i => i.status === 'Reprovado').length,
   }), [items])
-
-  // ── Filter ─────────────────────────────────────────────────────────────────
 
   const filtered = useMemo(() => items.filter(i => {
     if (fStatus && i.status !== fStatus) return false
@@ -164,8 +181,6 @@ export default function AprovacoesPage() {
   }), [items, fStatus, search])
 
   const selectStyle = { background:'var(--f-card)', border:'1px solid var(--f-border)', borderRadius:8, color:'var(--f-muted)', fontSize:13, padding:'7px 10px', cursor:'pointer', outline:'none' }
-
-  // ── Find viewing item from live list (so state reflects updates) ───────────
   const liveViewing = viewing ? items.find(i => i.id === viewing.id) ?? viewing : null
 
   return (
@@ -181,16 +196,13 @@ export default function AprovacoesPage() {
       />
 
       <main className="f-content">
-
-        {/* Metrics */}
         <div className="f-metrics-grid">
-          <MetricCard icon="clock"    value={String(metrics.pendentes)}     label="Pendentes"       desc="aguardando revisão"   accentColor="#F59E0B" trend={0}  />
-          <MetricCard icon="alert"    value={String(metrics.urgentes)}      label="Urgentes"        desc="prazo crítico"        accentColor="#EF4444" trend={0}  />
-          <MetricCard icon="thumbsup" value={String(metrics.aprovadosHoje)} label="Aprovados hoje"  desc="neste dia"            accentColor="#22C55E" trend={0}  />
-          <MetricCard icon="xmark"    value={String(metrics.reprovados)}    label="Reprovados"      desc="precisam de revisão"  accentColor="#8B5CF6" trend={0}  />
+          <MetricCard icon="clock"    value={String(metrics.pendentes)}     label="Pendentes"      desc="aguardando revisão"  accentColor="#F59E0B" trend={0} />
+          <MetricCard icon="alert"    value={String(metrics.urgentes)}      label="Urgentes"       desc="prazo crítico"       accentColor="#EF4444" trend={0} />
+          <MetricCard icon="thumbsup" value={String(metrics.aprovadosHoje)} label="Aprovados hoje" desc="neste dia"           accentColor="#22C55E" trend={0} />
+          <MetricCard icon="xmark"    value={String(metrics.reprovados)}    label="Reprovados"     desc="precisam de revisão" accentColor="#8B5CF6" trend={0} />
         </div>
 
-        {/* Filters + search */}
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
           <select style={{ ...selectStyle, width:'100%' }} value={fStatus} onChange={e => setFStatus(e.target.value)}>
             <option value="">Todos os status</option>
@@ -200,28 +212,23 @@ export default function AprovacoesPage() {
             <div style={{ position:'absolute', left:11, top:'50%', transform:'translateY(-50%)', color:'var(--f-muted)', pointerEvents:'none' }}>
               <Icon name="search" size={14}/>
             </div>
-            <input
-              className="f-input"
-              style={{ paddingLeft:34 }}
-              placeholder="Buscar..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
+            <input className="f-input" style={{ paddingLeft:34 }} placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)}/>
           </div>
         </div>
 
-        {/* Count + clear */}
         {(fStatus || search) && (
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
             <span style={{ fontSize:12, color:'var(--f-muted)' }}>{filtered.length} {filtered.length === 1 ? 'resultado' : 'resultados'}</span>
-            <button className="f-btn-ghost" style={{ fontSize:12 }} onClick={() => { setFStatus(''); setSearch('') }}>
-              Limpar filtros
-            </button>
+            <button className="f-btn-ghost" style={{ fontSize:12 }} onClick={() => { setFStatus(''); setSearch('') }}>Limpar filtros</button>
           </div>
         )}
 
-        {/* Cards */}
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="f-empty-state" style={{ padding:'60px 20px' }}>
+            <Icon name="refresh" size={32}/>
+            <h3>Carregando…</h3>
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="f-empty-state" style={{ padding:'60px 20px' }}>
             <Icon name="check" size={40}/>
             <h3>Nenhuma aprovação encontrada</h3>
@@ -248,15 +255,14 @@ export default function AprovacoesPage() {
         )}
       </main>
 
-      {/* Create / Edit modal */}
       <ApprovalModal
         isOpen={modalOpen}
         onClose={() => { setModalOpen(false); setEditing(null) }}
         onSave={handleSave}
         editing={editing}
+        clients={clientNames}
       />
 
-      {/* Detail modal */}
       <ApprovalDetailModal
         isOpen={!!viewing}
         approval={liveViewing}
@@ -268,43 +274,30 @@ export default function AprovacoesPage() {
         onReject={() => { setRejectNote(liveViewing.observations || ''); setRejectTarget(liveViewing); setViewing(null) }}
       />
 
-      {/* Adjust modal */}
       {adjustTarget && (
         <MiniModal
-          title="Solicitar ajuste"
-          icon="refresh"
-          iconColor="#F59E0B"
+          title="Solicitar ajuste" icon="refresh" iconColor="#F59E0B"
           placeholder="Descreva o que precisa ser ajustado..."
-          value={adjustNote}
-          onChange={setAdjustNote}
+          value={adjustNote} onChange={setAdjustNote}
           onCancel={() => { setAdjustTarget(null); setAdjustNote('') }}
           onConfirm={handleAdjust}
-          confirmLabel="Solicitar ajuste"
-          confirmColor="#F59E0B"
-          confirmBg="rgba(245,158,11,0.12)"
-          confirmBorder="rgba(245,158,11,0.3)"
+          confirmLabel="Solicitar ajuste" confirmColor="#F59E0B"
+          confirmBg="rgba(245,158,11,0.12)" confirmBorder="rgba(245,158,11,0.3)"
         />
       )}
 
-      {/* Reject modal */}
       {rejectTarget && (
         <MiniModal
-          title="Reprovar conteúdo"
-          icon="xmark"
-          iconColor="#EF4444"
+          title="Reprovar conteúdo" icon="xmark" iconColor="#EF4444"
           placeholder="Informe o motivo da reprovação..."
-          value={rejectNote}
-          onChange={setRejectNote}
+          value={rejectNote} onChange={setRejectNote}
           onCancel={() => { setRejectTarget(null); setRejectNote('') }}
           onConfirm={handleReject}
-          confirmLabel="Confirmar reprovação"
-          confirmColor="#EF4444"
-          confirmBg="rgba(239,68,68,0.12)"
-          confirmBorder="rgba(239,68,68,0.3)"
+          confirmLabel="Confirmar reprovação" confirmColor="#EF4444"
+          confirmBg="rgba(239,68,68,0.12)" confirmBorder="rgba(239,68,68,0.3)"
         />
       )}
 
-      {/* Toast */}
       {toast && (
         <div style={{
           position:'fixed', bottom:24, right:24, zIndex:300,
@@ -312,8 +305,7 @@ export default function AprovacoesPage() {
           border:`1px solid ${toast.type === 'warn' ? 'rgba(239,68,68,0.35)' : 'rgba(34,197,94,0.35)'}`,
           borderRadius:10, padding:'11px 18px',
           color: toast.type === 'warn' ? '#EF4444' : '#22C55E',
-          fontSize:13, fontWeight:600, animation:'toastIn 0.2s ease',
-          boxShadow:'0 8px 32px rgba(0,0,0,0.5)',
+          fontSize:13, fontWeight:600, boxShadow:'0 8px 32px rgba(0,0,0,0.5)',
         }}>
           {toast.msg}
         </div>
@@ -325,16 +317,15 @@ export default function AprovacoesPage() {
 // ─── Approval Card ────────────────────────────────────────────────────────────
 
 function ApprovalCard({ item, onView, onEdit, onApprove, onRelease, onRequestAdjust, onReject }) {
-  const sCfg     = STATUS_CFG[item.status] ?? { color:'#A1A1AA', bg:'rgba(161,161,170,0.15)', border:'rgba(161,161,170,0.3)' }
-  const pastDue  = isPast(item.deadline) && !['Aprovado','Liberado p/ cliente','Reprovado'].includes(item.status)
-  const borderL  = PRIORITY_BORDER[item.priority] || 'var(--f-border)'
+  const sCfg    = STATUS_CFG[item.status] ?? { color:'#A1A1AA', bg:'rgba(161,161,170,0.15)', border:'rgba(161,161,170,0.3)' }
+  const pastDue = isPast(item.deadline) && !['Aprovado','Liberado p/ cliente','Reprovado'].includes(item.status)
+  const borderL = PRIORITY_BORDER[item.priority] || 'var(--f-border)'
 
   return (
     <div
-      style={{ background:'var(--f-card)', border:'1px solid var(--f-border)', borderRadius:14, overflow:'hidden', borderLeft:`3px solid ${borderL}`, transition:'background 0.18s', cursor:'pointer' }}
+      style={{ background:'var(--f-card)', border:'1px solid var(--f-border)', borderRadius:14, overflow:'hidden', borderLeft:`3px solid ${borderL}`, cursor:'pointer' }}
       onClick={onView}
     >
-      {/* Top */}
       <div style={{ padding:'14px 16px 10px', display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12 }}>
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{ fontSize:14, fontWeight:700, color:'var(--f-text)', marginBottom:6, lineHeight:1.3 }}>{item.title}</div>
@@ -356,7 +347,6 @@ function ApprovalCard({ item, onView, onEdit, onApprove, onRelease, onRequestAdj
         </span>
       </div>
 
-      {/* Copy preview */}
       {item.copy && (
         <div style={{ padding:'0 16px 10px' }}>
           <p style={{ fontSize:12, color:'var(--f-muted)', lineHeight:1.5, overflow:'hidden', display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical' }}>
@@ -365,69 +355,37 @@ function ApprovalCard({ item, onView, onEdit, onApprove, onRelease, onRequestAdj
         </div>
       )}
 
-      {/* Actions — stopPropagation so card click doesn't fire */}
-      <div
-        style={{ borderTop:'1px solid var(--f-border)', padding:'8px 12px', display:'flex', gap:6, flexWrap:'wrap', justifyContent:'flex-end', alignItems:'center' }}
-        onClick={e => e.stopPropagation()}
-      >
-        <button className="f-cfc-action-btn" onClick={onEdit} title="Editar" style={{ width:30, height:30 }}>
-          <Icon name="edit" size={13}/>
-        </button>
+      <div style={{ borderTop:'1px solid var(--f-border)', padding:'8px 12px', display:'flex', gap:6, flexWrap:'wrap', justifyContent:'flex-end', alignItems:'center' }} onClick={e => e.stopPropagation()}>
+        <button className="f-cfc-action-btn" onClick={onEdit} title="Editar" style={{ width:30, height:30 }}><Icon name="edit" size={13}/></button>
 
         {item.status === 'Aguardando revisão' && (
           <>
-            <SmallBtn color="#EF4444" bg="rgba(239,68,68,0.10)" border="rgba(239,68,68,0.25)" onClick={onReject}>
-              <Icon name="xmark" size={12}/> Reprovar
-            </SmallBtn>
-            <SmallBtn color="#F59E0B" bg="rgba(245,158,11,0.10)" border="rgba(245,158,11,0.25)" onClick={onRequestAdjust}>
-              <Icon name="refresh" size={12}/> Ajuste
-            </SmallBtn>
-            <SmallBtn color="#22C55E" bg="rgba(34,197,94,0.10)" border="rgba(34,197,94,0.25)" onClick={onApprove}>
-              <Icon name="thumbsup" size={12}/> Aprovar
-            </SmallBtn>
+            <SmallBtn color="#EF4444" bg="rgba(239,68,68,0.10)" border="rgba(239,68,68,0.25)" onClick={onReject}><Icon name="xmark" size={12}/> Reprovar</SmallBtn>
+            <SmallBtn color="#F59E0B" bg="rgba(245,158,11,0.10)" border="rgba(245,158,11,0.25)" onClick={onRequestAdjust}><Icon name="refresh" size={12}/> Ajuste</SmallBtn>
+            <SmallBtn color="#22C55E" bg="rgba(34,197,94,0.10)" border="rgba(34,197,94,0.25)" onClick={onApprove}><Icon name="thumbsup" size={12}/> Aprovar</SmallBtn>
           </>
         )}
-
         {item.status === 'Ajustes solicitados' && (
-          <SmallBtn color="#22C55E" bg="rgba(34,197,94,0.10)" border="rgba(34,197,94,0.25)" onClick={onApprove}>
-            <Icon name="thumbsup" size={12}/> Aprovar assim mesmo
-          </SmallBtn>
+          <SmallBtn color="#22C55E" bg="rgba(34,197,94,0.10)" border="rgba(34,197,94,0.25)" onClick={onApprove}><Icon name="thumbsup" size={12}/> Aprovar assim mesmo</SmallBtn>
         )}
-
         {item.status === 'Aprovado' && (
-          <SmallBtn color="#3B82F6" bg="rgba(59,130,246,0.10)" border="rgba(59,130,246,0.25)" onClick={onRelease}>
-            <Icon name="zap" size={12}/> Liberar p/ cliente
-          </SmallBtn>
+          <SmallBtn color="#3B82F6" bg="rgba(59,130,246,0.10)" border="rgba(59,130,246,0.25)" onClick={onRelease}><Icon name="zap" size={12}/> Liberar p/ cliente</SmallBtn>
         )}
-
-        {(item.status === 'Liberado p/ cliente') && (
-          <span style={{ fontSize:11, color:'#3B82F6', display:'flex', alignItems:'center', gap:4 }}>
-            <Icon name="check" size={12}/> Liberado
-          </span>
+        {item.status === 'Liberado p/ cliente' && (
+          <span style={{ fontSize:11, color:'#3B82F6', display:'flex', alignItems:'center', gap:4 }}><Icon name="check" size={12}/> Liberado</span>
         )}
-
         {item.status === 'Reprovado' && (
-          <span style={{ fontSize:11, color:'#8B5CF6', display:'flex', alignItems:'center', gap:4 }}>
-            <Icon name="xmark" size={12}/> Reprovado
-          </span>
+          <span style={{ fontSize:11, color:'#8B5CF6', display:'flex', alignItems:'center', gap:4 }}><Icon name="xmark" size={12}/> Reprovado</span>
         )}
-
-        <button className="f-btn-ghost" onClick={onView} style={{ fontSize:11, padding:'4px 10px', display:'flex', alignItems:'center', gap:4 }}>
-          <Icon name="eye" size={12}/> Ver
-        </button>
+        <button className="f-btn-ghost" onClick={onView} style={{ fontSize:11, padding:'4px 10px', display:'flex', alignItems:'center', gap:4 }}><Icon name="eye" size={12}/> Ver</button>
       </div>
     </div>
   )
 }
 
-// ─── Small helpers ────────────────────────────────────────────────────────────
-
 function SmallBtn({ color, bg, border, onClick, children }) {
   return (
-    <button
-      onClick={onClick}
-      style={{ display:'flex', alignItems:'center', gap:4, padding:'4px 10px', borderRadius:7, background:bg, border:`1px solid ${border}`, color, cursor:'pointer', fontWeight:600, fontSize:11, fontFamily:'var(--f-font)', transition:'opacity 0.15s', whiteSpace:'nowrap' }}
-    >
+    <button onClick={onClick} style={{ display:'flex', alignItems:'center', gap:4, padding:'4px 10px', borderRadius:7, background:bg, border:`1px solid ${border}`, color, cursor:'pointer', fontWeight:600, fontSize:11, fontFamily:'var(--f-font)', whiteSpace:'nowrap' }}>
       {children}
     </button>
   )
@@ -436,37 +394,19 @@ function SmallBtn({ color, bg, border, onClick, children }) {
 function MiniModal({ title, icon, iconColor, placeholder, value, onChange, onCancel, onConfirm, confirmLabel, confirmColor, confirmBg, confirmBorder }) {
   const ref = useRef(null)
   useEffect(() => { setTimeout(() => ref.current?.focus(), 80) }, [])
-
   return (
-    <div
-      style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.72)', backdropFilter:'blur(5px)', zIndex:300, display:'flex', alignItems:'center', justifyContent:'center', padding:20, animation:'overlayIn 0.18s ease' }}
-      onClick={onCancel}
-    >
-      <div
-        style={{ width:'100%', maxWidth:420, background:'#232323', border:'1px solid rgba(255,255,255,0.1)', borderRadius:16, padding:24, boxShadow:'0 32px 96px rgba(0,0,0,0.7)', animation:'modalIn 0.22s cubic-bezier(.4,0,.2,1)' }}
-        onClick={e => e.stopPropagation()}
-      >
+    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.72)', backdropFilter:'blur(5px)', zIndex:300, display:'flex', alignItems:'center', justifyContent:'center', padding:20, animation:'overlayIn 0.18s ease' }} onClick={onCancel}>
+      <div style={{ width:'100%', maxWidth:420, background:'#232323', border:'1px solid rgba(255,255,255,0.1)', borderRadius:16, padding:24, boxShadow:'0 32px 96px rgba(0,0,0,0.7)', animation:'modalIn 0.22s cubic-bezier(.4,0,.2,1)' }} onClick={e => e.stopPropagation()}>
         <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:16 }}>
           <div style={{ width:36, height:36, borderRadius:9, background:`${iconColor}18`, border:`1px solid ${iconColor}30`, display:'flex', alignItems:'center', justifyContent:'center', color:iconColor, flexShrink:0 }}>
             <Icon name={icon} size={16}/>
           </div>
           <h3 style={{ fontSize:15, fontWeight:700, color:'#fff', margin:0 }}>{title}</h3>
         </div>
-        <textarea
-          ref={ref}
-          className="f-input"
-          rows={4}
-          placeholder={placeholder}
-          value={value}
-          onChange={e => onChange(e.target.value)}
-          style={{ resize:'vertical', minHeight:90, marginBottom:14 }}
-        />
+        <textarea ref={ref} className="f-input" rows={4} placeholder={placeholder} value={value} onChange={e => onChange(e.target.value)} style={{ resize:'vertical', minHeight:90, marginBottom:14 }}/>
         <div style={{ display:'flex', gap:8, justifyContent:'flex-end' }}>
           <button className="f-btn-ghost" onClick={onCancel}>Cancelar</button>
-          <button
-            onClick={onConfirm}
-            style={{ display:'flex', alignItems:'center', gap:6, padding:'7px 16px', borderRadius:8, background:confirmBg, border:`1px solid ${confirmBorder}`, color:confirmColor, cursor:'pointer', fontWeight:600, fontSize:13, fontFamily:'var(--f-font)' }}
-          >
+          <button onClick={onConfirm} style={{ display:'flex', alignItems:'center', gap:6, padding:'7px 16px', borderRadius:8, background:confirmBg, border:`1px solid ${confirmBorder}`, color:confirmColor, cursor:'pointer', fontWeight:600, fontSize:13, fontFamily:'var(--f-font)' }}>
             <Icon name={icon} size={13}/>{confirmLabel}
           </button>
         </div>

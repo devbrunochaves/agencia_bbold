@@ -8,13 +8,10 @@ import Icon from '@/components/flow/FlowIcons'
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const LS_KEY        = 'bbold_flow_library'
-const LS_CLIENTS    = 'bbold_flow_clients'
 const LS_SUBFOLDERS = 'bbold_flow_subfolders'
 
-const FALLBACK_CLIENTS = ['Academia Alpha','Clínica Essenza','Restaurante Origem','Urban Fit Store','Studio Bella Forma','Odonto Prime']
 const TYPES     = ['Logo','Brandbook','Foto','Vídeo','Contrato','Briefing','Campanha']
 const SORT_OPTS = ['Mais recentes','Mais antigos','Nome A-Z','Nome Z-A','Maior tamanho','Menor tamanho']
-const FOLDER_COLORS = ['#FFD22E','#3B82F6','#22C55E','#8B5CF6','#F59E0B','#EF4444','#06B6D4','#EC4899']
 
 const TYPE_ICON  = { Logo:'star', Brandbook:'doc', Foto:'image', Vídeo:'video', Contrato:'lock', Briefing:'file', Campanha:'zap' }
 const TYPE_COLOR = { Logo:'#FFD22E', Brandbook:'#3B82F6', Foto:'#22C55E', Vídeo:'#8B5CF6', Contrato:'#EF4444', Briefing:'#F59E0B', Campanha:'#EC4899' }
@@ -48,49 +45,42 @@ const selectStyle = {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function ClientBibliotecaPage() {
-  const params      = useParams()
-  const router      = useRouter()
-  const clientName  = decodeURIComponent(params.clientSlug)
-  const clientColor = CLIENT_COLOR[clientName] ?? '#A1A1AA'
+export default function SubfolderPage() {
+  const params         = useParams()
+  const router         = useRouter()
+  const clientName     = decodeURIComponent(params.clientSlug)
+  const subfolderName  = decodeURIComponent(params.subfolderSlug)
+  const clientColor    = CLIENT_COLOR[clientName] ?? '#A1A1AA'
 
+  // Get subfolder color from localStorage
+  const [subfolderColor, setSubfolderColor] = useState(clientColor)
   const [files,       setFiles]       = useState([])
-  const [subfolders,  setSubfolders]  = useState([])
-  const [clientNames, setClientNames] = useState(FALLBACK_CLIENTS)
   const [loaded,      setLoaded]      = useState(false)
   const [search,      setSearch]      = useState('')
   const [fType,       setFType]       = useState('')
   const [sort,        setSort]        = useState('Mais recentes')
-  const [menuOpen,    setMenuOpen]    = useState(false)
   const [fileModal,   setFileModal]   = useState(false)
-  const [folderModal, setFolderModal] = useState(false)
   const [editing,     setEditing]     = useState(null)
   const [viewing,     setViewing]     = useState(null)
   const [delTarget,   setDelTarget]   = useState(null)
   const [toast,       setToast]       = useState(null)
-  const menuRef = useRef(null)
 
   useEffect(() => {
     try {
       const rawF  = localStorage.getItem(LS_KEY)
-      const rawC  = localStorage.getItem(LS_CLIENTS)
       const rawSF = localStorage.getItem(LS_SUBFOLDERS)
       setFiles(rawF ? JSON.parse(rawF) : [])
-      setSubfolders(rawSF ? JSON.parse(rawSF) : [])
-      if (rawC) setClientNames(JSON.parse(rawC).map(c => c.name))
+      if (rawSF) {
+        const sf = JSON.parse(rawSF).find(s => s.client === clientName && s.name === subfolderName)
+        if (sf?.color) setSubfolderColor(sf.color)
+      }
     } catch { setFiles([]) }
     setLoaded(true)
-  }, [])
-
-  useEffect(() => { if (loaded) localStorage.setItem(LS_KEY,        JSON.stringify(files))      }, [files,      loaded])
-  useEffect(() => { if (loaded) localStorage.setItem(LS_SUBFOLDERS, JSON.stringify(subfolders)) }, [subfolders, loaded])
+  }, [clientName, subfolderName])
 
   useEffect(() => {
-    if (!menuOpen) return
-    function h(e) { if (!menuRef.current?.contains(e.target)) setMenuOpen(false) }
-    document.addEventListener('mousedown', h)
-    return () => document.removeEventListener('mousedown', h)
-  }, [menuOpen])
+    if (loaded) localStorage.setItem(LS_KEY, JSON.stringify(files))
+  }, [files, loaded])
 
   function flash(msg, type = 'success') {
     setToast({ msg, type })
@@ -102,17 +92,10 @@ export default function ClientBibliotecaPage() {
       setFiles(prev => prev.map(f => f.id === editing.id ? { ...f, ...form } : f))
       flash('Arquivo atualizado!')
     } else {
-      setFiles(prev => [{ ...form, id: uid(), subfolder: '' }, ...prev])
+      setFiles(prev => [{ ...form, id: uid(), client: clientName, subfolder: subfolderName }, ...prev])
       flash('Arquivo adicionado!')
     }
     setFileModal(false); setEditing(null)
-  }
-
-  function handleNewSubfolder(name, color) {
-    const next = { id: uid(), client: clientName, name, color }
-    setSubfolders(prev => [...prev, next])
-    setFolderModal(false)
-    flash(`Pasta "${name}" criada!`)
   }
 
   function handleDelete(file) {
@@ -123,13 +106,11 @@ export default function ClientBibliotecaPage() {
 
   function handleDownload(file) { flash(`Download: ${file.name}`) }
 
-  const clientSubfolders = subfolders.filter(s => s.client === clientName)
-
-  const rootFiles = useMemo(() => {
+  const filtered = useMemo(() => {
     let list = files.filter(f => {
-      if (f.client !== clientName) return false
-      if (f.subfolder)             return false
-      if (fType && f.type !== fType) return false
+      if (f.client !== clientName)       return false
+      if (f.subfolder !== subfolderName) return false
+      if (fType && f.type !== fType)     return false
       if (search) {
         const q = search.toLowerCase()
         return f.name.toLowerCase().includes(q) || f.type.toLowerCase().includes(q)
@@ -145,56 +126,48 @@ export default function ClientBibliotecaPage() {
       if (sort === 'Menor tamanho') return (a.sizeKB || 0) - (b.sizeKB || 0)
       return 0
     })
-  }, [files, clientName, fType, sort, search])
+  }, [files, clientName, subfolderName, fType, sort, search])
 
-  const clientFiles = files.filter(f => f.client === clientName)
-  const totalKB     = clientFiles.reduce((acc, f) => acc + (f.sizeKB || 0), 0)
-
-  const hasContent = clientSubfolders.length > 0 || rootFiles.length > 0
+  const totalKB = filtered.reduce((acc, f) => acc + (f.sizeKB || 0), 0)
 
   return (
     <>
       <FlowHeader
-        title={clientName}
-        subtitle={`${clientFiles.length} arquivos · ${fmtSize(totalKB)}`}
+        title={subfolderName}
+        subtitle={`${filtered.length} arquivos · ${fmtSize(totalKB)}`}
         actions={
-          <div style={{ position:'relative' }} ref={menuRef}>
-            <button className="f-btn-primary" onClick={() => setMenuOpen(v => !v)} style={{ gap:6 }}>
-              <Icon name="plus" size={14}/> <span>Novo</span>
-            </button>
-            {menuOpen && (
-              <div style={{ position:'absolute', top:'calc(100% + 8px)', right:0, background:'#232323', border:'1px solid rgba(255,255,255,0.1)', borderRadius:12, padding:6, minWidth:190, zIndex:300, boxShadow:'0 16px 48px rgba(0,0,0,0.6)', animation:'modalIn 0.15s ease' }}>
-                <DropItem
-                  icon={<FolderSVG size={15} color={clientColor}/>}
-                  label="Nova pasta"
-                  sub="Criar subpasta aqui"
-                  onClick={() => { setMenuOpen(false); setFolderModal(true) }}
-                />
-                <DropItem
-                  icon={<Icon name="upload" size={15}/>}
-                  label="Enviar arquivo"
-                  sub="Adicionar à raiz"
-                  onClick={() => { setMenuOpen(false); setEditing(null); setFileModal(true) }}
-                />
-              </div>
-            )}
-          </div>
+          <button className="f-btn-primary" onClick={() => { setEditing(null); setFileModal(true) }} style={{ gap:6 }}>
+            <Icon name="upload" size={14}/> <span>Enviar arquivo</span>
+          </button>
         }
       />
 
       <main className="f-content">
-        {/* Back */}
-        <button
-          onClick={() => router.push('/flow/biblioteca')}
-          style={{ display:'flex', alignItems:'center', gap:6, background:'none', border:'none', cursor:'pointer', color:'var(--f-muted)', fontSize:12, fontFamily:'var(--f-font)', padding:0, alignSelf:'flex-start' }}
-          onMouseEnter={e => e.currentTarget.style.color = '#fff'}
-          onMouseLeave={e => e.currentTarget.style.color = ''}
-        >
-          <BackArrowSVG size={14}/> Biblioteca
-        </button>
+        {/* Breadcrumb */}
+        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+          <button
+            onClick={() => router.push('/flow/biblioteca')}
+            style={{ background:'none', border:'none', cursor:'pointer', color:'var(--f-muted)', fontSize:12, fontFamily:'var(--f-font)', padding:0 }}
+            onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+            onMouseLeave={e => e.currentTarget.style.color = ''}
+          >
+            Biblioteca
+          </button>
+          <span style={{ color:'var(--f-muted-dim)', fontSize:12 }}>/</span>
+          <button
+            onClick={() => router.push(`/flow/biblioteca/${encodeURIComponent(clientName)}`)}
+            style={{ background:'none', border:'none', cursor:'pointer', color:'var(--f-muted)', fontSize:12, fontFamily:'var(--f-font)', padding:0 }}
+            onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+            onMouseLeave={e => e.currentTarget.style.color = ''}
+          >
+            {clientName}
+          </button>
+          <span style={{ color:'var(--f-muted-dim)', fontSize:12 }}>/</span>
+          <span style={{ fontSize:12, color:'#fff', fontWeight:600 }}>{subfolderName}</span>
+        </div>
 
-        {/* Accent bar */}
-        <div style={{ height:3, borderRadius:4, background:`linear-gradient(90deg, ${clientColor}, ${clientColor}40)`, marginBottom:4 }}/>
+        {/* Accent bar in subfolder color */}
+        <div style={{ height:3, borderRadius:4, background:`linear-gradient(90deg, ${subfolderColor}, ${subfolderColor}40)`, marginBottom:4 }}/>
 
         {/* Filters */}
         <div className="f-filter-row" style={{ gridTemplateColumns:'1fr 1fr' }}>
@@ -215,83 +188,46 @@ export default function ClientBibliotecaPage() {
           <input className="f-input" style={{ paddingLeft:36 }} placeholder="Buscar por nome ou tipo..." value={search} onChange={e => setSearch(e.target.value)}/>
         </div>
 
-        {/* Empty state */}
-        {!hasContent && (
+        {/* Count */}
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <span style={{ fontSize:12, color:'var(--f-muted)' }}>
+            {filtered.length} arquivo{filtered.length !== 1 ? 's' : ''}
+          </span>
+          {(fType || search) && (
+            <button className="f-btn-ghost" style={{ fontSize:12 }} onClick={() => { setFType(''); setSearch('') }}>Limpar filtros</button>
+          )}
+        </div>
+
+        {/* Files or empty */}
+        {filtered.length === 0 ? (
           <div className="f-empty-state" style={{ padding:'60px 20px' }}>
-            <FolderSVG size={40} color="#A1A1AA"/>
+            <Icon name="folder" size={40}/>
             <h3>Pasta vazia</h3>
-            <p>Crie uma subpasta ou adicione arquivos.</p>
-            <div style={{ display:'flex', gap:8, justifyContent:'center', marginTop:12 }}>
-              <button className="f-btn-ghost" onClick={() => setFolderModal(true)}>
-                <Icon name="plus" size={13}/> Nova pasta
-              </button>
-              <button className="f-btn-primary" onClick={() => setFileModal(true)}>
-                <Icon name="upload" size={13}/> Arquivo
-              </button>
-            </div>
+            <p>Adicione arquivos a esta pasta.</p>
+            <button className="f-btn-primary" style={{ marginTop:12 }} onClick={() => setFileModal(true)}>
+              <Icon name="upload" size={14}/> Enviar arquivo
+            </button>
           </div>
-        )}
-
-        {/* Subfolders */}
-        {clientSubfolders.length > 0 && (
-          <div>
-            <div style={{ fontSize:11, fontWeight:700, color:'var(--f-muted-dim)', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:10 }}>
-              Pastas · {clientSubfolders.length}
-            </div>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(150px, 1fr))', gap:12 }}>
-              {clientSubfolders.map(sf => {
-                const sfFiles = files.filter(f => f.client === clientName && f.subfolder === sf.name)
-                return (
-                  <SubfolderCard
-                    key={sf.id}
-                    subfolder={sf}
-                    fileCount={sfFiles.length}
-                    onClick={() => router.push(`/flow/biblioteca/${encodeURIComponent(clientName)}/${encodeURIComponent(sf.name)}`)}
-                  />
-                )
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Root files */}
-        {rootFiles.length > 0 && (
-          <div>
-            {clientSubfolders.length > 0 && (
-              <div style={{ fontSize:11, fontWeight:700, color:'var(--f-muted-dim)', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:10 }}>
-                Arquivos na raiz · {rootFiles.length}
-              </div>
-            )}
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(200px, 1fr))', gap:12 }}>
-              {rootFiles.map(file => (
-                <FileCard
-                  key={file.id}
-                  file={file}
-                  onView={() => setViewing(file)}
-                  onEdit={() => { setEditing(file); setFileModal(true) }}
-                  onDownload={() => handleDownload(file)}
-                  onDelete={() => setDelTarget(file)}
-                />
-              ))}
-            </div>
+        ) : (
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(200px, 1fr))', gap:12 }}>
+            {filtered.map(file => (
+              <FileCard
+                key={file.id}
+                file={file}
+                onView={() => setViewing(file)}
+                onEdit={() => { setEditing(file); setFileModal(true) }}
+                onDownload={() => handleDownload(file)}
+                onDelete={() => setDelTarget(file)}
+              />
+            ))}
           </div>
         )}
       </main>
-
-      {/* New subfolder modal */}
-      {folderModal && (
-        <NewSubfolderModal
-          onClose={() => setFolderModal(false)}
-          onSave={handleNewSubfolder}
-        />
-      )}
 
       {/* File modal */}
       {fileModal && (
         <FileFormModal
           editing={editing}
-          defaultClient={clientName}
-          clientNames={clientNames}
           onClose={() => { setFileModal(false); setEditing(null) }}
           onSave={handleSaveFile}
         />
@@ -312,9 +248,7 @@ export default function ClientBibliotecaPage() {
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.72)', backdropFilter:'blur(5px)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }} onClick={() => setDelTarget(null)}>
           <div style={{ background:'#232323', border:'1px solid rgba(255,255,255,0.1)', borderRadius:16, padding:28, maxWidth:360, width:'100%' }} onClick={e => e.stopPropagation()}>
             <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
-              <div style={{ width:40, height:40, borderRadius:10, background:'rgba(239,68,68,0.15)', display:'flex', alignItems:'center', justifyContent:'center', color:'#EF4444', flexShrink:0 }}>
-                <Icon name="trash" size={18}/>
-              </div>
+              <div style={{ width:40, height:40, borderRadius:10, background:'rgba(239,68,68,0.15)', display:'flex', alignItems:'center', justifyContent:'center', color:'#EF4444', flexShrink:0 }}><Icon name="trash" size={18}/></div>
               <div>
                 <div style={{ fontWeight:700, color:'#fff', fontSize:15 }}>Excluir arquivo?</div>
                 <div style={{ fontSize:12, color:'#A1A1AA', marginTop:2 }}>Esta ação não pode ser desfeita.</div>
@@ -337,29 +271,6 @@ export default function ClientBibliotecaPage() {
         </div>
       )}
     </>
-  )
-}
-
-// ─── Subfolder Card ───────────────────────────────────────────────────────────
-
-function SubfolderCard({ subfolder, fileCount, onClick }) {
-  const [hov, setHov] = useState(false)
-  const color = subfolder.color ?? '#A1A1AA'
-  return (
-    <div
-      onClick={onClick}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{ background: hov ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)', border:`1px solid ${hov ? color + '50' : 'rgba(255,255,255,0.08)'}`, borderRadius:14, padding:'16px 14px', cursor:'pointer', transition:'all 0.18s ease', display:'flex', flexDirection:'column', gap:10, transform: hov ? 'translateY(-2px)' : 'none' }}
-    >
-      <div style={{ width:42, height:42, borderRadius:12, background:`${color}18`, border:`1px solid ${color}30`, display:'flex', alignItems:'center', justifyContent:'center' }}>
-        <FolderSVG size={22} color={color}/>
-      </div>
-      <div>
-        <div style={{ fontSize:12, fontWeight:700, color:'#fff', marginBottom:3, lineHeight:1.3 }}>{subfolder.name}</div>
-        <div style={{ fontSize:11, color:'var(--f-muted)' }}>{fileCount} {fileCount === 1 ? 'arquivo' : 'arquivos'}</div>
-      </div>
-    </div>
   )
 }
 
@@ -456,73 +367,11 @@ function DetailInfo({ label, value }) {
   )
 }
 
-// ─── New Subfolder Modal ──────────────────────────────────────────────────────
-
-function NewSubfolderModal({ onClose, onSave }) {
-  const [name,  setName]  = useState('')
-  const [color, setColor] = useState(FOLDER_COLORS[2])
-  const [error, setError] = useState(null)
-  const inputRef = useRef(null)
-
-  useEffect(() => { setTimeout(() => inputRef.current?.focus(), 80) }, [])
-  useEffect(() => {
-    const h = e => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', h)
-    return () => window.removeEventListener('keydown', h)
-  }, [onClose])
-
-  function submit(e) {
-    e.preventDefault()
-    if (!name.trim()) { setError('Nome obrigatório'); return }
-    onSave(name.trim(), color)
-  }
-
-  return (
-    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.72)', backdropFilter:'blur(5px)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16, animation:'overlayIn 0.18s ease' }} onClick={onClose}>
-      <div style={{ width:'100%', maxWidth:380, background:'#232323', border:'1px solid rgba(255,255,255,0.1)', borderRadius:20, boxShadow:'0 32px 96px rgba(0,0,0,0.7)', animation:'modalIn 0.22s cubic-bezier(.4,0,.2,1)' }} onClick={e => e.stopPropagation()}>
-        <div style={{ padding:'20px 22px 16px', borderBottom:'1px solid rgba(255,255,255,0.07)', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
-          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-            <div style={{ width:36, height:36, borderRadius:10, background:`${color}20`, border:`1px solid ${color}30`, display:'flex', alignItems:'center', justifyContent:'center' }}>
-              <FolderSVG size={18} color={color}/>
-            </div>
-            <div>
-              <h2 style={{ fontSize:15, fontWeight:700, color:'#fff', margin:0 }}>Nova pasta</h2>
-              <p style={{ fontSize:11, color:'#A1A1AA', margin:'2px 0 0' }}>Criar subpasta dentro deste cliente</p>
-            </div>
-          </div>
-          <button onClick={onClose} style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:8, width:32, height:32, cursor:'pointer', color:'#A1A1AA', display:'flex', alignItems:'center', justifyContent:'center' }}><Icon name="xmark" size={16}/></button>
-        </div>
-        <form onSubmit={submit} style={{ padding:'20px 22px 22px', display:'flex', flexDirection:'column', gap:16 }}>
-          <div>
-            <label className="f-field-label">Nome da pasta *</label>
-            <input ref={inputRef} className={`f-input ${error ? 'has-error' : ''}`} value={name} onChange={e => { setName(e.target.value); setError(null) }} placeholder="Ex: Logos, Vídeos, Fotos..."/>
-            {error && <span className="f-field-error">{error}</span>}
-          </div>
-          <div>
-            <label className="f-field-label">Cor</label>
-            <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
-              {FOLDER_COLORS.map(c => (
-                <button key={c} type="button" onClick={() => setColor(c)} style={{ width:28, height:28, borderRadius:8, background:c, border: color === c ? '3px solid #fff' : '3px solid transparent', cursor:'pointer', transition:'border 0.15s', flexShrink:0 }}/>
-              ))}
-            </div>
-          </div>
-          <div style={{ display:'flex', gap:10, justifyContent:'flex-end', paddingTop:4, borderTop:'1px solid rgba(255,255,255,0.07)' }}>
-            <button type="button" className="f-btn-ghost" onClick={onClose}>Cancelar</button>
-            <button type="submit" className="f-btn-primary"><Icon name="plus" size={14}/> Criar pasta</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  )
-}
-
 // ─── File Form Modal ──────────────────────────────────────────────────────────
 
-function FileFormModal({ editing, defaultClient, clientNames, onClose, onSave }) {
-  const allClients = clientNames?.length ? clientNames : FALLBACK_CLIENTS
+function FileFormModal({ editing, onClose, onSave }) {
   const [form, setForm] = useState({
     name:         editing?.name         ?? '',
-    client:       editing?.client       ?? defaultClient ?? allClients[0],
     type:         editing?.type         ?? 'Logo',
     sizeKB:       editing?.sizeKB       ?? '',
     date:         editing?.date         ?? new Date().toISOString().slice(0,10),
@@ -553,7 +402,7 @@ function FileFormModal({ editing, defaultClient, clientNames, onClose, onSave })
 
   return (
     <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.72)', backdropFilter:'blur(5px)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16, animation:'overlayIn 0.18s ease' }} onClick={onClose}>
-      <div style={{ width:'100%', maxWidth:520, maxHeight:'90vh', overflowY:'auto', background:'#232323', border:'1px solid rgba(255,255,255,0.1)', borderRadius:20, boxShadow:'0 32px 96px rgba(0,0,0,0.7)', animation:'modalIn 0.22s cubic-bezier(.4,0,.2,1)', scrollbarWidth:'thin' }} onClick={e => e.stopPropagation()}>
+      <div style={{ width:'100%', maxWidth:480, maxHeight:'90vh', overflowY:'auto', background:'#232323', border:'1px solid rgba(255,255,255,0.1)', borderRadius:20, boxShadow:'0 32px 96px rgba(0,0,0,0.7)', animation:'modalIn 0.22s cubic-bezier(.4,0,.2,1)', scrollbarWidth:'thin' }} onClick={e => e.stopPropagation()}>
         <div style={{ padding:'20px 22px 14px', borderBottom:'1px solid rgba(255,255,255,0.07)', display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12, position:'sticky', top:0, background:'#232323', zIndex:1 }}>
           <div>
             <h2 style={{ fontSize:16, fontWeight:700, color:'#fff', margin:0 }}>{editing ? 'Editar Arquivo' : 'Adicionar Arquivo'}</h2>
@@ -572,25 +421,18 @@ function FileFormModal({ editing, defaultClient, clientNames, onClose, onSave })
             <input ref={firstRef} className={`f-input ${errors.name ? 'has-error' : ''}`} value={form.name} onChange={e => set('name', e.target.value)} placeholder="Ex: logo-cliente.svg"/>
           </FField>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-            <FField label="Cliente">
-              <select className="f-select" value={form.client} onChange={e => set('client', e.target.value)}>
-                {allClients.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </FField>
             <FField label="Tipo">
               <select className="f-select" value={form.type} onChange={e => set('type', e.target.value)}>
                 {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </FField>
-          </div>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-            <FField label="Tamanho (KB)">
-              <input className="f-input" type="number" min="0" value={form.sizeKB} onChange={e => set('sizeKB', e.target.value)} placeholder="Ex: 2048"/>
-            </FField>
             <FField label="Data">
               <input className="f-input" type="date" value={form.date} onChange={e => set('date', e.target.value)}/>
             </FField>
           </div>
+          <FField label="Tamanho (KB)">
+            <input className="f-input" type="number" min="0" value={form.sizeKB} onChange={e => set('sizeKB', e.target.value)} placeholder="Ex: 2048"/>
+          </FField>
           <FField label="Observações">
             <textarea className="f-input" value={form.observations} onChange={e => set('observations', e.target.value)} placeholder="Anotações..." rows={3} style={{ resize:'vertical', minHeight:68 }}/>
           </FField>
@@ -613,37 +455,5 @@ function FField({ label, error, children }) {
       {children}
       {error && <span className="f-field-error">{error}</span>}
     </div>
-  )
-}
-
-// ─── SVG helpers ──────────────────────────────────────────────────────────────
-
-function FolderSVG({ size = 24, color = '#A1A1AA' }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-    </svg>
-  )
-}
-
-function BackArrowSVG({ size = 14 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="15 18 9 12 15 6"/>
-    </svg>
-  )
-}
-
-function DropItem({ icon, label, sub, onClick }) {
-  const [hov, setHov] = useState(false)
-  return (
-    <button onClick={onClick} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-      style={{ display:'flex', alignItems:'center', gap:10, width:'100%', padding:'10px 12px', borderRadius:8, background: hov ? 'rgba(255,255,255,0.06)' : 'none', border:'none', cursor:'pointer', textAlign:'left', transition:'background 0.15s' }}>
-      <div style={{ color:'var(--f-muted)', flexShrink:0 }}>{icon}</div>
-      <div>
-        <div style={{ fontSize:13, fontWeight:600, color:'#fff' }}>{label}</div>
-        {sub && <div style={{ fontSize:11, color:'var(--f-muted)', marginTop:1 }}>{sub}</div>}
-      </div>
-    </button>
   )
 }

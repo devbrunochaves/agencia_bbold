@@ -606,27 +606,80 @@ function ConteudoTab({ client }) {
 
 // ─── Calendar Tab ─────────────────────────────────────────────────────────────
 
-const CAL_EVENTS = {
-  1:  [{ color:'#FFD22E', label:'Reels' }],
-  5:  [{ color:'#3B82F6', label:'Stories' }],
-  8:  [{ color:'#22C55E', label:'Feed' }],
-  12: [{ color:'#FFD22E', label:'Reels' }],
-  15: [{ color:'#EF4444', label:'ATRASADO' }],
-  19: [{ color:'#FFD22E', label:'Reels' }],
-  22: [{ color:'#3B82F6', label:'Stories' }],
-  27: [{ color:'#8B5CF6', label:'Carrossel' }],
-  29: [{ color:'#FFD22E', label:'Reels' }],
+const FORMAT_COLORS = {
+  'Reels':     '#FFD22E',
+  'Feed':      '#22C55E',
+  'Stories':   '#3B82F6',
+  'Carrossel': '#8B5CF6',
+  'Blog':      '#F59E0B',
+  'Landing':   '#06B6D4',
 }
-const CAL_START_DAY = 5
-const CAL_TOTAL = 31
-const CAL_TODAY = 27
-const WEEK_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb']
+
+const WEEK_LABELS  = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb']
+const MONTH_NAMES  = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']
 
 function CalendarioTab({ clientName }) {
+  const now = new Date()
+  const [year,     setYear]     = useState(now.getFullYear())
+  const [month,    setMonth]    = useState(now.getMonth())
+  const [contents, setContents] = useState([])
+  const [loading,  setLoading]  = useState(true)
+
+  useEffect(() => {
+    supabase
+      .from('contents')
+      .select('*')
+      .eq('client', clientName)
+      .not('pub_date', 'is', null)
+      .then(({ data }) => {
+        setContents((data ?? []).map(r => ({
+          id:      r.id,
+          title:   r.title,
+          format:  r.format  ?? '',
+          status:  r.status  ?? 'Briefing',
+          pubDate: r.pub_date,
+        })))
+        setLoading(false)
+      })
+  }, [clientName])
+
+  function prevMonth() {
+    if (month === 0) { setMonth(11); setYear(y => y - 1) }
+    else setMonth(m => m - 1)
+  }
+  function nextMonth() {
+    if (month === 11) { setMonth(0); setYear(y => y + 1) }
+    else setMonth(m => m + 1)
+  }
+
+  // Build day → events map for the current viewed month
+  const events = {}
+  contents.forEach(c => {
+    if (!c.pubDate) return
+    const d = new Date(c.pubDate + 'T00:00:00')
+    if (d.getFullYear() === year && d.getMonth() === month) {
+      const day = d.getDate()
+      if (!events[day]) events[day] = []
+      events[day].push({ color: FORMAT_COLORS[c.format] ?? '#A1A1AA', label: c.format || 'Outro', title: c.title })
+    }
+  })
+
+  const startDay  = new Date(year, month, 1).getDay()
+  const totalDays = new Date(year, month + 1, 0).getDate()
+  const todayObj  = new Date()
+  const calToday  = (todayObj.getFullYear() === year && todayObj.getMonth() === month) ? todayObj.getDate() : -1
+
   const cells = []
-  for (let i = 0; i < CAL_START_DAY; i++) cells.push(null)
-  for (let d = 1; d <= CAL_TOTAL; d++) cells.push(d)
+  for (let i = 0; i < startDay; i++) cells.push(null)
+  for (let d = 1; d <= totalDays; d++) cells.push(d)
   while (cells.length % 7 !== 0) cells.push(null)
+
+  // Upcoming: future-dated contents sorted ascending
+  const todayStr = todayObj.toISOString().slice(0, 10)
+  const upcoming = [...contents]
+    .filter(c => c.pubDate >= todayStr)
+    .sort((a, b) => a.pubDate.localeCompare(b.pubDate))
+    .slice(0, 6)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -642,71 +695,80 @@ function CalendarioTab({ clientName }) {
       <div className="f-detail-grid" style={{ gap: 16 }}>
         <div className="f-card">
           <div className="f-card-header">
-            <div className="f-card-title">Maio 2026</div>
+            <div className="f-card-title">{MONTH_NAMES[month]} {year}</div>
             <div style={{ display:'flex', gap:4 }}>
-              <button className="f-btn-ghost f-btn-icon" style={{ width:30, height:30, transform:'scaleX(-1)' }}>
+              <button className="f-btn-ghost f-btn-icon" style={{ width:30, height:30, transform:'scaleX(-1)' }} onClick={prevMonth}>
                 <Icon name="arrow" size={14}/>
               </button>
-              <button className="f-btn-ghost f-btn-icon" style={{ width:30, height:30 }}>
+              <button className="f-btn-ghost f-btn-icon" style={{ width:30, height:30 }} onClick={nextMonth}>
                 <Icon name="arrow" size={14}/>
               </button>
             </div>
           </div>
-          <div className="f-cal-grid">
-            {WEEK_LABELS.map(w => (
-              <span key={w} className="f-cal-week-label" style={{ padding:'4px 0 10px' }}>{w}</span>
-            ))}
-            {cells.map((day, idx) => (
-              <div
-                key={idx}
-                className={`f-cal-day${!day ? ' is-empty' : ''}${day === CAL_TODAY ? ' is-today' : ''}`}
-                style={{ minHeight:48, cursor: day ? 'pointer' : 'default' }}
-              >
-                {day && (
-                  <>
-                    <span className="f-cal-num">{day}</span>
-                    <div style={{ display:'flex', gap:2, flexWrap:'wrap', justifyContent:'center' }}>
-                      {(CAL_EVENTS[day] || []).slice(0,2).map((e, i) => (
-                        <span key={i} className="f-cal-dot" style={{ background: e.color }}/>
-                      ))}
-                    </div>
-                  </>
-                )}
+
+          {loading ? (
+            <div style={{ padding: 48, textAlign: 'center', color: 'var(--f-muted)' }}>
+              <Icon name="refresh" size={22}/>
+            </div>
+          ) : (
+            <>
+              <div className="f-cal-grid">
+                {WEEK_LABELS.map(w => (
+                  <span key={w} className="f-cal-week-label" style={{ padding:'4px 0 10px' }}>{w}</span>
+                ))}
+                {cells.map((day, idx) => (
+                  <div
+                    key={idx}
+                    className={`f-cal-day${!day ? ' is-empty' : ''}${day === calToday ? ' is-today' : ''}`}
+                    style={{ minHeight:48, cursor: day ? 'pointer' : 'default' }}
+                  >
+                    {day && (
+                      <>
+                        <span className="f-cal-num">{day}</span>
+                        <div style={{ display:'flex', gap:2, flexWrap:'wrap', justifyContent:'center' }}>
+                          {(events[day] || []).slice(0, 3).map((e, i) => (
+                            <span key={i} className="f-cal-dot" style={{ background: e.color }} title={e.title}/>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <div className="f-cal-legend" style={{ padding:'0 16px 16px' }}>
-            {[
-              { color:'#FFD22E', label:'Reels' },
-              { color:'#22C55E', label:'Feed' },
-              { color:'#3B82F6', label:'Stories' },
-              { color:'#EF4444', label:'Atrasado' },
-              { color:'#8B5CF6', label:'Carrossel' },
-            ].map(l => (
-              <div key={l.label} className="f-cal-legend-item">
-                <span className="f-cal-dot" style={{ background: l.color }}/>
-                <span>{l.label}</span>
+
+              <div className="f-cal-legend" style={{ padding:'0 16px 16px' }}>
+                {Object.entries(FORMAT_COLORS).map(([label, color]) => (
+                  <div key={label} className="f-cal-legend-item">
+                    <span className="f-cal-dot" style={{ background: color }}/>
+                    <span>{label}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
         </div>
 
         <div className="f-card" style={{ overflow:'hidden' }}>
           <div className="f-card-header">
             <div className="f-card-title">Próximas Publicações</div>
           </div>
-          <div style={{ paddingBottom:4 }}>
-            {[
-              { title:'Reels — Antes e Depois',  format:'Reels',    date:'28 Mai', status:'Produção' },
-              { title:'Carrossel — Dicas',        format:'Carrossel',date:'31 Mai', status:'Briefing' },
-              { title:'Stories — Semana 4',       format:'Stories',  date:'01 Jun', status:'Agendado' },
-              { title:'Post Feed — Resultado',    format:'Feed',     date:'25 Mai', status:'Publicado' },
-            ].map((item, idx, arr) => (
+          <div style={{ paddingBottom: 4 }}>
+            {loading ? (
+              <div style={{ padding: 48, textAlign: 'center', color: 'var(--f-muted)' }}>
+                <Icon name="refresh" size={22}/>
+              </div>
+            ) : upcoming.length === 0 ? (
+              <div className="f-empty-state" style={{ padding: '36px 20px' }}>
+                <Icon name="calendar" size={28}/>
+                <h3>Sem publicações agendadas</h3>
+                <p>Adicione datas de publicação na aba Conteúdo.</p>
+              </div>
+            ) : upcoming.map((item, idx) => (
               <div
-                key={idx}
-                style={{ padding:'12px 18px', borderBottom: idx < arr.length-1 ? '1px solid var(--f-border)' : 'none', display:'flex', alignItems:'center', gap:12 }}
+                key={item.id}
+                style={{ padding:'12px 18px', borderBottom: idx < upcoming.length - 1 ? '1px solid var(--f-border)' : 'none', display:'flex', alignItems:'center', gap:12 }}
               >
-                <div style={{ width:36, height:36, borderRadius:8, background:'rgba(255,255,255,0.05)', border:'1px solid var(--f-border)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color:'var(--f-muted)' }}>
+                <div style={{ width:36, height:36, borderRadius:8, background:`${FORMAT_COLORS[item.format] ?? '#A1A1AA'}18`, border:`1px solid ${FORMAT_COLORS[item.format] ?? '#A1A1AA'}30`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color: FORMAT_COLORS[item.format] ?? '#A1A1AA' }}>
                   <Icon name="file" size={15}/>
                 </div>
                 <div style={{ flex:1, minWidth:0 }}>
@@ -715,7 +777,7 @@ function CalendarioTab({ clientName }) {
                 </div>
                 <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:4, flexShrink:0 }}>
                   <StatusBadge status={item.status}/>
-                  <span style={{ fontSize:11, color:'var(--f-muted)' }}>{item.date}</span>
+                  <span style={{ fontSize:11, color:'var(--f-muted)' }}>{fmtDate(item.pubDate)}</span>
                 </div>
               </div>
             ))}

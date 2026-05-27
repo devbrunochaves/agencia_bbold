@@ -7,9 +7,10 @@ import Icon from '@/components/flow/FlowIcons'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const LS_KEY = 'bbold_flow_library'
+const LS_KEY      = 'bbold_flow_library'
+const LS_CLIENTS  = 'bbold_flow_clients'
 
-const CLIENTS   = ['Academia Alpha','Clínica Essenza','Restaurante Origem','Urban Fit Store','Studio Bella Forma','Odonto Prime']
+const FALLBACK_CLIENTS = ['Academia Alpha','Clínica Essenza','Restaurante Origem','Urban Fit Store','Studio Bella Forma','Odonto Prime']
 const TYPES     = ['Logo','Brandbook','Foto','Vídeo','Contrato','Briefing','Campanha']
 const SORT_OPTS = ['Mais recentes','Mais antigos','Nome A-Z','Nome Z-A','Maior tamanho','Menor tamanho']
 
@@ -55,8 +56,9 @@ export default function ClientBibliotecaPage() {
   const clientName = decodeURIComponent(params.clientSlug)
   const clientColor = CLIENT_COLOR[clientName] ?? '#A1A1AA'
 
-  const [files,     setFiles]     = useState([])
-  const [loaded,    setLoaded]    = useState(false)
+  const [files,       setFiles]     = useState([])
+  const [clientNames, setClientNames] = useState(FALLBACK_CLIENTS)
+  const [loaded,      setLoaded]    = useState(false)
   const [search,    setSearch]    = useState('')
   const [fType,     setFType]     = useState('')
   const [sort,      setSort]      = useState('Mais recentes')
@@ -68,8 +70,10 @@ export default function ClientBibliotecaPage() {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(LS_KEY)
-      setFiles(raw ? JSON.parse(raw) : [])
+      const rawF = localStorage.getItem(LS_KEY)
+      const rawC = localStorage.getItem(LS_CLIENTS)
+      setFiles(rawF ? JSON.parse(rawF) : [])
+      if (rawC) setClientNames(JSON.parse(rawC).map(c => c.name))
     } catch { setFiles([]) }
     setLoaded(true)
   }, [])
@@ -222,6 +226,7 @@ export default function ClientBibliotecaPage() {
         <FileFormModal
           editing={editing}
           defaultClient={clientName}
+          clientNames={clientNames}
           onClose={() => { setModalOpen(false); setEditing(null) }}
           onSave={handleSave}
         />
@@ -434,10 +439,11 @@ function DetailInfo({ label, value }) {
 
 // ─── File Form Modal (create / edit) ─────────────────────────────────────────
 
-function FileFormModal({ editing, defaultClient, onClose, onSave }) {
+function FileFormModal({ editing, defaultClient, clientNames, onClose, onSave }) {
+  const allClients = clientNames?.length ? clientNames : FALLBACK_CLIENTS
   const [form, setForm] = useState({
     name:         editing?.name         ?? '',
-    client:       editing?.client       ?? defaultClient ?? CLIENTS[0],
+    client:       editing?.client       ?? defaultClient ?? allClients[0],
     type:         editing?.type         ?? 'Logo',
     sizeKB:       editing?.sizeKB       ?? '',
     date:         editing?.date         ?? new Date().toISOString().slice(0,10),
@@ -503,7 +509,7 @@ function FileFormModal({ editing, defaultClient, onClose, onSave }) {
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
             <FField label="Cliente">
               <select className="f-select" value={form.client} onChange={e => set('client', e.target.value)}>
-                {CLIENTS.map(c => <option key={c} value={c}>{c}</option>)}
+                {allClients.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </FField>
             <FField label="Tipo">

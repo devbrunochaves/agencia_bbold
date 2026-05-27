@@ -62,9 +62,9 @@ const CELLS = buildCalendarCells()
 
 export default function CalendarioPage() {
   const actions = (
-    <button className="f-btn-primary" style={{ display:'flex', alignItems:'center', gap:6 }}>
+    <button className="f-btn-primary">
       <Icon name="plus" size={14}/>
-      Novo Agendamento
+      <span>Novo Agendamento</span>
     </button>
   )
 
@@ -129,10 +129,10 @@ export default function CalendarioPage() {
                 <div className="f-card-title">Maio 2026</div>
               </div>
               <div style={{ display:'flex', gap:4 }}>
-                <button className="f-btn-ghost f-btn-icon" style={{ width:30, height:30 }}>
+                <button className="f-btn-ghost f-btn-icon" style={{ width:30, height:30, transform:'scaleX(-1)' }}>
                   <Icon name="arrow" size={14}/>
                 </button>
-                <button className="f-btn-ghost f-btn-icon" style={{ width:30, height:30, transform:'scaleX(-1)' }}>
+                <button className="f-btn-ghost f-btn-icon" style={{ width:30, height:30 }}>
                   <Icon name="arrow" size={14}/>
                 </button>
               </div>

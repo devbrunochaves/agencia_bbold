@@ -1492,6 +1492,73 @@
 .f-empty-state h3 { font-size: 15px; font-weight: 600; color: var(--f-muted); margin: 0; }
 .f-empty-state p { font-size: 13px; color: var(--f-muted-dim); margin: 0; }
 
+/* ─── Modal overlay ──────────────────────────────────────────────────────── */
+
+.f-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.f-modal {
+  width: 100%;
+  max-width: 460px;
+  max-height: 94vh;
+  overflow-y: auto;
+  background: #232323;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.7);
+  scrollbar-width: thin;
+}
+
+.f-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.f-modal-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--f-text);
+  margin: 0;
+}
+
+.f-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--f-muted);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+.f-modal-close:hover { background: rgba(255,255,255,0.06); color: var(--f-text); }
+
+/* f-label alias for f-field-label */
+.f-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--f-muted-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 6px;
+}
+
 /* Mobile actions always visible */
 @media (max-width: 768px) {
   .f-cfc-actions { opacity: 1; }

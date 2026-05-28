@@ -8,7 +8,7 @@ export default function MetricCard({ icon, value, label, desc, accentColor, tren
         <div className="f-metric-icon" style={{ color: accentColor, background: `${accentColor}18` }}>
           <Icon name={icon} size={20} />
         </div>
-        {trend !== undefined && (
+        {trend != null && (
           <span className={`f-metric-trend ${positive ? 'is-up' : 'is-down'}`}>
             {positive ? '+' : ''}{trend}%
           </span>
@@ -17,7 +17,7 @@ export default function MetricCard({ icon, value, label, desc, accentColor, tren
       <div className="f-metric-value">{value}</div>
       <div className="f-metric-label">{label}</div>
       {desc && <div className="f-metric-desc">{desc}</div>}
-      {trend !== undefined && (
+      {trend != null && (
         <div className="f-metric-bar">
           <div
             className="f-metric-bar-fill"

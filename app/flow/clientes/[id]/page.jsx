@@ -792,10 +792,12 @@ function CalendarioTab({ clientName }) {
 
 export default function ClientDetailPage() {
   const { id } = useParams()
-  const [client,  setClient]  = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [perf,    setPerf]    = useState([])
-  const [tab,     setTab]     = useState('visao') // 'visao' | 'calendario' | 'performance'
+  const [client,         setClient]         = useState(null)
+  const [loading,        setLoading]        = useState(true)
+  const [perf,           setPerf]           = useState([])
+  const [clientContents, setClientContents] = useState([])
+  const [clientApprovals,setClientApprovals]= useState([])
+  const [tab,            setTab]            = useState('visao')
 
   // Load client from Supabase
   useEffect(() => {
@@ -827,25 +829,37 @@ export default function ClientDetailPage() {
       })
   }, [id])
 
-  // Load performance records from Supabase
+  // Load performance records, contents and approvals from Supabase
   useEffect(() => {
-    if (!id) return
-    supabase
-      .from('performance_records')
-      .select('*')
-      .eq('client_id', id)
-      .order('recorded_at', { ascending: true })
-      .then(({ data }) => {
-        setPerf((data ?? []).map(r => ({
-          id:         r.id,
-          clientId:   r.client_id,
-          metric:     r.metric,
-          value:      Number(r.value),
-          recordedAt: r.recorded_at,
-          notes:      r.notes ?? '',
-        })))
-      })
-  }, [id])
+    if (!id || !client) return
+
+    Promise.all([
+      supabase
+        .from('performance_records')
+        .select('*')
+        .eq('client_id', id)
+        .order('recorded_at', { ascending: true }),
+      supabase
+        .from('contents')
+        .select('id, title, format, status, pub_date, responsible')
+        .eq('client', client.name),
+      supabase
+        .from('approvals')
+        .select('id, title, status, priority')
+        .eq('client', client.name),
+    ]).then(([perfRes, contentsRes, approvalsRes]) => {
+      setPerf((perfRes.data ?? []).map(r => ({
+        id:         r.id,
+        clientId:   r.client_id,
+        metric:     r.metric,
+        value:      Number(r.value),
+        recordedAt: r.recorded_at,
+        notes:      r.notes ?? '',
+      })))
+      setClientContents(contentsRes.data ?? [])
+      setClientApprovals(approvalsRes.data ?? [])
+    })
+  }, [id, client?.name])
 
   async function handleAddPerf(formData) {
     const { data, error } = await supabase
@@ -1018,13 +1032,49 @@ export default function ClientDetailPage() {
               `}</style>
             </div>
 
-            {/* Operation metrics */}
-            <div className="f-metrics-grid">
-              <MetricCard icon="file"     value={String(client.contents)} label="Conteúdos/mês"    desc="contratados no plano"  accentColor={accentColor} trend={8}  />
-              <MetricCard icon="check"    value="2"                        label="Em aprovação"      desc="aguardando revisão"    accentColor="#F59E0B"     trend={0}  />
-              <MetricCard icon="calendar" value="12"                       label="Publicados"        desc="neste mês"             accentColor="#22C55E"     trend={20} />
-              <MetricCard icon="trending" value="6.4%"                     label="Engajamento médio" desc="vs. mês anterior"      accentColor="#3B82F6"     trend={15} />
-            </div>
+            {/* Operation metrics — computed from real Supabase data */}
+            {(() => {
+              const thisMonth = new Date().toISOString().slice(0, 7)
+
+              const pendingApprovals = clientApprovals.filter(a =>
+                a.status === 'Aguardando revisão' || a.status === 'Liberado p/ cliente'
+              ).length
+
+              const publishedThisMonth = clientContents.filter(c =>
+                c.status === 'Publicado' && c.pub_date && c.pub_date.startsWith(thisMonth)
+              ).length
+
+              const publishedTotal = clientContents.filter(c => c.status === 'Publicado').length
+
+              // Latest engagement from performance records
+              const engRecords = perf
+                .filter(r => r.metric === 'Engajamento (%)')
+                .sort((a, b) => a.recordedAt.localeCompare(b.recordedAt))
+              const latestEng = engRecords[engRecords.length - 1]
+              const prevEng   = engRecords[engRecords.length - 2]
+              const engValue  = latestEng ? `${latestEng.value.toFixed(1)}%` : '—'
+              const engTrend  = latestEng && prevEng && prevEng.value
+                ? Number((((latestEng.value - prevEng.value) / prevEng.value) * 100).toFixed(0))
+                : null
+
+              // Published trend: this month vs last month
+              const lastMonth = (() => { const d = new Date(); d.setMonth(d.getMonth() - 1); return d.toISOString().slice(0, 7) })()
+              const publishedLastMonth = clientContents.filter(c =>
+                c.status === 'Publicado' && c.pub_date && c.pub_date.startsWith(lastMonth)
+              ).length
+              const pubTrend = publishedLastMonth > 0
+                ? Number((((publishedThisMonth - publishedLastMonth) / publishedLastMonth) * 100).toFixed(0))
+                : null
+
+              return (
+                <div className="f-metrics-grid">
+                  <MetricCard icon="file"     value={String(client.contents)}       label="Conteúdos/mês"    desc="contratados no plano"     accentColor={accentColor} trend={null} />
+                  <MetricCard icon="check"    value={String(pendingApprovals)}       label="Em aprovação"     desc="aguardando revisão"        accentColor="#F59E0B"     trend={null} />
+                  <MetricCard icon="calendar" value={String(publishedThisMonth || publishedTotal)} label="Publicados" desc={publishedThisMonth > 0 ? "neste mês" : "total"} accentColor="#22C55E" trend={pubTrend} />
+                  <MetricCard icon="trending" value={engValue}                       label="Engajamento médio" desc={latestEng ? `registrado em ${fmtDate(latestEng.recordedAt)}` : 'sem dados ainda'} accentColor="#3B82F6" trend={engTrend} />
+                </div>
+              )
+            })()}
 
           </>
         )}

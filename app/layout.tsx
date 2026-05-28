@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Barlow } from "next/font/google";
+import { Bebas_Neue, Barlow, Inter } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 
@@ -13,6 +13,12 @@ const barlow = Barlow({
   weight: ["400", "600", "700", "900"],
   subsets: ["latin"],
   variable: "--font-barlow",
+});
+
+const inter = Inter({
+  weight: ["400", "500", "600", "700", "800"],
+  subsets: ["latin"],
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -35,7 +41,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" className={`${bebasNeue.variable} ${barlow.variable}`}>
+    <html lang="pt-BR" className={`${bebasNeue.variable} ${barlow.variable} ${inter.variable}`}>
       <head>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-QXQ4ZWWBSG"

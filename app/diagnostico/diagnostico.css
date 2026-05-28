@@ -76,7 +76,7 @@
 .dg-wyg-card { background:var(--dg-black2); border:1px solid var(--dg-border); border-radius:12px; padding:24px 22px; }
 .dg-wyg-card__num { font-family:var(--dg-bebas); font-size:13px; color:var(--dg-yellow); letter-spacing:2px; margin-bottom:10px; }
 .dg-wyg-card__title { font-weight:700; font-size:15px; color:var(--dg-white); margin-bottom:6px; }
-.dg-wyg-card__text { font-size:13px; color:var(--dg-muted); line-height:1.65; }
+.dg-wyg-card__text { font-size:17px; color:var(--dg-white); line-height:1.65; }
 
 /* ── HOW IT WORKS ── */
 .dg-hiw-wrap { background:var(--dg-black2); border-top:1px solid var(--dg-border); border-bottom:1px solid var(--dg-border); }

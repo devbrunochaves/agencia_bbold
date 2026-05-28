@@ -389,7 +389,7 @@ function PerformanceTab({ perf, onAdd, onDelete, clientName }) {
                   required
                   value={form.recordedAt}
                   onChange={e => setForm(f => ({ ...f, recordedAt: e.target.value }))}
-                  style={{ minHeight: 42, colorScheme: 'dark', WebkitAppearance: 'none' }}
+                  style={{ WebkitAppearance: 'none' }}
                 />
               </div>
               <div>
@@ -589,7 +589,7 @@ function ConteudoTab({ client }) {
                 </div>
                 <div>
                   <label className="f-label">Data de publicação</label>
-                  <input className="f-input" type="date" value={form.pubDate} onChange={e => setForm(f => ({ ...f, pubDate: e.target.value }))} style={{ minHeight: 42, colorScheme: 'dark' }} />
+                  <input className="f-input" type="date" value={form.pubDate} onChange={e => setForm(f => ({ ...f, pubDate: e.target.value }))} />
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 4 }}>

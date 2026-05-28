@@ -1322,6 +1322,27 @@
 
 .f-input.has-error { border-color: var(--f-red); }
 
+/* Date inputs need solid bg + dark color-scheme so the picker icon is visible */
+input[type="date"].f-input,
+input[type="datetime-local"].f-input {
+  background: #1E1E1E;
+  color-scheme: dark;
+  min-height: 42px;
+}
+
+input[type="date"].f-input::-webkit-calendar-picker-indicator,
+input[type="datetime-local"].f-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.7) sepia(1) saturate(3) hue-rotate(5deg);
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+input[type="date"].f-input:focus,
+input[type="datetime-local"].f-input:focus {
+  border-color: rgba(255,210,46,0.4);
+  box-shadow: 0 0 0 3px rgba(255,210,46,0.08);
+}
+
 /* Select elements need a solid bg so the native dropdown popup is dark */
 select.f-input {
   background: #1E1E1E;

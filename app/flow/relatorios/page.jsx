@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import FlowHeader from '@/components/flow/FlowHeader'
 import Icon from '@/components/flow/FlowIcons'
 import StatusBadge from '@/components/flow/StatusBadge'
@@ -51,31 +51,6 @@ function GrowthBadge({ pct }) {
   )
 }
 
-// ─── Markdown-to-JSX renderer (simple) ───────────────────────────────────────
-
-function AIAnalysis({ text }) {
-  const lines = text.split('\n')
-  return (
-    <div style={{ fontSize:13.5, lineHeight:1.75, color:'var(--f-text)' }}>
-      {lines.map((line, i) => {
-        if (line.startsWith('## ')) return (
-          <h3 key={i} style={{ fontSize:14, fontWeight:800, color:'var(--f-yellow)', margin:'20px 0 8px', letterSpacing:'0.03em', textTransform:'uppercase' }}>
-            {line.replace('## ', '')}
-          </h3>
-        )
-        if (line.startsWith('• ') || line.startsWith('- ')) return (
-          <div key={i} style={{ display:'flex', gap:8, margin:'4px 0', paddingLeft:4 }}>
-            <span style={{ color:'var(--f-yellow)', flexShrink:0, marginTop:2 }}>▸</span>
-            <span style={{ color:'rgba(244,244,245,0.8)' }}>{line.replace(/^[•\-] /, '')}</span>
-          </div>
-        )
-        if (line.trim() === '') return <div key={i} style={{ height:6 }} />
-        return <p key={i} style={{ margin:'4px 0', color:'rgba(244,244,245,0.75)' }}>{line}</p>
-      })}
-    </div>
-  )
-}
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function RelatoriosPage() {
@@ -85,10 +60,6 @@ export default function RelatoriosPage() {
   const [endDate,     setEndDate]     = useState(today())
   const [loading,     setLoading]     = useState(false)
   const [report,      setReport]      = useState(null)
-  const [aiLoading,   setAiLoading]   = useState(false)
-  const [aiAnalysis,  setAiAnalysis]  = useState('')
-  const [aiError,     setAiError]     = useState('')
-  const reportRef = useRef(null)
 
   useEffect(() => {
     supabase.from('clients').select('id, name, niche, plan, status, responsible')
@@ -99,8 +70,6 @@ export default function RelatoriosPage() {
     if (!clientId || !startDate || !endDate) return
     setLoading(true)
     setReport(null)
-    setAiAnalysis('')
-    setAiError('')
 
     const client = clients.find(c => c.id === clientId)
 
@@ -166,39 +135,6 @@ export default function RelatoriosPage() {
     setLoading(false)
   }
 
-  async function analyzeWithAI() {
-    if (!report) return
-    setAiLoading(true)
-    setAiError('')
-    setAiAnalysis('')
-
-    const perfForAI = report.performance.map(m => ({
-      metric: m.metric,
-      records: m.records.map(r => ({ date: fmtDateShort(r.date), value: r.value })),
-      totalGrowth: m.totalGrowth,
-    }))
-
-    try {
-      const res = await fetch('/api/report-ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          client:  { name: report.client.name, niche: report.client.niche, plan: report.client.plan },
-          period:  { start: fmtDate(report.period.start), end: fmtDate(report.period.end) },
-          performance: perfForAI,
-          contents:    report.contents,
-          approvals:   report.approvals,
-        }),
-      })
-      const json = await res.json()
-      if (json.error) { setAiError(json.error); setAiLoading(false); return }
-      setAiAnalysis(json.analysis)
-    } catch (err) {
-      setAiError(`Erro de conexão: ${err?.message ?? err}`)
-    }
-    setAiLoading(false)
-  }
-
   function handlePrint() {
     window.print()
   }
@@ -224,13 +160,12 @@ export default function RelatoriosPage() {
           .print-section { page-break-inside: avoid; }
           .report-card { border: 1px solid #ddd !important; background: white !important; margin-bottom: 16px; }
           .report-header { background: #1a1a1a !important; color: white !important; }
-          .ai-card { border: 1px solid #ddd !important; background: #fafafa !important; }
         }
       `}</style>
 
       <FlowHeader
         title="Relatórios"
-        subtitle="Gere relatórios completos por cliente e período, com análise de IA."
+        subtitle="Gere relatórios completos por cliente e período."
         actions={
           report && (
             <button className="f-btn-primary no-print" onClick={handlePrint}>
@@ -295,7 +230,7 @@ export default function RelatoriosPage() {
 
         {/* ── Report ── */}
         {report && (
-          <div ref={reportRef} style={{ display:'flex', flexDirection:'column', gap:16 }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
 
             {/* Report header */}
             <div className="report-card f-card" style={{ background:'linear-gradient(135deg,#1a1a1a 0%,#232323 100%)', border:'1px solid var(--f-border)' }}>
@@ -491,64 +426,6 @@ export default function RelatoriosPage() {
                 </div>
               </div>
             )}
-
-            {/* ── AI Analysis ── */}
-            <div className="report-card ai-card f-card print-section" style={{ border:'1px solid rgba(255,210,46,0.2)', background:'rgba(255,210,46,0.03)' }}>
-              <div className="f-card-header">
-                <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                  <span style={{ color:'var(--f-yellow)' }}><Icon name="sparkles" size={16}/></span>
-                  <h2 className="f-card-title">Análise com Inteligência Artificial</h2>
-                </div>
-                {!aiAnalysis && !aiLoading && (
-                  <button
-                    className="f-btn-primary no-print"
-                    onClick={analyzeWithAI}
-                    style={{ background:'var(--f-yellow)', color:'#000' }}
-                  >
-                    <Icon name="sparkles" size={13}/> Analisar com IA
-                  </button>
-                )}
-                {aiAnalysis && (
-                  <button className="f-btn-ghost no-print" onClick={analyzeWithAI} style={{ fontSize:12 }}>
-                    <Icon name="refresh" size={12}/> Regenerar
-                  </button>
-                )}
-              </div>
-
-              <div style={{ padding:'0 20px 20px' }}>
-                {!aiAnalysis && !aiLoading && !aiError && (
-                  <div style={{ textAlign:'center', padding:'36px 0' }}>
-                    <div style={{ width:52, height:52, borderRadius:16, background:'rgba(255,210,46,0.1)', border:'1px solid rgba(255,210,46,0.2)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 14px', color:'var(--f-yellow)' }}>
-                      <Icon name="sparkles" size={22}/>
-                    </div>
-                    <p style={{ fontSize:13, color:'var(--f-muted)', margin:0 }}>
-                      Clique em <strong style={{ color:'var(--f-yellow)' }}>Analisar com IA</strong> para gerar uma análise narrativa
-                      completa com insights, recomendações e previsões — powered by Google Gemini.
-                    </p>
-                  </div>
-                )}
-
-                {aiLoading && (
-                  <div style={{ textAlign:'center', padding:'36px 0' }}>
-                    <div style={{ display:'inline-flex', alignItems:'center', gap:10, color:'var(--f-yellow)', fontSize:13, fontWeight:600 }}>
-                      <Icon name="refresh" size={16}/> Analisando dados com IA…
-                    </div>
-                  </div>
-                )}
-
-                {aiError && (
-                  <div style={{ padding:'14px 16px', background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:10, color:'#EF4444', fontSize:13 }}>
-                    <strong>Erro:</strong> {aiError}
-                    <div style={{ marginTop:8, fontSize:12, color:'rgba(239,68,68,0.7)' }}>
-                      Para usar a IA: adicione GEMINI_API_KEY nas variáveis de ambiente do Vercel.
-                      Crie sua chave gratuita em <strong>aistudio.google.com</strong>.
-                    </div>
-                  </div>
-                )}
-
-                {aiAnalysis && <AIAnalysis text={aiAnalysis}/>}
-              </div>
-            </div>
 
           </div>
         )}

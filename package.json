@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@portabletext/react": "^3.1.0",
     "@sanity/image-url": "^1.1.0",
     "@supabase/supabase-js": "^2.106.2",

@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { id: 'aprovacoes',    label: 'Aprovações',    icon: 'check',    href: '/flow/aprovacoes',     group: 'recursos',  badge: 8 },
   { id: 'biblioteca',    label: 'Biblioteca',    icon: 'folder',   href: '/flow/biblioteca',     group: 'recursos' },
   { id: 'performance',   label: 'Performance',   icon: 'chart',    href: '/flow/performance',    group: 'recursos' },
+  { id: 'relatorios',   label: 'Relatórios',    icon: 'report',   href: '/flow/relatorios',     group: 'recursos' },
   { id: 'configuracoes', label: 'Configurações', icon: 'settings', href: '/flow/configuracoes',  group: 'recursos' },
 ]
 

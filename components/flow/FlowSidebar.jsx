@@ -1,8 +1,10 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import Icon from './FlowIcons'
+import { supabase } from '@/lib/supabase'
 
 const NAV_ITEMS = [
   { id: 'dashboard',     label: 'Dashboard',     icon: 'grid',     href: '/flow',                group: 'principal' },
@@ -13,12 +15,44 @@ const NAV_ITEMS = [
   { id: 'aprovacoes',    label: 'Aprovações',    icon: 'check',    href: '/flow/aprovacoes',     group: 'recursos',  badge: 8 },
   { id: 'biblioteca',    label: 'Biblioteca',    icon: 'folder',   href: '/flow/biblioteca',     group: 'recursos' },
   { id: 'performance',   label: 'Performance',   icon: 'chart',    href: '/flow/performance',    group: 'recursos' },
-  { id: 'relatorios',   label: 'Relatórios',    icon: 'report',   href: '/flow/relatorios',     group: 'recursos' },
+  { id: 'relatorios',    label: 'Relatórios',    icon: 'report',   href: '/flow/relatorios',     group: 'recursos' },
   { id: 'configuracoes', label: 'Configurações', icon: 'settings', href: '/flow/configuracoes',  group: 'recursos' },
 ]
 
+function initials(email) {
+  if (!email) return 'AD'
+  const [local] = email.split('@')
+  const parts = local.split(/[._-]/).filter(Boolean)
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
+  return local.slice(0, 2).toUpperCase()
+}
+
+function displayName(user) {
+  const meta = user?.user_metadata
+  if (meta?.full_name) return meta.full_name
+  if (meta?.name) return meta.name
+  return user?.email?.split('@')[0] ?? 'Admin'
+}
+
 export default function FlowSidebar({ mobileOpen, onClose }) {
   const pathname = usePathname()
+  const router   = useRouter()
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUser(session?.user ?? null)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
+  async function logout() {
+    await supabase.auth.signOut()
+    router.push('/login')
+    router.refresh()
+  }
+
   const principal = NAV_ITEMS.filter(i => i.group === 'principal')
   const recursos  = NAV_ITEMS.filter(i => i.group === 'recursos')
 
@@ -74,15 +108,29 @@ export default function FlowSidebar({ mobileOpen, onClose }) {
         ))}
       </nav>
 
-      {/* Footer */}
+      {/* Footer: user info + logout */}
       <div className="f-sidebar-footer">
         <div className="f-user-row">
-          <div className="f-user-avatar">AD</div>
+          <div className="f-user-avatar">{initials(user?.email)}</div>
           <div className="f-user-info">
-            <span className="f-user-name">Admin BBOLD</span>
-            <span className="f-user-role">Gestor de Conteúdo</span>
+            <span className="f-user-name">{displayName(user)}</span>
+            <span className="f-user-role">{user?.email ?? ''}</span>
           </div>
           <span className="f-user-status" />
+          <button
+            onClick={logout}
+            title="Sair"
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'var(--f-muted)', display: 'flex', alignItems: 'center',
+              padding: '4px', borderRadius: 6, flexShrink: 0,
+              transition: 'color 0.15s',
+            }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--f-red)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--f-muted)'}
+          >
+            <Icon name="logout" size={15} />
+          </button>
         </div>
       </div>
     </aside>

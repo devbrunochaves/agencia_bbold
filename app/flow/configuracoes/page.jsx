@@ -111,43 +111,77 @@ function SectionAgencia() {
 // ─── Section: Equipe ─────────────────────────────────────────────────────────
 
 function SectionEquipe() {
-  const [showModal,     setShowModal]     = useState(false)
-  const [extraMembers,  setExtraMembers]  = useState([])
-  const [form,          setForm]          = useState({ name: '', role: '', access: 'Editor' })
-  const [nameErr,       setNameErr]       = useState(false)
+  const [members,   setMembers]   = useState([])
+  const [showModal, setShowModal] = useState(false)
+  const [editIdx,   setEditIdx]   = useState(null)   // null = novo, number = editar
+  const [form,      setForm]      = useState({ name: '', role: '', access: 'Editor' })
+  const [nameErr,   setNameErr]   = useState(false)
 
   useEffect(() => {
-    try { setExtraMembers(JSON.parse(localStorage.getItem(LS_TEAM)) ?? []) } catch { }
+    try {
+      const stored = JSON.parse(localStorage.getItem(LS_TEAM))
+      setMembers(stored?.length ? stored : TEAM_SEED)
+      if (!stored?.length) localStorage.setItem(LS_TEAM, JSON.stringify(TEAM_SEED))
+    } catch {
+      setMembers(TEAM_SEED)
+    }
   }, [])
 
-  function addMember() {
+  function persist(list) {
+    setMembers(list)
+    localStorage.setItem(LS_TEAM, JSON.stringify(list))
+  }
+
+  function openAdd() {
+    setEditIdx(null)
+    setForm({ name: '', role: '', access: 'Editor' })
+    setNameErr(false)
+    setShowModal(true)
+  }
+
+  function openEdit(idx) {
+    const m = members[idx]
+    setEditIdx(idx)
+    setForm({ name: m.name, role: m.role === '—' ? '' : m.role, access: m.access })
+    setNameErr(false)
+    setShowModal(true)
+  }
+
+  function save() {
     if (!form.name.trim()) { setNameErr(true); return }
     const parts  = form.name.trim().split(' ').filter(Boolean)
     const avatar = parts.length >= 2
       ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
       : parts[0].slice(0, 2).toUpperCase()
-    const member  = { name: form.name.trim(), role: form.role || '—', avatar, status: 'Ativo', access: form.access }
-    const updated = [...extraMembers, member]
-    setExtraMembers(updated)
-    localStorage.setItem(LS_TEAM, JSON.stringify(updated))
-    setForm({ name: '', role: '', access: 'Editor' })
-    setNameErr(false)
+    const member = {
+      name:   form.name.trim(),
+      role:   form.role || '—',
+      avatar,
+      status: editIdx !== null ? members[editIdx].status : 'Ativo',
+      access: form.access,
+    }
+    persist(editIdx !== null
+      ? members.map((m, i) => i === editIdx ? member : m)
+      : [...members, member]
+    )
     setShowModal(false)
   }
 
-  const allMembers = [...TEAM_SEED, ...extraMembers]
+  function remove(idx) {
+    persist(members.filter((_, i) => i !== idx))
+  }
 
   return (
     <div style={{ padding: '24px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--f-text)' }}>Equipe Interna</div>
-        <button className="f-btn-primary" style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 5 }} onClick={() => setShowModal(true)}>
+        <button className="f-btn-primary" style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 5 }} onClick={openAdd}>
           <Icon name="plus" size={13} /> Adicionar Membro
         </button>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {allMembers.map((m, idx) => (
+        {members.map((m, idx) => (
           <div key={m.name + idx} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid var(--f-border)' }}>
             <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(255,255,255,0.07)', border: '1px solid var(--f-border-s)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, color: 'var(--f-text)', flexShrink: 0 }}>{m.avatar}</div>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -156,7 +190,8 @@ function SectionEquipe() {
             </div>
             <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 99, background: m.access === 'Admin' ? 'rgba(255,210,46,0.15)' : 'rgba(255,255,255,0.06)', color: m.access === 'Admin' ? 'var(--f-yellow)' : 'var(--f-muted)', flexShrink: 0 }}>{m.access}</span>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: m.status === 'Ativo' ? 'var(--f-green)' : 'var(--f-muted-dim)', flexShrink: 0, display: 'inline-block' }} />
-            <button className="f-btn-ghost" style={{ padding: '4px 8px', display: 'flex', alignItems: 'center' }}><Icon name="edit" size={13} /></button>
+            <button className="f-btn-ghost" style={{ padding: '4px 8px', display: 'flex', alignItems: 'center' }} onClick={() => openEdit(idx)}><Icon name="edit" size={13} /></button>
+            <button className="f-btn-ghost" style={{ padding: '4px 8px', display: 'flex', alignItems: 'center', color: 'var(--f-red)' }} onClick={() => remove(idx)}><Icon name="trash" size={13} /></button>
           </div>
         ))}
       </div>
@@ -165,7 +200,7 @@ function SectionEquipe() {
         <div className="f-modal-overlay" onClick={() => setShowModal(false)}>
           <div className="f-modal" style={{ animation: 'modalIn 0.18s ease' }} onClick={e => e.stopPropagation()}>
             <div className="f-modal-header">
-              <h2 className="f-modal-title">Adicionar Membro</h2>
+              <h2 className="f-modal-title">{editIdx !== null ? 'Editar Membro' : 'Adicionar Membro'}</h2>
               <button className="f-modal-close" onClick={() => setShowModal(false)}><Icon name="xmark" size={18} /></button>
             </div>
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -193,7 +228,7 @@ function SectionEquipe() {
               </div>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 4 }}>
                 <button className="f-btn-ghost" onClick={() => setShowModal(false)}>Cancelar</button>
-                <button className="f-btn-primary" onClick={addMember}>Adicionar</button>
+                <button className="f-btn-primary" onClick={save}>{editIdx !== null ? 'Salvar' : 'Adicionar'}</button>
               </div>
             </div>
           </div>

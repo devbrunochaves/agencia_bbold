@@ -3,12 +3,11 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import FlowHeader from '@/components/flow/FlowHeader'
 import Icon from '@/components/flow/FlowIcons'
+import { supabase } from '@/lib/supabase'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const LS_KEY = 'bbold_flow_library'
-
-const CLIENTS   = ['Academia Alpha','Clínica Essenza','Restaurante Origem','Urban Fit Store','Studio Bella Forma','Odonto Prime']
 const TYPES     = ['Logo','Brandbook','Foto','Vídeo','Contrato','Briefing','Campanha']
 const SORT_OPTS = ['Mais recentes','Mais antigos','Nome A-Z','Nome Z-A','Maior tamanho','Menor tamanho']
 
@@ -65,6 +64,7 @@ const selectStyle = {
 export default function BibliotecaPage() {
   const [files,    setFiles]    = useState([])
   const [loaded,   setLoaded]   = useState(false)
+  const [clients,  setClients]  = useState([])
   const [search,   setSearch]   = useState('')
   const [fClient,  setFClient]  = useState('')
   const [fType,    setFType]    = useState('')
@@ -81,6 +81,9 @@ export default function BibliotecaPage() {
       setFiles(raw ? JSON.parse(raw) : INITIAL_FILES)
     } catch { setFiles(INITIAL_FILES) }
     setLoaded(true)
+    supabase.from('clients').select('name').order('name').then(({ data }) => {
+      if (data?.length) setClients(data.map(r => r.name))
+    })
   }, [])
 
   useEffect(() => {
@@ -159,7 +162,7 @@ export default function BibliotecaPage() {
         <div className="f-filter-row" style={{ gridTemplateColumns:'1fr 1fr 1fr' }}>
           <select style={selectStyle} value={fClient} onChange={e => setFClient(e.target.value)}>
             <option value="">Todos os clientes</option>
-            {CLIENTS.map(c => <option key={c} value={c}>{c}</option>)}
+            {clients.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
           <select style={selectStyle} value={fType} onChange={e => setFType(e.target.value)}>
             <option value="">Todos os tipos</option>
@@ -226,6 +229,7 @@ export default function BibliotecaPage() {
       {modalOpen && (
         <FileFormModal
           editing={editing}
+          clients={clients}
           onClose={() => { setModalOpen(false); setEditing(null) }}
           onSave={handleSave}
         />
@@ -445,10 +449,11 @@ function DetailInfo({ label, value }) {
 
 // ─── File Form Modal (upload / edit) ─────────────────────────────────────────
 
-function FileFormModal({ editing, onClose, onSave }) {
+function FileFormModal({ editing, clients, onClose, onSave }) {
+  const clientList = clients?.length ? clients : ['Academia Alpha','Clínica Essenza','Restaurante Origem']
   const [form, setForm] = useState({
     name: editing?.name || '',
-    client: editing?.client || 'Academia Alpha',
+    client: editing?.client || clientList[0] || '',
     type: editing?.type || 'Logo',
     sizeKB: editing?.sizeKB || '',
     date: editing?.date || new Date().toISOString().slice(0,10),
@@ -515,7 +520,7 @@ function FileFormModal({ editing, onClose, onSave }) {
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
             <FField label="Cliente">
               <select className="f-select" value={form.client} onChange={e => set('client', e.target.value)}>
-                {CLIENTS.map(c => <option key={c} value={c}>{c}</option>)}
+                {clientList.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </FField>
             <FField label="Tipo">

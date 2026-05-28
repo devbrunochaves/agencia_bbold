@@ -7,33 +7,34 @@ import { supabase } from '@/lib/supabase'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const LS_KEY = 'bbold_flow_library'
 const TYPES     = ['Logo','Brandbook','Foto','Vídeo','Contrato','Briefing','Campanha']
 const SORT_OPTS = ['Mais recentes','Mais antigos','Nome A-Z','Nome Z-A','Maior tamanho','Menor tamanho']
 
 const TYPE_ICON  = { Logo:'star', Brandbook:'doc', Foto:'image', Vídeo:'video', Contrato:'lock', Briefing:'file', Campanha:'zap' }
 const TYPE_COLOR = { Logo:'#FFD22E', Brandbook:'#3B82F6', Foto:'#22C55E', Vídeo:'#8B5CF6', Contrato:'#EF4444', Briefing:'#F59E0B', Campanha:'#EC4899' }
 
-const INITIAL_FILES = [
-  { id:'1',  name:'logo-academia-alpha.svg',      client:'Academia Alpha',     type:'Logo',      sizeKB:240,      date:'2026-05-15', observations:'Logo principal em SVG vetorial.' },
-  { id:'2',  name:'brandbook-alpha-2025.pdf',     client:'Academia Alpha',     type:'Brandbook', sizeKB:4300,     date:'2026-01-10', observations:'Manual de identidade visual completo.' },
-  { id:'3',  name:'fotos-estudio-abril.zip',      client:'Academia Alpha',     type:'Foto',      sizeKB:89088,    date:'2026-04-02', observations:'Pack de fotos do estúdio — sessão de abril.' },
-  { id:'4',  name:'logo-essenza-principal.svg',   client:'Clínica Essenza',    type:'Logo',      sizeKB:180,      date:'2026-03-08', observations:'' },
-  { id:'5',  name:'contrato-essenza-2025.pdf',    client:'Clínica Essenza',    type:'Contrato',  sizeKB:320,      date:'2026-01-01', observations:'Contrato de prestação de serviços 2025.' },
-  { id:'6',  name:'briefing-junho-essenza.pdf',   client:'Clínica Essenza',    type:'Briefing',  sizeKB:156,      date:'2026-05-20', observations:'Briefing para campanha de junho.' },
-  { id:'7',  name:'logo-origem-vetor.svg',        client:'Restaurante Origem', type:'Logo',      sizeKB:95,       date:'2026-02-05', observations:'' },
-  { id:'8',  name:'fotos-restaurante-maio.zip',   client:'Restaurante Origem', type:'Foto',      sizeKB:126976,   date:'2026-05-18', observations:'Fotos dos pratos novos do cardápio.' },
-  { id:'9',  name:'reels-bastidores-cozinha.mp4', client:'Restaurante Origem', type:'Vídeo',     sizeKB:215040,   date:'2026-05-22', observations:'Bastidores da cozinha para Reels.' },
-  { id:'10', name:'logo-urbanfit-store.svg',      client:'Urban Fit Store',    type:'Logo',      sizeKB:310,      date:'2026-03-14', observations:'' },
-  { id:'11', name:'campanha-inverno-2026.pdf',    client:'Urban Fit Store',    type:'Campanha',  sizeKB:2150,     date:'2026-05-10', observations:'Apresentação da campanha de inverno.' },
-  { id:'12', name:'briefing-junho-urbanfit.pdf',  client:'Urban Fit Store',    type:'Briefing',  sizeKB:98,       date:'2026-05-19', observations:'' },
-  { id:'13', name:'logo-bella-forma.svg',         client:'Studio Bella Forma', type:'Logo',      sizeKB:220,      date:'2026-02-20', observations:'' },
-  { id:'14', name:'fotos-studio-abril.zip',       client:'Studio Bella Forma', type:'Foto',      sizeKB:57344,    date:'2026-04-05', observations:'Fotos de ensaio do studio — abril.' },
-  { id:'15', name:'logo-odonto-prime.svg',        client:'Odonto Prime',       type:'Logo',      sizeKB:175,      date:'2026-01-12', observations:'' },
-  { id:'16', name:'contrato-odonto-2025.pdf',     client:'Odonto Prime',       type:'Contrato',  sizeKB:290,      date:'2026-01-01', observations:'Contrato anual de serviços.' },
-]
+function rowToFile(r) {
+  return {
+    id:           r.id,
+    name:         r.name         ?? '',
+    client:       r.client       ?? '',
+    type:         r.type         ?? 'Logo',
+    sizeKB:       r.size_kb      ?? 0,
+    date:         r.date         ?? '',
+    observations: r.observations ?? '',
+  }
+}
 
-function uid()  { return Date.now().toString(36) + Math.random().toString(36).slice(2) }
+function fileToRow(f) {
+  return {
+    name:         f.name.trim(),
+    client:       f.client,
+    type:         f.type,
+    size_kb:      Number(f.sizeKB) || 0,
+    date:         f.date || null,
+    observations: f.observations || '',
+  }
+}
 
 function fmtSize(kb) {
   if (!kb) return '—'
@@ -62,51 +63,69 @@ const selectStyle = {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function BibliotecaPage() {
-  const [files,    setFiles]    = useState([])
-  const [loaded,   setLoaded]   = useState(false)
-  const [clients,  setClients]  = useState([])
-  const [search,   setSearch]   = useState('')
-  const [fClient,  setFClient]  = useState('')
-  const [fType,    setFType]    = useState('')
-  const [sort,     setSort]     = useState('Mais recentes')
-  const [modalOpen,setModalOpen]= useState(false)
-  const [editing,  setEditing]  = useState(null)
-  const [viewing,  setViewing]  = useState(null)
-  const [delTarget,setDelTarget]= useState(null)
-  const [toast,    setToast]    = useState(null)
+  const [files,      setFiles]      = useState([])
+  const [loading,    setLoading]    = useState(true)
+  const [tableError, setTableError] = useState(false)
+  const [clients,    setClients]    = useState([])
+  const [search,     setSearch]     = useState('')
+  const [fClient,    setFClient]    = useState('')
+  const [fType,      setFType]      = useState('')
+  const [sort,       setSort]       = useState('Mais recentes')
+  const [modalOpen,  setModalOpen]  = useState(false)
+  const [editing,    setEditing]    = useState(null)
+  const [viewing,    setViewing]    = useState(null)
+  const [delTarget,  setDelTarget]  = useState(null)
+  const [toast,      setToast]      = useState(null)
+
+  async function loadFiles() {
+    setLoading(true)
+    setTableError(false)
+    const { data, error } = await supabase
+      .from('library_files')
+      .select('*')
+      .order('date', { ascending: false, nullsFirst: false })
+    if (error) {
+      console.warn('[biblioteca]', error.message)
+      setTableError(true)
+    } else {
+      setFiles((data ?? []).map(rowToFile))
+    }
+    setLoading(false)
+  }
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(LS_KEY)
-      setFiles(raw ? JSON.parse(raw) : INITIAL_FILES)
-    } catch { setFiles(INITIAL_FILES) }
-    setLoaded(true)
+    loadFiles()
     supabase.from('clients').select('name').order('name').then(({ data }) => {
       if (data?.length) setClients(data.map(r => r.name))
     })
   }, [])
 
-  useEffect(() => {
-    if (loaded) localStorage.setItem(LS_KEY, JSON.stringify(files))
-  }, [files, loaded])
-
   function flash(msg, type = 'success') {
     setToast({ msg, type })
-    setTimeout(() => setToast(null), 3000)
+    setTimeout(() => setToast(null), 3500)
   }
 
-  function handleSave(form) {
+  async function handleSave(form) {
+    const payload = fileToRow(form)
     if (editing) {
-      setFiles(prev => prev.map(f => f.id === editing.id ? { ...f, ...form } : f))
+      const { data, error } = await supabase
+        .from('library_files').update(payload).eq('id', editing.id).select().single()
+      if (error) { flash('Erro ao atualizar arquivo.', 'error'); return }
+      setFiles(prev => prev.map(f => f.id === editing.id ? rowToFile(data) : f))
       flash('Arquivo atualizado!')
     } else {
-      setFiles(prev => [{ ...form, id: uid() }, ...prev])
+      const { data, error } = await supabase
+        .from('library_files').insert(payload).select().single()
+      if (error) { flash('Erro ao adicionar arquivo.', 'error'); return }
+      setFiles(prev => [rowToFile(data), ...prev])
       flash('Arquivo adicionado!')
     }
     setModalOpen(false); setEditing(null)
   }
 
-  function handleDelete(file) {
+  async function handleDelete(file) {
+    const { error } = await supabase.from('library_files').delete().eq('id', file.id)
+    if (error) { flash('Erro ao excluir arquivo.', 'error'); return }
     setFiles(prev => prev.filter(f => f.id !== file.id))
     setDelTarget(null)
     flash('Arquivo removido.', 'warn')
@@ -128,8 +147,7 @@ export default function BibliotecaPage() {
       }
       return true
     })
-
-    list = [...list].sort((a, b) => {
+    return [...list].sort((a, b) => {
       if (sort === 'Mais recentes') return (b.date || '').localeCompare(a.date || '')
       if (sort === 'Mais antigos')  return (a.date || '').localeCompare(b.date || '')
       if (sort === 'Nome A-Z')      return a.name.localeCompare(b.name)
@@ -138,8 +156,6 @@ export default function BibliotecaPage() {
       if (sort === 'Menor tamanho') return (a.sizeKB || 0) - (b.sizeKB || 0)
       return 0
     })
-
-    return list
   }, [files, fClient, fType, sort, search])
 
   const hasFilters = fClient || fType || search
@@ -178,50 +194,78 @@ export default function BibliotecaPage() {
           <div style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--f-muted)', pointerEvents:'none' }}>
             <Icon name="search" size={14}/>
           </div>
-          <input
-            className="f-input"
-            style={{ paddingLeft:36 }}
-            placeholder="Buscar por nome, cliente ou tipo..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+          <input className="f-input" style={{ paddingLeft:36 }} placeholder="Buscar por nome, cliente ou tipo..." value={search} onChange={e => setSearch(e.target.value)}/>
         </div>
 
-        {/* Count + clear */}
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-          <span style={{ fontSize:12, color:'var(--f-muted)' }}>
-            {filtered.length} arquivo{filtered.length !== 1 ? 's' : ''} encontrado{filtered.length !== 1 ? 's' : ''}
-          </span>
-          {hasFilters && (
-            <button className="f-btn-ghost" style={{ fontSize:12 }} onClick={() => { setFClient(''); setFType(''); setSearch('') }}>
-              Limpar filtros
-            </button>
-          )}
-        </div>
+        {/* Table not found */}
+        {tableError && (
+          <div className="f-card">
+            <div className="f-empty-state" style={{ padding:'60px 20px' }}>
+              <Icon name="alert" size={40}/>
+              <h3>Tabela não configurada</h3>
+              <p>Crie a tabela <strong>library_files</strong> no Supabase para usar a Biblioteca.</p>
+              <pre style={{ fontSize:11, background:'rgba(255,255,255,0.05)', border:'1px solid var(--f-border)', borderRadius:8, padding:'12px 16px', marginTop:16, textAlign:'left', color:'var(--f-muted)', lineHeight:1.7, maxWidth:500 }}>
+{`CREATE TABLE library_files (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  client TEXT DEFAULT '',
+  type TEXT DEFAULT 'Logo',
+  size_kb BIGINT DEFAULT 0,
+  date DATE,
+  observations TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);`}
+              </pre>
+            </div>
+          </div>
+        )}
 
-        {/* Grid */}
-        {filtered.length === 0 ? (
-          <div className="f-empty-state" style={{ padding:'60px 20px' }}>
-            <Icon name="folder" size={40}/>
-            <h3>Nenhum arquivo encontrado</h3>
-            <p>Envie um arquivo ou ajuste os filtros.</p>
-            <button className="f-btn-primary" style={{ marginTop:12 }} onClick={() => { setEditing(null); setModalOpen(true) }}>
-              <Icon name="upload" size={14}/> Enviar Arquivo
-            </button>
+        {/* Loading */}
+        {loading && !tableError && (
+          <div style={{ padding:'60px 20px', textAlign:'center', color:'var(--f-muted)' }}>
+            <Icon name="refresh" size={20}/><p style={{ marginTop:10 }}>Carregando...</p>
           </div>
-        ) : (
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(200px, 1fr))', gap:12 }}>
-            {filtered.map(file => (
-              <FileCard
-                key={file.id}
-                file={file}
-                onView={() => setViewing(file)}
-                onEdit={() => { setEditing(file); setModalOpen(true) }}
-                onDownload={() => handleDownload(file)}
-                onDelete={() => setDelTarget(file)}
-              />
-            ))}
-          </div>
+        )}
+
+        {/* Content */}
+        {!loading && !tableError && (
+          <>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+              <span style={{ fontSize:12, color:'var(--f-muted)' }}>
+                {filtered.length} arquivo{filtered.length !== 1 ? 's' : ''} encontrado{filtered.length !== 1 ? 's' : ''}
+              </span>
+              {hasFilters && (
+                <button className="f-btn-ghost" style={{ fontSize:12 }} onClick={() => { setFClient(''); setFType(''); setSearch('') }}>
+                  Limpar filtros
+                </button>
+              )}
+            </div>
+
+            {filtered.length === 0 ? (
+              <div className="f-empty-state" style={{ padding:'60px 20px' }}>
+                <Icon name="folder" size={40}/>
+                <h3>{files.length === 0 ? 'Nenhum arquivo cadastrado' : 'Nenhum arquivo encontrado'}</h3>
+                <p>{files.length === 0 ? 'Clique em "Enviar Arquivo" para cadastrar o primeiro.' : 'Ajuste os filtros ou faça uma nova busca.'}</p>
+                {files.length === 0 && (
+                  <button className="f-btn-primary" style={{ marginTop:12 }} onClick={() => { setEditing(null); setModalOpen(true) }}>
+                    <Icon name="upload" size={14}/> Enviar Arquivo
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(200px, 1fr))', gap:12 }}>
+                {filtered.map(file => (
+                  <FileCard
+                    key={file.id} file={file}
+                    onView={() => setViewing(file)}
+                    onEdit={() => { setEditing(file); setModalOpen(true) }}
+                    onDownload={() => handleDownload(file)}
+                    onDelete={() => setDelTarget(file)}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </main>
 
@@ -284,12 +328,11 @@ export default function BibliotecaPage() {
       {toast && (
         <div style={{
           position:'fixed', bottom:24, right:24, zIndex:300,
-          background: toast.type === 'warn' ? 'rgba(239,68,68,0.15)' : 'rgba(34,197,94,0.15)',
-          border:`1px solid ${toast.type === 'warn' ? 'rgba(239,68,68,0.35)' : 'rgba(34,197,94,0.35)'}`,
+          background: toast.type === 'error' ? 'rgba(239,68,68,0.15)' : toast.type === 'warn' ? 'rgba(245,158,11,0.15)' : 'rgba(34,197,94,0.15)',
+          border:`1px solid ${toast.type === 'error' ? 'rgba(239,68,68,0.35)' : toast.type === 'warn' ? 'rgba(245,158,11,0.35)' : 'rgba(34,197,94,0.35)'}`,
           borderRadius:10, padding:'11px 18px',
-          color: toast.type === 'warn' ? '#EF4444' : '#22C55E',
-          fontSize:13, fontWeight:600, animation:'toastIn 0.2s ease',
-          boxShadow:'0 8px 32px rgba(0,0,0,0.5)',
+          color: toast.type === 'error' ? '#EF4444' : toast.type === 'warn' ? '#F59E0B' : '#22C55E',
+          fontSize:13, fontWeight:600, boxShadow:'0 8px 32px rgba(0,0,0,0.5)',
         }}>
           {toast.msg}
         </div>
@@ -303,40 +346,25 @@ export default function BibliotecaPage() {
 function FileCard({ file, onView, onEdit, onDownload, onDelete }) {
   const color = TYPE_COLOR[file.type] || '#A1A1AA'
   const icon  = TYPE_ICON[file.type]  || 'file'
-
   return (
     <div
-      style={{ background:'var(--f-card)', border:'1px solid var(--f-border)', borderRadius:12, overflow:'hidden', cursor:'pointer', transition:'background 0.15s, transform 0.15s, box-shadow 0.15s' }}
+      style={{ background:'var(--f-card)', border:'1px solid var(--f-border)', borderRadius:12, overflow:'hidden', cursor:'pointer', transition:'transform 0.15s, box-shadow 0.15s' }}
       onClick={onView}
       onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 8px 32px rgba(0,0,0,0.4)' }}
       onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='' }}
     >
-      {/* Preview */}
       <div style={{ height:76, background:`${color}12`, borderBottom:'1px solid var(--f-border)', display:'flex', alignItems:'center', justifyContent:'center', color, position:'relative' }}>
         <Icon name={icon} size={30}/>
         <span style={{ position:'absolute', top:8, right:8, fontSize:9, fontWeight:700, padding:'2px 6px', borderRadius:5, background:`${color}20`, border:`1px solid ${color}30`, color }}>
           {file.type}
         </span>
       </div>
-
-      {/* Info */}
       <div style={{ padding:'10px 12px 8px' }}>
-        <div style={{ fontSize:12, fontWeight:600, color:'var(--f-text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginBottom:3 }}>
-          {file.name}
-        </div>
-        <div style={{ fontSize:11, color:'var(--f-muted)', marginBottom:6, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-          {file.client}
-        </div>
-        <div style={{ fontSize:10, color:'var(--f-muted-dim)' }}>
-          {fmtSize(file.sizeKB)} · {fmtDate(file.date)}
-        </div>
+        <div style={{ fontSize:12, fontWeight:600, color:'var(--f-text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginBottom:3 }}>{file.name}</div>
+        <div style={{ fontSize:11, color:'var(--f-muted)', marginBottom:6, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{file.client}</div>
+        <div style={{ fontSize:10, color:'var(--f-muted-dim)' }}>{fmtSize(file.sizeKB)} · {fmtDate(file.date)}</div>
       </div>
-
-      {/* Actions — stop propagation */}
-      <div
-        style={{ borderTop:'1px solid var(--f-border)', padding:'6px 8px', display:'flex', gap:4, justifyContent:'flex-end' }}
-        onClick={e => e.stopPropagation()}
-      >
+      <div style={{ borderTop:'1px solid var(--f-border)', padding:'6px 8px', display:'flex', gap:4, justifyContent:'flex-end' }} onClick={e => e.stopPropagation()}>
         <ActionIcon icon="eye"      title="Visualizar" onClick={onView}/>
         <ActionIcon icon="download" title="Baixar"     onClick={onDownload}/>
         <ActionIcon icon="edit"     title="Editar"     onClick={onEdit}/>
@@ -349,8 +377,7 @@ function FileCard({ file, onView, onEdit, onDownload, onDelete }) {
 function ActionIcon({ icon, title, onClick, danger }) {
   return (
     <button
-      title={title}
-      onClick={onClick}
+      title={title} onClick={onClick}
       style={{ width:28, height:28, borderRadius:7, background:'rgba(255,255,255,0.04)', border:'1px solid var(--f-border)', color:'var(--f-muted)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', transition:'background 0.15s, color 0.15s' }}
       onMouseEnter={e => { e.currentTarget.style.background = danger ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = danger ? '#EF4444' : '#fff' }}
       onMouseLeave={e => { e.currentTarget.style.background = ''; e.currentTarget.style.color = '' }}
@@ -360,7 +387,7 @@ function ActionIcon({ icon, title, onClick, danger }) {
   )
 }
 
-// ─── File Detail Modal ────────────────────────────────────────────────────────
+// ─── File Detail Modal (centered) ─────────────────────────────────────────────
 
 function FileDetailModal({ file, onClose, onEdit, onDownload }) {
   const color = TYPE_COLOR[file.type] || '#A1A1AA'
@@ -374,33 +401,26 @@ function FileDetailModal({ file, onClose, onEdit, onDownload }) {
 
   return (
     <div
-      style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.75)', backdropFilter:'blur(6px)', zIndex:200, display:'flex', alignItems:'flex-end', justifyContent:'center', animation:'overlayIn 0.18s ease' }}
+      style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.75)', backdropFilter:'blur(6px)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:20, animation:'overlayIn 0.18s ease' }}
       onClick={onClose}
     >
       <div
-        style={{ width:'100%', maxWidth:540, background:'#1E1E1E', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'20px 20px 0 0', boxShadow:'0 -24px 80px rgba(0,0,0,0.6)', animation:'slideUp 0.28s cubic-bezier(.4,0,.2,1)' }}
+        style={{ width:'100%', maxWidth:480, background:'#1E1E1E', border:'1px solid rgba(255,255,255,0.1)', borderRadius:20, boxShadow:'0 24px 80px rgba(0,0,0,0.6)', animation:'modalIn 0.22s cubic-bezier(.4,0,.2,1)', overflow:'hidden' }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Handle */}
-        <div style={{ display:'flex', justifyContent:'center', padding:'12px 0 4px' }}>
-          <div style={{ width:36, height:4, borderRadius:99, background:'rgba(255,255,255,0.15)' }}/>
-        </div>
-
         {/* Preview area */}
-        <div style={{ height:100, background:`${color}10`, borderBottom:'1px solid rgba(255,255,255,0.07)', display:'flex', alignItems:'center', justifyContent:'center', color }}>
-          <Icon name={icon} size={40}/>
+        <div style={{ height:110, background:`${color}10`, borderBottom:'1px solid rgba(255,255,255,0.07)', display:'flex', alignItems:'center', justifyContent:'center', color, position:'relative' }}>
+          <Icon name={icon} size={44}/>
+          <button onClick={onClose} style={{ position:'absolute', top:12, right:12, background:'rgba(0,0,0,0.3)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:8, width:32, height:32, cursor:'pointer', color:'#A1A1AA', display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <Icon name="xmark" size={16}/>
+          </button>
         </div>
 
         {/* Content */}
         <div style={{ padding:'20px 22px' }}>
-          <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12, marginBottom:16 }}>
-            <div>
-              <div style={{ fontSize:16, fontWeight:700, color:'#fff', marginBottom:4 }}>{file.name}</div>
-              <span style={{ fontSize:11, fontWeight:700, padding:'3px 8px', borderRadius:6, color, background:`${color}18`, border:`1px solid ${color}30` }}>{file.type}</span>
-            </div>
-            <button onClick={onClose} style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:8, width:32, height:32, cursor:'pointer', color:'#A1A1AA', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-              <Icon name="xmark" size={16}/>
-            </button>
+          <div style={{ marginBottom:16 }}>
+            <div style={{ fontSize:16, fontWeight:700, color:'#fff', marginBottom:6 }}>{file.name}</div>
+            <span style={{ fontSize:11, fontWeight:700, padding:'3px 8px', borderRadius:6, color, background:`${color}18`, border:`1px solid ${color}30` }}>{file.type}</span>
           </div>
 
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginBottom:16 }}>
@@ -411,7 +431,7 @@ function FileDetailModal({ file, onClose, onEdit, onDownload }) {
           </div>
 
           {file.observations && (
-            <div style={{ marginBottom:16 }}>
+            <div style={{ marginBottom:4 }}>
               <span style={{ display:'block', fontSize:10, fontWeight:700, color:'var(--f-muted-dim)', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:6 }}>Observações</span>
               <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:10, padding:'10px 12px', fontSize:13, color:'var(--f-muted)', lineHeight:1.6 }}>
                 {file.observations}
@@ -421,7 +441,7 @@ function FileDetailModal({ file, onClose, onEdit, onDownload }) {
         </div>
 
         {/* Footer */}
-        <div style={{ padding:'12px 22px 32px', borderTop:'1px solid rgba(255,255,255,0.07)', display:'flex', gap:8, justifyContent:'flex-end' }}>
+        <div style={{ padding:'12px 22px 20px', borderTop:'1px solid rgba(255,255,255,0.07)', display:'flex', gap:8, justifyContent:'flex-end' }}>
           <button className="f-btn-ghost" onClick={onClose}>Fechar</button>
           <button className="f-btn-ghost" onClick={onEdit} style={{ display:'flex', alignItems:'center', gap:5 }}>
             <Icon name="edit" size={13}/> Editar
@@ -447,23 +467,23 @@ function DetailInfo({ label, value }) {
   )
 }
 
-// ─── File Form Modal (upload / edit) ─────────────────────────────────────────
+// ─── File Form Modal ──────────────────────────────────────────────────────────
 
 function FileFormModal({ editing, clients, onClose, onSave }) {
-  const clientList = clients?.length ? clients : ['Academia Alpha','Clínica Essenza','Restaurante Origem']
+  const clientList = clients?.length ? clients : []
   const [form, setForm] = useState({
-    name: editing?.name || '',
-    client: editing?.client || clientList[0] || '',
-    type: editing?.type || 'Logo',
-    sizeKB: editing?.sizeKB || '',
-    date: editing?.date || new Date().toISOString().slice(0,10),
+    name:         editing?.name         || '',
+    client:       editing?.client       || clientList[0] || '',
+    type:         editing?.type         || 'Logo',
+    sizeKB:       editing?.sizeKB       || '',
+    date:         editing?.date         || new Date().toISOString().slice(0,10),
     observations: editing?.observations || '',
   })
-  const [errors, setErrors] = useState({})
+  const [errors,  setErrors]  = useState({})
+  const [saving,  setSaving]  = useState(false)
   const firstRef = useRef(null)
 
   useEffect(() => { setTimeout(() => firstRef.current?.focus(), 80) }, [])
-
   useEffect(() => {
     const h = e => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', h)
@@ -475,12 +495,14 @@ function FileFormModal({ editing, clients, onClose, onSave }) {
     if (errors[field]) setErrors(e => ({ ...e, [field]: null }))
   }
 
-  function submit(e) {
+  async function submit(e) {
     e.preventDefault()
     const errs = {}
     if (!form.name.trim()) errs.name = 'Nome obrigatório'
     if (Object.keys(errs).length) { setErrors(errs); return }
-    onSave({ ...form, sizeKB: Number(form.sizeKB) || 0 })
+    setSaving(true)
+    await onSave({ ...form, sizeKB: Number(form.sizeKB) || 0 })
+    setSaving(false)
   }
 
   return (
@@ -505,13 +527,6 @@ function FileFormModal({ editing, clients, onClose, onSave }) {
           </button>
         </div>
 
-        {!editing && (
-          <div style={{ margin:'16px 22px 0', padding:'12px 14px', background:'rgba(255,210,46,0.06)', border:'1px solid rgba(255,210,46,0.2)', borderRadius:10, display:'flex', alignItems:'center', gap:10 }}>
-            <Icon name="upload" size={16} style={{ color:'#FFD22E', flexShrink:0 }}/>
-            <span style={{ fontSize:12, color:'#A1A1AA' }}>Upload real de arquivos será habilitado em breve. Preencha os dados manualmente por ora.</span>
-          </div>
-        )}
-
         <form onSubmit={submit} style={{ padding:'16px 22px 22px', display:'flex', flexDirection:'column', gap:14 }}>
           <FField label="Nome do arquivo *" error={errors.name}>
             <input ref={firstRef} className={`f-input ${errors.name ? 'has-error' : ''}`} value={form.name} onChange={e => set('name', e.target.value)} placeholder="Ex: logo-cliente.svg"/>
@@ -520,6 +535,7 @@ function FileFormModal({ editing, clients, onClose, onSave }) {
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
             <FField label="Cliente">
               <select className="f-select" value={form.client} onChange={e => set('client', e.target.value)}>
+                {clientList.length === 0 && <option value="">Carregando...</option>}
                 {clientList.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </FField>
@@ -535,7 +551,7 @@ function FileFormModal({ editing, clients, onClose, onSave }) {
               <input className="f-input" type="number" min="0" value={form.sizeKB} onChange={e => set('sizeKB', e.target.value)} placeholder="Ex: 2048"/>
             </FField>
             <FField label="Data">
-              <input className="f-input" type="date" value={form.date} onChange={e => set('date', e.target.value)}/>
+              <input className="f-input" type="date" value={form.date} onChange={e => set('date', e.target.value)} style={{ colorScheme:'dark' }}/>
             </FField>
           </div>
 
@@ -545,9 +561,9 @@ function FileFormModal({ editing, clients, onClose, onSave }) {
 
           <div style={{ display:'flex', gap:10, justifyContent:'flex-end', paddingTop:14, borderTop:'1px solid rgba(255,255,255,0.07)' }}>
             <button type="button" className="f-btn-ghost" onClick={onClose}>Cancelar</button>
-            <button type="submit" className="f-btn-primary">
+            <button type="submit" className="f-btn-primary" disabled={saving}>
               <Icon name={editing ? 'check' : 'upload'} size={14}/>
-              {editing ? 'Salvar alterações' : 'Adicionar arquivo'}
+              {saving ? 'Salvando…' : editing ? 'Salvar alterações' : 'Adicionar arquivo'}
             </button>
           </div>
         </form>

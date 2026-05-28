@@ -156,9 +156,30 @@ export default function LeadsPage() {
                       <span style={{ fontSize: 11, color: 'var(--f-muted)', flexShrink: 0 }}>{formatDate(lead.created_at)}</span>
                     </div>
 
-                    {/* Segment */}
-                    <div style={{ fontSize: 11, color: 'var(--f-muted)' }}>
-                      {SEG_LABELS[lead.segment] ?? lead.segment}
+                    {/* Segment + Instagram */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 11, color: 'var(--f-muted)' }}>
+                        {SEG_LABELS[lead.segment] ?? lead.segment}
+                      </span>
+                      {lead.instagram && (
+                        <a
+                          href={`https://instagram.com/${lead.instagram.replace('@', '')}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            fontSize: 11, fontWeight: 700,
+                            color: '#E1306C', textDecoration: 'none',
+                            background: 'rgba(225,48,108,0.08)',
+                            border: '1px solid rgba(225,48,108,0.2)',
+                            borderRadius: 100, padding: '2px 8px',
+                            transition: 'opacity .15s',
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.opacity = '.75'}
+                          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                        >
+                          {lead.instagram}
+                        </a>
+                      )}
                     </div>
 
                     {/* Observations */}

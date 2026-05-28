@@ -25,7 +25,7 @@ function phoneMask(v) {
 }
 
 export default function DiagnosticoPage() {
-  const [formData, setFormData] = useState({ name: '', phone: '', segment: '' })
+  const [formData, setFormData] = useState({ name: '', phone: '', instagram: '', segment: '' })
   const [formState, setFormState] = useState('idle') // 'idle' | 'success'
   const [wppLink, setWppLink] = useState(WPP)
   const [bottomData, setBottomData] = useState({ name: '', phone: '' })
@@ -43,10 +43,10 @@ export default function DiagnosticoPage() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    const { name, phone, segment } = formData
+    const { name, phone, instagram, segment } = formData
     const segLabel = SEG_LABELS[segment] || segment
 
-    await supabase.from('leads').insert({ name, phone, segment })
+    await supabase.from('leads').insert({ name, phone, instagram, segment })
 
     const msg = encodeURIComponent(
       `Olá! Me chamo ${name} e acabei de solicitar o diagnóstico gratuito de presença digital pelo site da BBold. Meu negócio é do segmento de ${segLabel}. Aguardo o contato! 😊`
@@ -125,6 +125,19 @@ export default function DiagnosticoPage() {
                     required
                     value={formData.phone}
                     onChange={handlePhoneChange}
+                  />
+                </div>
+                <div className="dg-form-group">
+                  <label>Instagram da empresa</label>
+                  <input
+                    type="text"
+                    placeholder="@seuinsta"
+                    value={formData.instagram}
+                    onChange={e => {
+                      let v = e.target.value
+                      if (v && !v.startsWith('@')) v = '@' + v
+                      setFormData(p => ({ ...p, instagram: v }))
+                    }}
                   />
                 </div>
                 <div className="dg-form-group">

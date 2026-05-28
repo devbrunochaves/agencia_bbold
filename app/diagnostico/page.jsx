@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { supabase } from '@/lib/supabase'
 import './diagnostico.css'
 
 const WPP = 'https://wa.me/5527997341557'
@@ -40,10 +41,13 @@ export default function DiagnosticoPage() {
     setFormData(p => ({ ...p, phone: phoneMask(e.target.value) }))
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
-    const { name, segment } = formData
+    const { name, phone, segment } = formData
     const segLabel = SEG_LABELS[segment] || segment
+
+    await supabase.from('leads').insert({ name, phone, segment })
+
     const msg = encodeURIComponent(
       `Olá! Me chamo ${name} e acabei de solicitar o diagnóstico gratuito de presença digital pelo site da BBold. Meu negócio é do segmento de ${segLabel}. Aguardo o contato! 😊`
     )

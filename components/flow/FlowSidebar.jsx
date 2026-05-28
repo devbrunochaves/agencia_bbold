@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { id: 'conteudos',     label: 'Conteúdos',     icon: 'file',     href: '/flow/conteudos',      group: 'principal' },
   { id: 'workflow',      label: 'Workflow',      icon: 'workflow', href: '/flow/workflow',       group: 'principal' },
   { id: 'calendario',    label: 'Calendário',    icon: 'calendar', href: '/flow/calendario',     group: 'principal' },
+  { id: 'leads',         label: 'Leads',         icon: 'zap',      href: '/flow/leads',          group: 'recursos' },
   { id: 'aprovacoes',    label: 'Aprovações',    icon: 'check',    href: '/flow/aprovacoes',     group: 'recursos' },
   { id: 'biblioteca',    label: 'Biblioteca',    icon: 'folder',   href: '/flow/biblioteca',     group: 'recursos' },
   { id: 'performance',   label: 'Performance',   icon: 'chart',    href: '/flow/performance',    group: 'recursos' },

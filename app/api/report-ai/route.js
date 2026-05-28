@@ -10,7 +10,14 @@ export async function POST(request) {
     )
   }
 
-  const { client, period, performance, contents, approvals } = await request.json()
+  let body
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Requisição inválida.' }, { status: 400 })
+  }
+
+  const { client, period, performance, contents, approvals } = body
 
   const perfSummary = performance.length === 0
     ? 'Nenhuma métrica registrada neste período.'
@@ -62,11 +69,18 @@ Escreva uma análise completa em português do Brasil, com tom profissional mas 
 
 Seja específico com os números. Não invente dados. Se não houver dados suficientes, indique isso claramente.`
 
-  const genAI = new GoogleGenerativeAI(apiKey)
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
-
-  const result = await model.generateContent(prompt)
-  const text = result.response.text()
-
-  return NextResponse.json({ analysis: text })
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey)
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const result = await model.generateContent(prompt)
+    const text = result.response.text()
+    return NextResponse.json({ analysis: text })
+  } catch (err) {
+    const msg = err?.message ?? String(err)
+    console.error('[report-ai]', msg)
+    return NextResponse.json(
+      { error: `Erro na API Gemini: ${msg}` },
+      { status: 502 }
+    )
+  }
 }

@@ -193,8 +193,8 @@ export default function RelatoriosPage() {
       const json = await res.json()
       if (json.error) { setAiError(json.error); setAiLoading(false); return }
       setAiAnalysis(json.analysis)
-    } catch {
-      setAiError('Erro de conexão. Verifique a chave GEMINI_API_KEY no Vercel.')
+    } catch (err) {
+      setAiError(`Erro de conexão: ${err?.message ?? err}`)
     }
     setAiLoading(false)
   }

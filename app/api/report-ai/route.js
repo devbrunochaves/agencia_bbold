@@ -1,4 +1,3 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
 import { NextResponse } from 'next/server'
 
 export async function POST(request) {
@@ -69,21 +68,51 @@ Escreva uma análise completa em português do Brasil, com tom profissional mas 
 
 Seja específico com os números. Não invente dados. Se não houver dados suficientes, indique isso claramente.`
 
-  try {
-    const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel(
-      { model: 'gemini-1.5-flash' },
-      { apiVersion: 'v1' }
-    )
-    const result = await model.generateContent(prompt)
-    const text = result.response.text()
-    return NextResponse.json({ analysis: text })
-  } catch (err) {
-    const msg = err?.message ?? String(err)
-    console.error('[report-ai]', msg)
-    return NextResponse.json(
-      { error: `Erro na API Gemini: ${msg}` },
-      { status: 502 }
-    )
+  // Try models in order until one works
+  const MODELS = [
+    'gemini-2.0-flash',
+    'gemini-2.0-flash-lite',
+    'gemini-1.5-flash',
+    'gemini-pro',
+  ]
+
+  for (const modelName of MODELS) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
+        }),
+      })
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        // 404 = model not found, try next
+        if (res.status === 404) continue
+        return NextResponse.json(
+          { error: `Gemini ${modelName}: ${err?.error?.message ?? res.statusText}` },
+          { status: 502 }
+        )
+      }
+
+      const data = await res.json()
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
+      if (!text) {
+        return NextResponse.json({ error: 'Resposta vazia da IA.' }, { status: 502 })
+      }
+      return NextResponse.json({ analysis: text, model: modelName })
+
+    } catch (err) {
+      console.error(`[report-ai] ${modelName}:`, err?.message)
+      continue
+    }
   }
+
+  return NextResponse.json(
+    { error: 'Nenhum modelo Gemini disponível para esta chave. Verifique se a chave é válida e tem a Gemini API habilitada.' },
+    { status: 502 }
+  )
 }

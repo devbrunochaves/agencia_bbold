@@ -69,7 +69,7 @@ const SERVICE_CATALOG = [
   },
 ]
 
-const PAYMENT_METHODS = ['Pix', 'Boleto Bancário', 'Transferência Bancária', 'Cartão de Crédito']
+const PAYMENT_METHODS = ['Pix', 'Cartão de Crédito', 'Boleto']
 
 const STATUS_MAP = {
   ativo:     { bg: 'rgba(34,197,94,0.15)',   color: '#22C55E', border: 'rgba(34,197,94,0.3)',   label: 'Ativo'     },
@@ -890,12 +890,18 @@ function CreateModal({ isOpen, onClose, onSuccess }) {
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
             <Fld label="Nome do pacote *" span>{inp('package_name','text','Ex: Pacote Redes Sociais Pro')}</Fld>
             <Fld label="Valor mensal (R$) *">{inp('monthly_value','number','0.00')}</Fld>
-            <Fld label="Forma de pagamento">
-              <select value={form.payment_method} onChange={e => set('payment_method', e.target.value)}
-                style={{ ...inputS, cursor:'pointer' }}
-                onFocus={e => e.target.style.borderColor='var(--f-yellow)'} onBlur={e => e.target.style.borderColor='var(--f-border)'}>
-                {PAYMENT_METHODS.map(m => <option key={m} value={m}>{m}</option>)}
-              </select>
+            <Fld label="Forma de pagamento" span>
+              <div style={{ display:'flex', gap:8 }}>
+                {PAYMENT_METHODS.map(m => {
+                  const on = form.payment_method === m
+                  return (
+                    <button key={m} type="button" onClick={() => set('payment_method', m)}
+                      style={{ flex:1, padding:'11px 8px', borderRadius:8, cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight: on ? 700 : 400, background: on ? 'rgba(255,210,46,0.08)' : 'var(--f-bg)', border: on ? '1px solid rgba(255,210,46,0.5)' : '1px solid var(--f-border)', color: on ? 'var(--f-yellow)' : 'var(--f-muted)', transition:'all .15s' }}>
+                      {m}
+                    </button>
+                  )
+                })}
+              </div>
             </Fld>
             <Fld label="Data de início *">{inp('start_date','date')}</Fld>
             <Fld label="Prazo contratual (meses) *">{inp('duration_months','number','3')}</Fld>

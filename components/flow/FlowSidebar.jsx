@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { id: 'biblioteca',    label: 'Biblioteca',    icon: 'folder',   href: '/flow/biblioteca',     group: 'recursos' },
   { id: 'performance',   label: 'Performance',   icon: 'chart',    href: '/flow/performance',    group: 'recursos' },
   { id: 'relatorios',    label: 'Relatórios',    icon: 'report',   href: '/flow/relatorios',     group: 'recursos' },
+  { id: 'contratos',     label: 'Contratos',     icon: 'doc',      href: '/flow/contratos',      group: 'recursos' },
   { id: 'configuracoes', label: 'Configurações', icon: 'settings', href: '/flow/configuracoes',  group: 'recursos' },
 ]
 

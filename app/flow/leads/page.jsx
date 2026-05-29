@@ -60,6 +60,12 @@ export default function LeadsPage() {
     return () => supabase.removeChannel(channel)
   }, [])
 
+  async function deleteLead(id) {
+    if (!confirm('Excluir este lead? Essa ação não pode ser desfeita.')) return
+    setLeads(prev => prev.filter(l => l.id !== id))
+    await supabase.from('leads').delete().eq('id', id)
+  }
+
   async function moveCard(id, status) {
     setMovingId(null)
     setLeads(prev => prev.map(l => l.id === id ? { ...l, status } : l))
@@ -259,6 +265,25 @@ export default function LeadsPage() {
                         </svg>
                         {lead.phone}
                       </a>
+
+                      {/* Delete button */}
+                      <button
+                        onClick={() => deleteLead(lead.id)}
+                        title="Excluir lead"
+                        style={{
+                          background: 'none', border: '1px solid var(--f-border)',
+                          borderRadius: 100, padding: '5px 8px',
+                          color: 'var(--f-muted)', cursor: 'pointer',
+                          display: 'flex', alignItems: 'center',
+                          transition: 'color .15s, border-color .15s',
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.color = '#EF4444'; e.currentTarget.style.borderColor = '#EF4444' }}
+                        onMouseLeave={e => { e.currentTarget.style.color = 'var(--f-muted)'; e.currentTarget.style.borderColor = 'var(--f-border)' }}
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                        </svg>
+                      </button>
 
                       {/* Move button */}
                       <div style={{ position: 'relative', marginLeft: 'auto' }}>

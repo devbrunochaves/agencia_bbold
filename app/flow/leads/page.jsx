@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import FlowHeader from '@/components/flow/FlowHeader'
 
 const COLUMNS = [
   { id: 'em_aberto',        label: 'Em Aberto',        color: '#FFD22E' },
@@ -85,15 +86,13 @@ export default function LeadsPage() {
   }).length
 
   return (
-    <div style={{ padding: '28px 24px', minHeight: '100%' }}>
+    <>
+      <FlowHeader
+        title="Leads"
+        subtitle={`${total} captado${total !== 1 ? 's' : ''} · ${thisMonth} este mês`}
+      />
 
-      {/* Header */}
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--f-text)', marginBottom: 4 }}>Leads</h1>
-        <p style={{ fontSize: 13, color: 'var(--f-muted)' }}>
-          {total} captado{total !== 1 ? 's' : ''} · {thisMonth} este mês
-        </p>
-      </div>
+    <div style={{ padding: '28px 24px', minHeight: '100%' }}>
 
       {loading ? (
         <p style={{ color: 'var(--f-muted)', fontSize: 14 }}>Carregando…</p>
@@ -325,6 +324,7 @@ export default function LeadsPage() {
         />
       )}
     </div>
+    </>
   )
 }
 

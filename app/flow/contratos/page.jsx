@@ -84,6 +84,16 @@ function fmtCurrency(v) {
   return parseFloat(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
+function maskCurrency(v) {
+  const digits = String(v).replace(/\D/g, '')
+  if (!digits) return ''
+  return (parseInt(digits, 10) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
+function parseCurrency(v) {
+  return parseFloat(String(v).replace(/\./g, '').replace(',', '.')) || 0
+}
+
 function fmtDate(iso) {
   if (!iso) return '—'
   const [y, m, d] = iso.split('-')
@@ -822,7 +832,8 @@ function CreateModal({ isOpen, onClose, onSuccess }) {
     }
     setSaving(true)
     try {
-      buildPDF(form, false)
+      const parsedValue = parseCurrency(form.monthly_value)
+      buildPDF({ ...form, monthly_value: parsedValue }, false)
       const { error: dbErr } = await supabase.from('contracts').insert({
         client_name: form.client_name.trim(),
         client_doc: form.client_doc.trim(),
@@ -831,7 +842,7 @@ function CreateModal({ isOpen, onClose, onSuccess }) {
         client_phone: form.client_phone.trim(),
         client_address: form.client_address.trim(),
         package_name: form.package_name.trim(),
-        monthly_value: parseFloat(form.monthly_value) || 0,
+        monthly_value: parsedValue,
         start_date: form.start_date,
         duration_months: parseInt(form.duration_months, 10) || 0,
         due_day: parseInt(form.due_day, 10) || 1,
@@ -892,7 +903,13 @@ function CreateModal({ isOpen, onClose, onSuccess }) {
           <SecHd title="Comercial"/>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
             <Fld label="Nome do pacote *" span>{inp('package_name','text','Ex: Pacote Redes Sociais Pro')}</Fld>
-            <Fld label="Valor mensal (R$) *">{inp('monthly_value','number','0.00')}</Fld>
+            <Fld label="Valor mensal (R$) *">
+              <input type="text" inputMode="numeric" value={form.monthly_value} placeholder="0,00"
+                onChange={e => set('monthly_value', maskCurrency(e.target.value))}
+                style={inputS}
+                onFocus={e => e.target.style.borderColor='var(--f-yellow)'}
+                onBlur={e => e.target.style.borderColor='var(--f-border)'}/>
+            </Fld>
             <Fld label="Forma de pagamento" span>
               <div style={{ display:'flex', gap:8 }}>
                 {PAYMENT_METHODS.map(m => {

@@ -3,6 +3,39 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import FlowHeader from '@/components/flow/FlowHeader'
+import Icon from '@/components/flow/FlowIcons'
+
+function DeleteDialog({ lead, onConfirm, onCancel }) {
+  if (!lead) return null
+  return (
+    <div
+      style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.72)', backdropFilter:'blur(4px)', zIndex:300, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}
+      onClick={onCancel}
+    >
+      <div
+        style={{ background:'#232323', border:'1px solid rgba(255,255,255,0.1)', borderRadius:18, padding:28, maxWidth:380, width:'100%', textAlign:'center' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div style={{ width:52, height:52, borderRadius:14, background:'rgba(239,68,68,0.12)', border:'1px solid rgba(239,68,68,0.2)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px', color:'var(--f-red)' }}>
+          <Icon name="trash" size={22}/>
+        </div>
+        <h3 style={{ fontSize:16, fontWeight:700, color:'#fff', margin:'0 0 8px' }}>Excluir lead</h3>
+        <p style={{ fontSize:13, color:'#A1A1AA', margin:'0 0 24px', lineHeight:1.6 }}>
+          Tem certeza que deseja excluir <strong style={{ color:'#fff' }}>{lead.name}</strong>? Esta ação não pode ser desfeita.
+        </p>
+        <div style={{ display:'flex', gap:10, justifyContent:'center' }}>
+          <button className="f-btn-secondary" onClick={onCancel}>Cancelar</button>
+          <button
+            onClick={onConfirm}
+            style={{ display:'flex', alignItems:'center', gap:6, padding:'7px 18px', background:'rgba(239,68,68,0.14)', border:'1px solid rgba(239,68,68,0.3)', borderRadius:'var(--f-r-sm)', color:'var(--f-red)', fontWeight:700, fontSize:13, cursor:'pointer', fontFamily:'inherit' }}
+          >
+            <Icon name="trash" size={14}/> Excluir
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const COLUMNS = [
   { id: 'em_aberto',        label: 'Em Aberto',        color: '#FFD22E' },
@@ -39,6 +72,7 @@ export default function LeadsPage() {
   const [obsValue, setObsValue]   = useState('')
   const [savingObs, setSavingObs] = useState(false)
   const [movingId, setMovingId]   = useState(null)   // lead id with status dropdown open
+  const [deleteTarget, setDeleteTarget] = useState(null) // lead to confirm delete
 
   useEffect(() => {
     supabase
@@ -60,8 +94,9 @@ export default function LeadsPage() {
     return () => supabase.removeChannel(channel)
   }, [])
 
-  async function deleteLead(id) {
-    if (!confirm('Excluir este lead? Essa ação não pode ser desfeita.')) return
+  async function confirmDelete() {
+    const id = deleteTarget.id
+    setDeleteTarget(null)
     setLeads(prev => prev.filter(l => l.id !== id))
     await supabase.from('leads').delete().eq('id', id)
   }
@@ -268,7 +303,7 @@ export default function LeadsPage() {
 
                       {/* Delete button */}
                       <button
-                        onClick={() => deleteLead(lead.id)}
+                        onClick={() => setDeleteTarget(lead)}
                         title="Excluir lead"
                         style={{
                           background: 'none', border: '1px solid var(--f-border)',
@@ -349,6 +384,12 @@ export default function LeadsPage() {
         />
       )}
     </div>
+
+    <DeleteDialog
+      lead={deleteTarget}
+      onConfirm={confirmDelete}
+      onCancel={() => setDeleteTarget(null)}
+    />
     </>
   )
 }

@@ -242,15 +242,21 @@ class PDF {
     for (const l of lines) { this.guard(6); this.doc.text(l, this.L + indent, this.y); this.y += 5.2 }
   }
 
-  // Lettered sub-item: a) text
+  // Numbered sub-item: I – text
   sub(letter, text) {
     this.guard(7)
     this.doc.setFontSize(9.5)
     this.doc.setFont('helvetica', 'normal')
     this.doc.setTextColor(50, 50, 50)
-    this.doc.text(`${letter})`, this.L + 6, this.y)
-    const lines = this.doc.splitTextToSize(text, this.cW - 16)
-    for (const l of lines) { this.guard(6); this.doc.text(l, this.L + 14, this.y); this.y += 5.2 }
+    const prefix = `${letter} –`
+    this.doc.text(prefix, this.L + 4, this.y)
+    const pw = this.doc.getTextWidth(prefix + ' ')
+    const lines = this.doc.splitTextToSize(text, this.cW - 4 - pw)
+    this.doc.text(lines[0], this.L + 4 + pw, this.y)
+    this.y += 5.2
+    for (let i = 1; i < lines.length; i++) {
+      this.guard(6); this.doc.text(lines[i], this.L + 4 + pw, this.y); this.y += 5.2
+    }
   }
 
   // Paragraph header: "Parágrafo Xº –"
@@ -293,313 +299,256 @@ class PDF {
 // ─── PDF Generation ───────────────────────────────────────────────────────────
 
 function buildPDF(data, signMode = false) {
-  const pb   = new PDF()
-  const num  = makeContractNum()
+  const pb     = new PDF()
+  const num    = makeContractNum()
   const svcIds = Array.isArray(data.selected_services) ? data.selected_services : []
   const svcs   = SERVICE_CATALOG.filter(s => svcIds.includes(s.id))
   const pm     = data.payment_method || 'Pix'
+  const revs   = parseInt(data.revisions, 10) || 2
+  const d      = pb.doc
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // COVER PAGE
-  // ──────────────────────────────────────────────────────────────────────────
-  const d = pb.doc
-
-  // Top bar
+  // ── BBOLD header bar ──────────────────────────────────────────────────────
   d.setFillColor(18, 18, 18)
-  d.rect(0, 0, pb.W, 46, 'F')
-  // Yellow accent strip
+  d.rect(0, 0, pb.W, 28, 'F')
   d.setFillColor(255, 210, 46)
-  d.rect(0, 0, 6, 46, 'F')
+  d.rect(0, 0, 5, 28, 'F')
+  d.setFontSize(16); d.setFont('helvetica', 'bold'); d.setTextColor(255, 210, 46)
+  d.text('BBold', pb.L + 4, 11)
+  d.setFontSize(8); d.setFont('helvetica', 'normal'); d.setTextColor(160, 160, 160)
+  d.text('Agência Digital de Marketing', pb.L + 4, 18)
+  d.setFontSize(7); d.setTextColor(100, 100, 100)
+  d.text(`${BBOLD.cnpj}   ·   ${BBOLD.email}   ·   ${BBOLD.telefone}`, pb.L + 4, 24)
+  d.setFontSize(8); d.setFont('helvetica', 'bold'); d.setTextColor(120, 120, 120)
+  d.text(`CONTRATO Nº ${num}`, pb.W - pb.R, 12, { align: 'right' })
+  d.setFontSize(7.5); d.setFont('helvetica', 'normal'); d.setTextColor(100, 100, 100)
+  d.text(todaySlash(), pb.W - pb.R, 20, { align: 'right' })
 
-  d.setFontSize(24)
-  d.setFont('helvetica', 'bold')
-  d.setTextColor(255, 210, 46)
-  d.text('BBold', pb.L + 6, 20)
-  d.setFontSize(10)
-  d.setFont('helvetica', 'normal')
-  d.setTextColor(180, 180, 180)
-  d.text('Agência Digital de Marketing', pb.L + 6, 28)
-  d.setFontSize(8)
-  d.setTextColor(120, 120, 120)
-  d.text(BBOLD.cnpj, pb.L + 6, 36)
-  d.text(BBOLD.email + '   ' + BBOLD.telefone, pb.L + 6, 42)
+  pb.y = 44
 
-  pb.y = 62
+  // ── Title ─────────────────────────────────────────────────────────────────
+  d.setFontSize(13); d.setFont('helvetica', 'bold'); d.setTextColor(20, 20, 20)
+  d.text('CONTRATO DE PRESTAÇÃO DE SERVIÇOS DE MARKETING DIGITAL', pb.W / 2, pb.y, { align: 'center' })
+  pb.y += 9
+  d.setFontSize(9); d.setFont('helvetica', 'normal'); d.setTextColor(100, 100, 100)
+  d.text(`Contrato Nº ${num}`, pb.W / 2, pb.y, { align: 'center' })
+  pb.y += 12
 
-  // Contract title
-  d.setFontSize(16)
-  d.setFont('helvetica', 'bold')
-  d.setTextColor(20, 20, 20)
-  d.text('INSTRUMENTO PARTICULAR DE', pb.W / 2, pb.y, { align: 'center' })
-  pb.y += 8
-  d.text('CONTRATO DE PRESTAÇÃO DE SERVIÇOS', pb.W / 2, pb.y, { align: 'center' })
-  pb.y += 7
-  d.setFontSize(10)
-  d.setFont('helvetica', 'normal')
-  d.setTextColor(100, 100, 100)
-  d.text('MARKETING DIGITAL', pb.W / 2, pb.y, { align: 'center' })
-  pb.y += 14
+  pb.p('Pelo presente instrumento particular, de um lado:')
+  pb.sp(8)
 
-  // Contract info box
-  d.setFillColor(248, 248, 248)
-  d.setDrawColor(225, 225, 225)
-  d.setLineWidth(0.3)
-  d.roundedRect(pb.L, pb.y, pb.cW, 20, 2, 2, 'FD')
-  d.setFontSize(7.5); d.setFont('helvetica', 'normal'); d.setTextColor(130, 130, 130)
-  d.text('CONTRATO Nº', pb.L + 5, pb.y + 7)
-  d.text('DATA', pb.L + 65, pb.y + 7)
-  d.text('PACOTE', pb.L + 108, pb.y + 7)
+  // ── CONTRATADA ────────────────────────────────────────────────────────────
   d.setFontSize(10); d.setFont('helvetica', 'bold'); d.setTextColor(20, 20, 20)
-  d.text(num, pb.L + 5, pb.y + 16)
-  d.text(todaySlash(), pb.L + 65, pb.y + 16)
-  d.text((data.package_name || '').slice(0, 26), pb.L + 108, pb.y + 16)
-  pb.y += 28
+  d.text('CONTRATADA', pb.L, pb.y)
+  pb.y += 1.5
+  d.setDrawColor(200, 200, 200); d.setLineWidth(0.4)
+  d.line(pb.L, pb.y, pb.L + 46, pb.y)
+  pb.y += 7
+  pb.kv('Empresa:', BBOLD.empresa)
+  pb.kv('CNPJ:', BBOLD.cnpj)
+  pb.kv('Endereço:', BBOLD.endereco + ', CEP 29164-083')
+  pb.kv('E-mail:', BBOLD.email)
+  pb.kv('Telefone:', BBOLD.telefone)
+  pb.sp(4)
+  pb.p('doravante denominada simplesmente CONTRATADA.')
+  pb.sp(8)
+  pb.p('E de outro lado:')
+  pb.sp(8)
 
-  // Parties box
-  d.setFillColor(252, 252, 252)
-  d.setDrawColor(225, 225, 225)
-  d.roundedRect(pb.L, pb.y, pb.cW, 52, 2, 2, 'FD')
-  const mid = pb.L + pb.cW / 2
-  d.setDrawColor(220, 220, 220)
-  d.line(mid, pb.y + 4, mid, pb.y + 48)
-
-  d.setFontSize(7.5); d.setFont('helvetica', 'bold'); d.setTextColor(150, 150, 150)
-  d.text('CONTRATANTE', pb.L + 5, pb.y + 10)
-  d.text('CONTRATADA', mid + 5, pb.y + 10)
-
-  d.setFontSize(11); d.setFont('helvetica', 'bold'); d.setTextColor(20, 20, 20)
-  const cnLines = d.splitTextToSize(data.client_name || '', mid - pb.L - 10)
-  d.text(cnLines, pb.L + 5, pb.y + 20)
-  d.setFontSize(8.5); d.setFont('helvetica', 'normal'); d.setTextColor(80, 80, 80)
-  if (data.client_doc)  d.text(data.client_doc, pb.L + 5, pb.y + 32)
-  if (data.client_responsible) d.text(data.client_responsible, pb.L + 5, pb.y + 38)
-  if (data.client_email)  d.text(data.client_email, pb.L + 5, pb.y + 44)
-
-  d.setFontSize(11); d.setFont('helvetica', 'bold'); d.setTextColor(20, 20, 20)
-  d.text('59.676.407 BRUNO', mid + 5, pb.y + 20)
-  d.text('CHAVES DOS SANTOS', mid + 5, pb.y + 27)
-  d.setFontSize(8.5); d.setFont('helvetica', 'normal'); d.setTextColor(80, 80, 80)
-  d.text('CNPJ: 59.676.407/0001-86', mid + 5, pb.y + 36)
-  d.text(BBOLD.email, mid + 5, pb.y + 42)
-  pb.y += 60
-
-  // Value summary bar
-  d.setFillColor(18, 18, 18)
-  d.roundedRect(pb.L, pb.y, pb.cW, 26, 2, 2, 'F')
-  d.setFontSize(7.5); d.setFont('helvetica', 'normal'); d.setTextColor(130, 130, 130)
-  const cols = [pb.L+5, pb.L+62, pb.L+100, pb.L+140]
-  d.text('VALOR MENSAL',  cols[0], pb.y + 8)
-  d.text('INÍCIO',        cols[1], pb.y + 8)
-  d.text('DURAÇÃO',       cols[2], pb.y + 8)
-  d.text('VENCIMENTO',    cols[3], pb.y + 8)
-  d.setFontSize(12); d.setFont('helvetica', 'bold'); d.setTextColor(255, 210, 46)
-  d.text(`R$ ${fmtCurrency(data.monthly_value)}`, cols[0], pb.y + 20)
-  d.setFontSize(10); d.setTextColor(255, 255, 255)
-  d.text(fmtDate(data.start_date),   cols[1], pb.y + 20)
-  d.text(`${data.duration_months} meses`, cols[2], pb.y + 20)
-  d.text(`Dia ${data.due_day}`,       cols[3], pb.y + 20)
-  pb.y += 34
-
-  // Services chips
-  if (svcs.length > 0) {
-    d.setFontSize(7.5); d.setFont('helvetica', 'bold'); d.setTextColor(100, 100, 100)
-    d.text('SERVIÇOS CONTRATADOS:', pb.L, pb.y)
-    pb.y += 6
-    let cx = pb.L
-    for (const s of svcs) {
-      d.setFontSize(7.5); d.setFont('helvetica', 'normal')
-      const tw = d.getTextWidth(s.label) + 7
-      if (cx + tw > pb.W - pb.R - 5) { cx = pb.L; pb.y += 8 }
-      d.setFillColor(240, 240, 240); d.setDrawColor(200, 200, 200)
-      d.roundedRect(cx, pb.y - 4.5, tw, 6.5, 1.5, 1.5, 'FD')
-      d.setTextColor(40, 40, 40)
-      d.text(s.label, cx + 3.5, pb.y)
-      cx += tw + 3
-    }
-    pb.y += 8
-  }
-
-  // ──────────────────────────────────────────────────────────────────────────
-  // PAGE 2 — CLAUSES
-  // ──────────────────────────────────────────────────────────────────────────
-  pb.doc.addPage()
-  pb.y = pb.T
-
-  // I – IDENTIFICAÇÃO DAS PARTES
-  pb.sec('CLÁUSULA I', 'IDENTIFICAÇÃO DAS PARTES')
-  pb.sp(3)
-  pb.bold('CONTRATANTE:')
+  // ── CONTRATANTE ───────────────────────────────────────────────────────────
+  d.setFontSize(10); d.setFont('helvetica', 'bold'); d.setTextColor(20, 20, 20)
+  d.text('CONTRATANTE', pb.L, pb.y)
+  pb.y += 1.5
+  d.setDrawColor(200, 200, 200); d.setLineWidth(0.4)
+  d.line(pb.L, pb.y, pb.L + 51, pb.y)
+  pb.y += 7
   pb.kv('Nome / Razão Social:', data.client_name)
-  if (data.client_doc)         pb.kv('CPF / CNPJ:', data.client_doc)
-  if (data.client_responsible) pb.kv('Responsável:', data.client_responsible)
+  if (data.client_doc)         pb.kv('CPF/CNPJ:', data.client_doc)
+  if (data.client_responsible) pb.kv('Representante:', data.client_responsible)
   if (data.client_email)       pb.kv('E-mail:', data.client_email)
   if (data.client_phone)       pb.kv('Telefone:', data.client_phone)
   if (data.client_address)     pb.kv('Endereço:', data.client_address)
   pb.sp(4)
-  pb.bold('CONTRATADA:')
-  pb.kv('Empresa:', BBOLD.empresa)
-  pb.kv('CNPJ:', BBOLD.cnpj)
-  pb.kv('Endereço:', BBOLD.endereco)
-  pb.kv('E-mail:', BBOLD.email)
-  pb.kv('Telefone:', BBOLD.telefone)
-  pb.sp(3)
-  pb.p('As partes acima identificadas têm entre si, justo e contratado, o presente Instrumento Particular de Contrato de Prestação de Serviços de Marketing Digital, que se regerá pelas cláusulas e condições abaixo descritas.')
+  pb.p('doravante denominado simplesmente CONTRATANTE.')
+  pb.sp(6)
+  pb.p('As partes acima identificadas têm entre si justo e contratado o presente Contrato de Prestação de Serviços de Marketing Digital, mediante as cláusulas e condições abaixo.')
   pb.hr()
 
-  // II – OBJETO
-  pb.sec('CLÁUSULA II', 'DO OBJETO DO CONTRATO')
+  // ── CLÁUSULA 1 ────────────────────────────────────────────────────────────
+  pb.sec('CLÁUSULA 1', 'DO OBJETO')
   pb.sp(3)
-  pb.p(`O presente contrato tem por objeto a prestação de serviços de marketing digital pela CONTRATADA à CONTRATANTE, referente ao pacote denominado "${data.package_name}", conforme escopo detalhado na Cláusula III deste instrumento.`)
-  pb.hr()
-
-  // III – ESCOPO
-  pb.sec('CLÁUSULA III', 'DO ESCOPO E LIMITAÇÕES')
-  pb.sp(3)
+  pb.p('O presente contrato tem como objeto a prestação de serviços de marketing digital pela CONTRATADA à CONTRATANTE, conforme escopo contratado.')
+  pb.sp(4)
+  pb.bold('Serviços inclusos:', 4)
+  pb.sp(2)
   if (svcs.length > 0) {
-    pb.bold('3.1 – Serviços contratados:')
-    pb.sp(2)
+    for (const s of svcs) pb.bullet(s.label)
+  } else if (data.services && data.services.trim()) {
+    pb.p(data.services, 6)
+  } else {
+    pb.p('Conforme acordado entre as partes.', 6)
+  }
+  pb.sp(3)
+  pb.par('Parágrafo único', 'Qualquer atividade não expressamente prevista neste contrato será considerada serviço adicional e poderá ser objeto de orçamento complementar.')
+  pb.hr()
+
+  // ── CLÁUSULA 2 ────────────────────────────────────────────────────────────
+  pb.sec('CLÁUSULA 2', 'DO ESCOPO DOS SERVIÇOS')
+  pb.sp(3)
+  pb.p('A CONTRATADA executará os serviços contratados conforme o plano selecionado.')
+  pb.sp(4)
+  pb.bold('Entregas previstas:', 4)
+  pb.sp(2)
+  if (svcs.length > 0) {
     for (const s of svcs) {
-      pb.guard(22)
+      pb.guard(16)
       pb.doc.setFontSize(9.5); pb.doc.setFont('helvetica', 'bold'); pb.doc.setTextColor(20, 20, 20)
-      pb.doc.text('» ' + s.label, pb.L + 4, pb.y)
-      pb.y += 5.5
-      pb.p(s.scope, 8)
-      pb.sp(2)
+      pb.doc.text('» ' + s.label, pb.L + 6, pb.y); pb.y += 5.5
+      pb.p(s.scope, 10); pb.sp(2)
     }
-    pb.sp(2)
-    pb.bold('3.2 – Limitações de escopo:')
-    pb.sp(2)
-    for (const s of svcs) pb.bullet(`${s.label}: ${s.limit}`)
   }
   if (data.services && data.services.trim()) {
-    pb.sp(4)
-    pb.bold('3.3 – Detalhamento adicional dos serviços:')
-    pb.sp(2)
-    pb.p(data.services, 4)
+    pb.sp(2); pb.bold('Entregas adicionais:', 4); pb.sp(2); pb.p(data.services, 6)
   }
-  pb.sp(3)
-  pb.p('Quaisquer serviços adicionais não previstos neste instrumento deverão ser formalizados mediante Termo Aditivo assinado por ambas as partes.')
-  pb.hr()
-
-  // IV – PRAZO
-  pb.sec('CLÁUSULA IV', 'DO PRAZO E VIGÊNCIA')
-  pb.sp(3)
-  pb.p(`O prazo contratual é de ${data.duration_months} (${numWords(data.duration_months)}) meses, com início em ${fmtDate(data.start_date)} e término previsto em ${calcEnd(data.start_date, data.duration_months)}, sendo prorrogado automaticamente por período igual, salvo manifestação contrária por escrito com antecedência mínima de 30 (trinta) dias do seu termo final.`)
-  pb.par('Parágrafo Único', 'A não renovação por iniciativa da CONTRATANTE não implica qualquer ônus à CONTRATADA pelas expectativas de continuidade dos serviços.')
-  pb.hr()
-
-  // V – VALORES
-  pb.sec('CLÁUSULA V', 'DOS VALORES E FORMA DE PAGAMENTO')
-  pb.sp(3)
-  pb.p(`O presente contrato será remunerado no valor de R$ ${fmtCurrency(data.monthly_value)} (${fmtCurrency(data.monthly_value)} reais) por mês, devendo ser pago por meio de ${pm} até o dia ${data.due_day} (${numWords(data.due_day)}) de cada mês.`)
-  pb.par('Parágrafo 1º', 'Em caso de atraso, incidirá multa de 2% (dois por cento) sobre o valor em atraso, acrescida de juros de 1% (um por cento) ao mês, calculados pro rata die, além de correção monetária pelo IPCA.')
-  pb.par('Parágrafo 2º', 'A CONTRATADA emitirá Nota Fiscal Eletrônica de Serviços (NF-e) após a confirmação de cada pagamento.')
-  pb.par('Parágrafo 3º', 'Os valores poderão ser reajustados anualmente com base no índice IPCA ou conforme acordo entre as partes, mediante notificação prévia de 30 (trinta) dias.')
-  pb.hr()
-
-  // VI – INADIMPLÊNCIA
-  pb.sec('CLÁUSULA VI', 'DOS ATRASOS E INADIMPLÊNCIA')
-  pb.sp(3)
-  pb.p('Em caso de inadimplência, a CONTRATADA poderá, a seu exclusivo critério:')
-  pb.sp(2)
-  pb.sub('a', 'Suspender temporariamente os serviços contratados até a regularização do débito, após atraso superior a 15 (quinze) dias corridos do vencimento;')
-  pb.sub('b', 'Reter as entregas em elaboração até a quitação integral dos valores em aberto;')
-  pb.sub('c', 'Rescindir o contrato por justa causa em caso de inadimplência superior a 30 (trinta) dias, sem prejuízo da cobrança judicial dos valores devidos.')
-  pb.par('Parágrafo Único', 'A suspensão dos serviços por inadimplência não configura rescisão contratual pela CONTRATADA e não gera qualquer direito de ressarcimento à CONTRATANTE pelo período de suspensão.')
-  pb.hr()
-
-  // VII – APROVAÇÕES
-  pb.sec('CLÁUSULA VII', 'DAS APROVAÇÕES')
-  pb.sp(3)
-  pb.p('As entregas de materiais, artes e criações estão sujeitas à aprovação prévia da CONTRATANTE, que deverá manifestar-se em até 5 (cinco) dias úteis após o recebimento.')
-  pb.par('Parágrafo 1º', 'Transcorrido o prazo sem manifestação expressa, o material será considerado aprovado tacitamente, podendo a CONTRATADA publicá-lo ou avançar para a próxima etapa.')
-  pb.par('Parágrafo 2º', 'O feedback deverá ser enviado de forma clara, objetiva e por escrito (e-mail ou plataforma de gestão), consolidado em uma única comunicação por rodada de revisão.')
-  pb.par('Parágrafo 3º', 'Aprovações concedidas não poderão ser revertidas unilateralmente pela CONTRATANTE após o início da execução da etapa subsequente.')
-  pb.hr()
-
-  // VIII – REVISÕES
-  pb.sec('CLÁUSULA VIII', 'DAS REVISÕES E ALTERAÇÕES')
-  pb.sp(3)
-  pb.p('Cada entrega inclui até 2 (duas) rodadas de revisão, conforme especificado no pacote contratado. Revisões adicionais serão orçadas e cobradas separadamente, mediante aprovação prévia da CONTRATANTE.')
-  pb.par('Parágrafo 1º', 'Alterações no escopo original — incluindo mudanças de briefing, adição de serviços ou modificação de objetivos — deverão ser formalizadas mediante Termo Aditivo assinado por ambas as partes.')
-  pb.par('Parágrafo 2º', 'A CONTRATADA reserva-se o direito de recusar solicitações de alteração que comprometam a qualidade técnica, a coerência criativa do projeto, ou que contrariem boas práticas de mercado.')
-  pb.hr()
-
-  // IX – OBRIGAÇÕES CONTRATANTE
-  pb.sec('CLÁUSULA IX', 'DAS OBRIGAÇÕES DA CONTRATANTE')
-  pb.sp(3)
-  pb.p('Compete à CONTRATANTE, durante a vigência deste contrato:')
-  pb.sp(2)
-  pb.sub('a', 'Fornecer todos os dados, materiais, imagens, acessos e informações necessários à integral execução dos serviços, nos prazos acordados;')
-  pb.sub('b', 'Ser responsável legal pela veracidade, legalidade e originalidade de todo o material fornecido, incluindo imagens, logotipos, textos e demais conteúdos;')
-  pb.sub('c', 'Cumprir os prazos de aprovação e feedback estabelecidos neste contrato;')
-  pb.sub('d', 'Efetuar os pagamentos nas datas estabelecidas, independentemente do uso ou não dos serviços no período;')
-  pb.sub('e', 'Fornecer os acessos necessários às plataformas digitais (Google Analytics, Meta Business, etc.) mediante solicitação da CONTRATADA;')
-  pb.sub('f', 'Comunicar qualquer alteração estratégica relevante com antecedência mínima de 15 (quinze) dias;')
-  pb.sub('g', 'Respeitar os direitos autorais sobre os materiais produzidos enquanto houver valores em aberto.')
-  pb.hr()
-
-  // X – OBRIGAÇÕES CONTRATADA
-  pb.sec('CLÁUSULA X', 'DAS OBRIGAÇÕES DA CONTRATADA')
-  pb.sp(3)
-  pb.p('Compete à CONTRATADA, durante a vigência deste contrato:')
-  pb.sp(2)
-  pb.sub('a', 'Executar os serviços contratados com diligência, técnica e profissionalismo, conforme o escopo definido;')
-  pb.sub('b', 'Cumprir os prazos de entrega acordados, comunicando com antecedência mínima de 3 (três) dias úteis eventuais impedimentos;')
-  pb.sub('c', 'Manter sigilo absoluto sobre todas as informações confidenciais da CONTRATANTE;')
-  pb.sub('d', 'Emitir Nota Fiscal Eletrônica de Serviços mediante recebimento de cada pagamento;')
-  pb.sub('e', 'Apresentar relatórios de desempenho das campanhas, conforme periodicidade acordada;')
-  pb.sub('f', 'Não subcontratar ou transferir os serviços a terceiros sem autorização expressa e por escrito da CONTRATANTE.')
-  pb.hr()
-
-  // XI – PROPRIEDADE INTELECTUAL
-  pb.sec('CLÁUSULA XI', 'DA PROPRIEDADE INTELECTUAL')
-  pb.sp(3)
-  pb.p('Todo o material produzido pela CONTRATADA no âmbito deste contrato será cedido e transferido definitivamente à CONTRATANTE após a quitação integral dos valores devidos referentes ao período de produção.')
-  pb.par('Parágrafo 1º', 'Enquanto houver parcelas em aberto, a CONTRATADA mantém a titularidade sobre os materiais produzidos, podendo retê-los até a regularização financeira completa.')
-  pb.par('Parágrafo 2º', 'Ferramentas, softwares, plug-ins e licenças de terceiros utilizados pela CONTRATADA não integram a transferência de direitos, sendo desconectados imediatamente em caso de rescisão ou inadimplência.')
-  pb.par('Parágrafo 3º', 'A CONTRATANTE não poderá alegar direitos sobre materiais não integralmente pagos em qualquer âmbito, inclusive judicial.')
-  pb.hr()
-
-  // XII – CONFIDENCIALIDADE
-  pb.sec('CLÁUSULA XII', 'DA CONFIDENCIALIDADE')
-  pb.sp(3)
-  pb.p('Ambas as partes comprometem-se a manter em estrito sigilo todas as informações confidenciais — técnicas, comerciais, financeiras e estratégicas — obtidas em razão deste contrato, não as divulgando a terceiros sem autorização prévia e expressa da outra parte.')
-  pb.par('Parágrafo Único', 'Esta obrigação de confidencialidade persiste pelo prazo de 2 (dois) anos após o término ou rescisão deste contrato, independentemente do motivo de encerramento.')
-  pb.hr()
-
-  // XIII – PORTFÓLIO
-  pb.sec('CLÁUSULA XIII', 'DA AUTORIZAÇÃO DE USO EM PORTFÓLIO')
-  pb.sp(3)
-  pb.p('A CONTRATANTE autoriza expressamente a CONTRATADA a utilizar o nome, logotipo, materiais produzidos e resultados obtidos no âmbito deste contrato para fins de divulgação em portfólio, site institucional, redes sociais e materiais comerciais da CONTRATADA.')
-  pb.par('Parágrafo Único', 'Caso a CONTRATANTE não deseje figurar no portfólio da CONTRATADA, deverá manifestar-se expressamente e por escrito até a data de assinatura deste contrato, sem ônus para qualquer das partes.')
-  pb.hr()
-
-  // XIV – RESCISÃO
-  pb.sec('CLÁUSULA XIV', 'DA RESCISÃO')
-  pb.sp(3)
-  pb.p('Qualquer das partes poderá rescindir o presente contrato mediante aviso prévio por escrito com antecedência mínima de 30 (trinta) dias, sem incidência de multa rescisória.')
-  pb.par('Parágrafo 1º', 'O aviso de rescisão deverá ser enviado por escrito ao e-mail da outra parte, valendo a data de confirmação de recebimento como termo inicial do prazo de 30 dias.')
-  pb.par('Parágrafo 2º', 'Em caso de rescisão, os materiais já produzidos e integralmente pagos serão entregues à CONTRATANTE no prazo de até 10 (dez) dias úteis após o encerramento.')
-  pb.par('Parágrafo 3º', 'A rescisão por justa causa — caracterizada por inadimplência superior a 30 dias, descumprimento grave das obrigações ou conduta ilícita de qualquer das partes — dispensa o aviso prévio, assegurada à parte prejudicada a cobrança dos danos comprovados.')
-  pb.par('Parágrafo 4º', 'As partes eximem-se de penalidade pelo não cumprimento de prazos em razão de caso fortuito ou força maior, conforme art. 393 do Código Civil Brasileiro, devendo a parte afetada comunicar a outra por escrito em até 10 (dez) dias da ocorrência.')
-  pb.hr()
-
-  // XV – LGPD
-  pb.sec('CLÁUSULA XV', 'DA PROTEÇÃO DE DADOS PESSOAIS — LGPD')
-  pb.sp(3)
-  pb.p('As partes comprometem-se a observar as disposições da Lei nº 13.709/2018 (Lei Geral de Proteção de Dados — LGPD) e suas regulamentações na execução deste contrato.')
-  pb.par('Parágrafo 1º', 'Os dados pessoais coletados e tratados no âmbito deste contrato serão utilizados exclusivamente para a execução dos serviços contratados, sendo vedado o compartilhamento com terceiros sem autorização expressa.')
-  pb.par('Parágrafo 2º', 'A CONTRATADA adota medidas técnicas e organizacionais adequadas para proteger os dados pessoais tratados, comprometendo-se a notificar a CONTRATANTE em caso de incidente de segurança no prazo máximo de 72 (setenta e duas) horas.')
-  pb.par('Parágrafo 3º', 'Após o término do contrato, os dados pessoais serão eliminados ou devolvidos conforme solicitação da CONTRATANTE, salvo obrigação legal de retenção.')
-  pb.hr()
-
-  // XVI – FORO
-  pb.sec('CLÁUSULA XVI', 'DO FORO')
-  pb.sp(3)
-  pb.p('As partes elegem o foro da Comarca de Serra, estado do Espírito Santo, para dirimir quaisquer questões resultantes da interpretação e execução do presente contrato, renunciando expressamente a qualquer outro foro, por mais privilegiado que seja.')
   pb.sp(4)
-  pb.p('E por estarem assim justas e contratadas, as partes assinam o presente instrumento em 2 (duas) vias de igual teor e forma, na presença de 2 (duas) testemunhas.')
+  pb.bold('Não estão inclusos neste contrato:', 4)
+  pb.sp(2)
+  const excl = [
+    ...(!svcIds.includes('trafego_pago') ? ['Gestão de tráfego pago (quando não contratado)'] : []),
+    ...(!svcIds.includes('criacao_site') ? ['Desenvolvimento de websites (quando não contratado)'] : []),
+    'Produção audiovisual profissional externa',
+    'Impressos e materiais gráficos físicos',
+    'Cobertura presencial extraordinária',
+    'Serviços não descritos neste contrato',
+  ]
+  for (const item of excl) pb.bullet(item)
+  pb.hr()
+
+  // ── CLÁUSULA 3 ────────────────────────────────────────────────────────────
+  pb.sec('CLÁUSULA 3', 'DO PRAZO E VIGÊNCIA')
+  pb.sp(3)
+  pb.p(`O presente contrato terá vigência inicial de ${data.duration_months} (${numWords(data.duration_months)}) meses, iniciando-se em ${fmtDate(data.start_date)}.`)
+  pb.par('Parágrafo Primeiro', 'As partes reconhecem que os serviços de marketing digital demandam período mínimo de implementação, análise e otimização, razão pela qual o prazo mínimo recomendado é de 03 (três) meses.')
+  pb.par('Parágrafo Segundo', 'Após o período inicial contratado, o contrato poderá ser renovado mediante comum acordo entre as partes.')
+  pb.hr()
+
+  // ── CLÁUSULA 4 ────────────────────────────────────────────────────────────
+  pb.sec('CLÁUSULA 4', 'DOS VALORES E FORMA DE PAGAMENTO')
+  pb.sp(3)
+  pb.p('Pelos serviços prestados, a CONTRATANTE pagará à CONTRATADA o valor de:')
+  pb.sp(5)
+  d.setFontSize(18); d.setFont('helvetica', 'bold'); d.setTextColor(20, 20, 20)
+  d.text(`R$ ${fmtCurrency(data.monthly_value)}/mês`, pb.W / 2, pb.y, { align: 'center' })
+  pb.y += 12
+  pb.p(`Vencimento: dia ${data.due_day} (${numWords(data.due_day)}) de cada mês.`)
+  pb.sp(2)
+  pb.p(`Forma de pagamento: ${pm}.`)
+  pb.par('Parágrafo Primeiro', 'Os pagamentos deverão ser efetuados dentro do prazo estipulado.')
+  pb.par('Parágrafo Segundo', 'A CONTRATADA poderá emitir nota fiscal quando aplicável.')
+  pb.hr()
+
+  // ── CLÁUSULA 5 ────────────────────────────────────────────────────────────
+  pb.sec('CLÁUSULA 5', 'DA INADIMPLÊNCIA')
+  pb.sp(3)
+  pb.p('O atraso superior a 05 (cinco) dias poderá ocasionar suspensão temporária dos serviços até regularização financeira.')
+  pb.sp(3)
+  pb.p('O atraso superior a 30 (trinta) dias poderá resultar na rescisão contratual por iniciativa da CONTRATADA.')
+  pb.hr()
+
+  // ── CLÁUSULA 6 ────────────────────────────────────────────────────────────
+  pb.sec('CLÁUSULA 6', 'DAS OBRIGAÇÕES DA CONTRATANTE')
+  pb.sp(3)
+  pb.p('Constituem obrigações da CONTRATANTE:')
+  pb.sp(2)
+  pb.sub('I',   'Fornecer informações necessárias à execução dos serviços;')
+  pb.sub('II',  'Disponibilizar acessos às plataformas quando necessário;')
+  pb.sub('III', 'Fornecer materiais institucionais, identidade visual e demais conteúdos solicitados;')
+  pb.sub('IV',  'Aprovar ou solicitar ajustes nos materiais enviados dentro dos prazos estabelecidos;')
+  pb.sub('V',   'Efetuar os pagamentos nas datas acordadas.')
+  pb.hr()
+
+  // ── CLÁUSULA 7 ────────────────────────────────────────────────────────────
+  pb.sec('CLÁUSULA 7', 'DAS OBRIGAÇÕES DA CONTRATADA')
+  pb.sp(3)
+  pb.p('Constituem obrigações da CONTRATADA:')
+  pb.sp(2)
+  pb.sub('I',   'Executar os serviços contratados com zelo e profissionalismo;')
+  pb.sub('II',  'Cumprir os prazos acordados;')
+  pb.sub('III', 'Manter comunicação ativa com a CONTRATANTE;')
+  pb.sub('IV',  'Desenvolver estratégias compatíveis com os objetivos apresentados;')
+  pb.sub('V',   'Preservar o sigilo das informações recebidas.')
+  pb.hr()
+
+  // ── CLÁUSULA 8 ────────────────────────────────────────────────────────────
+  pb.sec('CLÁUSULA 8', 'DO PROCESSO DE APROVAÇÃO')
+  pb.sp(3)
+  pb.p('Todo material produzido será enviado para aprovação da CONTRATANTE.')
+  pb.par('Parágrafo Primeiro', 'A CONTRATANTE terá prazo de até 03 (três) dias úteis para aprovar ou solicitar ajustes.')
+  pb.par('Parágrafo Segundo', 'A ausência de manifestação dentro do prazo poderá ser considerada aprovação tácita para não comprometer o cronograma.')
+  pb.hr()
+
+  // ── CLÁUSULA 9 ────────────────────────────────────────────────────────────
+  pb.sec('CLÁUSULA 9', 'DAS REVISÕES E ALTERAÇÕES')
+  pb.sp(3)
+  pb.p(`O contrato contempla até ${revs} (${numWords(revs)}) revisões por material.`)
+  pb.sp(3)
+  pb.p('Solicitações que alterem substancialmente o briefing inicial ou excedam a quantidade prevista poderão ser orçadas separadamente.')
+  pb.hr()
+
+  // ── CLÁUSULA 10 ───────────────────────────────────────────────────────────
+  pb.sec('CLÁUSULA 10', 'DA PROPRIEDADE INTELECTUAL')
+  pb.sp(3)
+  pb.p('Após a quitação integral dos pagamentos referentes aos serviços prestados, os materiais produzidos para a CONTRATANTE passarão a ser de sua propriedade.')
+  pb.par('Parágrafo Primeiro', 'Permanecem de propriedade exclusiva da CONTRATADA: metodologias, processos internos, estruturas estratégicas, templates, frameworks e ferramentas próprias.')
+  pb.par('Parágrafo Segundo', 'A contratação dos serviços não implica cessão de propriedade intelectual sobre métodos e processos internos da CONTRATADA.')
+  pb.hr()
+
+  // ── CLÁUSULA 11 ───────────────────────────────────────────────────────────
+  pb.sec('CLÁUSULA 11', 'DA CONFIDENCIALIDADE')
+  pb.sp(3)
+  pb.p('As partes comprometem-se a manter sigilo sobre quaisquer informações confidenciais compartilhadas durante a vigência deste contrato.')
+  pb.sp(3)
+  pb.p('O dever de confidencialidade permanecerá válido mesmo após o encerramento contratual.')
+  pb.hr()
+
+  // ── CLÁUSULA 12 ───────────────────────────────────────────────────────────
+  pb.sec('CLÁUSULA 12', 'DA LGPD')
+  pb.sp(3)
+  pb.p('As partes comprometem-se a cumprir a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), adotando medidas adequadas para proteção dos dados eventualmente compartilhados.')
+  pb.hr()
+
+  // ── CLÁUSULA 13 ───────────────────────────────────────────────────────────
+  pb.sec('CLÁUSULA 13', 'DO USO DE PORTFÓLIO')
+  pb.sp(3)
+  pb.p('A CONTRATANTE autoriza a CONTRATADA a utilizar os materiais desenvolvidos para fins de portfólio, divulgação institucional, apresentação comercial e marketing próprio da BBOLD.')
+  pb.sp(3)
+  pb.p('Caso exista necessidade de confidencialidade específica, deverá haver manifestação formal da CONTRATANTE.')
+  pb.hr()
+
+  // ── CLÁUSULA 14 ───────────────────────────────────────────────────────────
+  pb.sec('CLÁUSULA 14', 'DA RESCISÃO')
+  pb.sp(3)
+  pb.p('O presente contrato poderá ser rescindido por qualquer das partes mediante aviso prévio mínimo de 30 (trinta) dias.')
+  pb.par('Parágrafo Primeiro', 'Não haverá multa rescisória.')
+  pb.par('Parágrafo Segundo', 'Durante o período de aviso prévio, a CONTRATADA realizará a conclusão das atividades em andamento e a transferência dos acessos necessários.')
+  pb.par('Parágrafo Terceiro', 'Os valores já vencidos permanecerão devidos.')
+  pb.hr()
+
+  // ── CLÁUSULA 15 ───────────────────────────────────────────────────────────
+  pb.sec('CLÁUSULA 15', 'DAS DISPOSIÇÕES GERAIS')
+  pb.sp(3)
+  pb.p('Nenhuma alteração deste contrato terá validade sem registro formal entre as partes.')
+  pb.sp(3)
+  pb.p('A eventual tolerância de qualquer descumprimento contratual não implicará renúncia de direitos.')
+  pb.sp(3)
+  pb.p('Este contrato substitui quaisquer entendimentos anteriores relacionados ao objeto contratado.')
+  pb.hr()
+
+  // ── CLÁUSULA 16 ───────────────────────────────────────────────────────────
+  pb.sec('CLÁUSULA 16', 'DO FORO')
+  pb.sp(3)
+  pb.p('Fica eleito o foro da Comarca da Serra, Estado do Espírito Santo, para dirimir quaisquer controvérsias decorrentes deste contrato, com renúncia a qualquer outro, por mais privilegiado que seja.')
+  pb.sp(4)
+  pb.p('E por estarem de pleno acordo, firmam o presente instrumento.')
 
   if (data.observations && data.observations.trim()) {
     pb.hr()
@@ -608,15 +557,15 @@ function buildPDF(data, signMode = false) {
     pb.p(data.observations)
   }
 
-  // ── SIGNATURES ──────────────────────────────────────────────────────────────
-  pb.guard(signMode ? 80 : 65)
-  pb.sp(8)
+  // ── SIGNATURES ────────────────────────────────────────────────────────────
+  pb.guard(signMode ? 85 : 60)
+  pb.sp(10)
   pb.hr(180)
 
   const d2 = pb.doc
   d2.setFontSize(9); d2.setFont('helvetica', 'normal'); d2.setTextColor(80, 80, 80)
   d2.text(`Serra/ES, ${todayLong()}.`, pb.L, pb.y)
-  pb.y += 14
+  pb.y += 16
 
   const sigY = pb.y
   const half = pb.L + pb.cW / 2
@@ -633,29 +582,28 @@ function buildPDF(data, signMode = false) {
   const cnL = d2.splitTextToSize(data.client_name || '', half - pb.L - 10)
   d2.text(cnL, pb.L, sigY + 12)
   if (data.client_doc) d2.text(data.client_doc, pb.L, sigY + 18)
-
   d2.text(BBOLD.empresa, half + 8, sigY + 12)
   d2.text(BBOLD.cnpj, half + 8, sigY + 18)
   pb.y = sigY + 26
 
   if (signMode) {
     pb.sp(10)
-    d2.setFontSize(8); d2.setTextColor(100, 100, 100)
-    d2.text('Assinatura: _______________________________  Data: ___/___/______  CPF/CNPJ: __________________', pb.L, pb.y)
-    pb.y += 8
-    d2.text('Assinatura: _______________________________  Data: ___/___/______  CPF/CNPJ: __________________', half + 8, pb.y - 8)
-    pb.sp(12)
-    // Witnesses box
+    d2.setFontSize(7.5); d2.setTextColor(100, 100, 100)
+    const sL = pb.L, sR = half + 8, sY = pb.y
+    d2.text('Assinatura: ________________________________', sL, sY)
+    d2.text('Data: ___/___/______   CPF/CNPJ: ___________________', sL, sY + 6)
+    d2.text('Assinatura: ________________________________', sR, sY)
+    d2.text('Data: ___/___/______   CPF/CNPJ: ___________________', sR, sY + 6)
+    pb.y += 16
     d2.setDrawColor(200, 200, 200); d2.setLineWidth(0.3)
     d2.roundedRect(pb.L, pb.y, pb.cW, 22, 2, 2, 'D')
     d2.setFontSize(7.5); d2.setFont('helvetica', 'bold'); d2.setTextColor(120, 120, 120)
     d2.text('TESTEMUNHAS', pb.L + 4, pb.y + 7)
     d2.setFont('helvetica', 'normal'); d2.setTextColor(60, 60, 60)
-    d2.text('1. Nome: _______________________________ Assinatura: ______________________ CPF: ______________', pb.L + 4, pb.y + 14)
-    d2.text('2. Nome: _______________________________ Assinatura: ______________________ CPF: ______________', pb.L + 4, pb.y + 20)
+    d2.text('1. Nome: ________________________________  Assinatura: ___________________  CPF: _______________', pb.L + 4, pb.y + 14)
+    d2.text('2. Nome: ________________________________  Assinatura: ___________________  CPF: _______________', pb.L + 4, pb.y + 20)
     pb.y += 30
     pb.sp(6)
-    // Digital signature note
     d2.setFillColor(245, 248, 255); d2.setDrawColor(180, 200, 255)
     d2.roundedRect(pb.L, pb.y, pb.cW, 18, 2, 2, 'FD')
     d2.setFontSize(8); d2.setFont('helvetica', 'bold'); d2.setTextColor(60, 80, 200)
@@ -834,7 +782,7 @@ function ContractRow({ c, onDownload, onDownloadSig, onStatusChange, onDelete, s
 const INIT = {
   client_name:'', client_doc:'', client_responsible:'', client_email:'', client_phone:'', client_address:'',
   package_name:'', monthly_value:'', start_date:'', duration_months:'', due_day:'', payment_method:'Pix',
-  services:'', observations:'', selected_services:[],
+  revisions:'2', services:'', observations:'', selected_services:[],
 }
 
 function CreateModal({ isOpen, onClose, onSuccess }) {
@@ -885,6 +833,7 @@ function CreateModal({ isOpen, onClose, onSuccess }) {
         duration_months: parseInt(form.duration_months, 10) || 0,
         due_day: parseInt(form.due_day, 10) || 1,
         payment_method: form.payment_method,
+        revisions: parseInt(form.revisions, 10) || 2,
         services: form.services.trim(),
         observations: form.observations.trim(),
         selected_services: form.selected_services,
@@ -951,6 +900,7 @@ function CreateModal({ isOpen, onClose, onSuccess }) {
             <Fld label="Data de início *">{inp('start_date','date')}</Fld>
             <Fld label="Prazo contratual (meses) *">{inp('duration_months','number','3')}</Fld>
             <Fld label="Dia de vencimento *">{inp('due_day','number','10')}</Fld>
+            <Fld label="Revisões por material">{inp('revisions','number','2')}</Fld>
           </div>
 
           {/* SERVIÇOS */}

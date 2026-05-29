@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { jsPDF } from 'jspdf'
 import { supabase } from '@/lib/supabase'
 import FlowHeader from '@/components/flow/FlowHeader'
@@ -119,6 +119,30 @@ const NUM_WORDS = ['zero','um','dois','três','quatro','cinco','seis','sete','oi
   'vinte e seis','vinte e sete','vinte e oito','vinte e nove','trinta']
 
 function numWords(n) { return NUM_WORDS[parseInt(n,10)] || String(n) }
+
+function maskDoc(v) {
+  const d = v.replace(/\D/g, '').slice(0, 14)
+  if (d.length <= 11) {
+    if (d.length > 9) return d.slice(0,3)+'.'+d.slice(3,6)+'.'+d.slice(6,9)+'-'+d.slice(9)
+    if (d.length > 6) return d.slice(0,3)+'.'+d.slice(3,6)+'.'+d.slice(6)
+    if (d.length > 3) return d.slice(0,3)+'.'+d.slice(3)
+    return d
+  }
+  if (d.length > 12) return d.slice(0,2)+'.'+d.slice(2,5)+'.'+d.slice(5,8)+'/'+d.slice(8,12)+'-'+d.slice(12)
+  if (d.length > 8)  return d.slice(0,2)+'.'+d.slice(2,5)+'.'+d.slice(5,8)+'/'+d.slice(8)
+  if (d.length > 5)  return d.slice(0,2)+'.'+d.slice(2,5)+'.'+d.slice(5)
+  if (d.length > 2)  return d.slice(0,2)+'.'+d.slice(2)
+  return d
+}
+
+function maskPhone(v) {
+  const d = v.replace(/\D/g, '').slice(0, 11)
+  if (d.length === 0) return ''
+  if (d.length <= 2)  return '(' + d
+  if (d.length <= 6)  return '(' + d.slice(0,2) + ') ' + d.slice(2)
+  if (d.length <= 10) return '(' + d.slice(0,2) + ') ' + d.slice(2,6) + '-' + d.slice(6)
+  return '(' + d.slice(0,2) + ') ' + d.slice(2,7) + '-' + d.slice(7)
+}
 
 // ─── PDF Builder ──────────────────────────────────────────────────────────────
 
@@ -712,6 +736,16 @@ function DeleteDialog({ contract, onConfirm, onCancel }) {
 function ContractRow({ c, onDownload, onDownloadSig, onStatusChange, onDelete, statusOpenId, setStatusOpenId }) {
   const st = STATUS_MAP[c.status] || STATUS_MAP.ativo
   const isOpen = statusOpenId === c.id
+  const btnRef = useRef(null)
+  const [dropPos, setDropPos] = useState({ top: 0, right: 0 })
+
+  function handleStatusToggle() {
+    if (!isOpen && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect()
+      setDropPos({ top: r.bottom + 6, right: window.innerWidth - r.right })
+    }
+    setStatusOpenId(isOpen ? null : c.id)
+  }
 
   return (
     <div style={{ padding:'14px 18px', borderBottom:'1px solid var(--f-border)', transition:'background .12s' }}
@@ -739,12 +773,12 @@ function ContractRow({ c, onDownload, onDownloadSig, onStatusChange, onDelete, s
 
         {/* Status */}
         <div style={{ position:'relative', flex:'0 0 auto' }}>
-          <button onClick={() => setStatusOpenId(isOpen ? null : c.id)}
+          <button ref={btnRef} onClick={handleStatusToggle}
             style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'4px 10px', borderRadius:99, fontSize:11, fontWeight:700, cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap', background:st.bg, color:st.color, border:`1px solid ${st.border}` }}>
             {st.label} ▾
           </button>
           {isOpen && (
-            <div style={{ position:'absolute', top:'calc(100% + 6px)', right:0, background:'var(--f-card)', border:'1px solid var(--f-border)', borderRadius:8, overflow:'hidden', zIndex:100, boxShadow:'0 8px 24px rgba(0,0,0,0.4)', minWidth:140 }}>
+            <div style={{ position:'fixed', top:dropPos.top, right:dropPos.right, background:'var(--f-card)', border:'1px solid var(--f-border)', borderRadius:8, overflow:'hidden', zIndex:300, boxShadow:'0 8px 24px rgba(0,0,0,0.4)', minWidth:140 }}>
               {Object.entries(STATUS_MAP).map(([k, v]) => (
                 <button key={k} onClick={() => { onStatusChange(c.id, k); setStatusOpenId(null) }}
                   style={{ display:'flex', alignItems:'center', gap:8, width:'100%', padding:'10px 14px', background: c.status === k ? 'var(--f-bg)' : 'none', border:'none', color:v.color, fontSize:12, fontWeight:600, cursor:'pointer', fontFamily:'inherit', textAlign:'left' }}
@@ -895,10 +929,10 @@ function CreateModal({ isOpen, onClose, onSuccess }) {
           <SecHd title="Cliente"/>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
             <Fld label="Nome / Razão Social *" span><input type="text" value={form.client_name} placeholder="Ex: João Silva ou Empresa LTDA" onChange={e => set('client_name', e.target.value)} style={inputS} onFocus={e => e.target.style.borderColor='var(--f-yellow)'} onBlur={e => e.target.style.borderColor='var(--f-border)'}/></Fld>
-            <Fld label="CPF / CNPJ">{inp('client_doc','text','000.000.000-00')}</Fld>
+            <Fld label="CPF / CNPJ"><input type="text" value={form.client_doc} placeholder="000.000.000-00 ou 00.000.000/0000-00" onChange={e => set('client_doc', maskDoc(e.target.value))} style={inputS} onFocus={e => e.target.style.borderColor='var(--f-yellow)'} onBlur={e => e.target.style.borderColor='var(--f-border)'}/></Fld>
             <Fld label="Responsável">{inp('client_responsible','text','Nome do responsável')}</Fld>
             <Fld label="E-mail">{inp('client_email','email','email@exemplo.com')}</Fld>
-            <Fld label="Telefone">{inp('client_phone','text','(27) 99999-0000')}</Fld>
+            <Fld label="Telefone"><input type="text" value={form.client_phone} placeholder="(27) 99999-0000" onChange={e => set('client_phone', maskPhone(e.target.value))} style={inputS} onFocus={e => e.target.style.borderColor='var(--f-yellow)'} onBlur={e => e.target.style.borderColor='var(--f-border)'}/></Fld>
             <Fld label="Endereço completo" span>{inp('client_address','text','Rua, Número, Bairro, Cidade/UF')}</Fld>
           </div>
 
@@ -1071,7 +1105,7 @@ export default function ContratosPage() {
         </div>
       </main>
 
-      {statusOpenId && <div style={{ position:'fixed', inset:0, zIndex:99 }} onClick={() => setStatusOpenId(null)}/>}
+      {statusOpenId && <div style={{ position:'fixed', inset:0, zIndex:299 }} onClick={() => setStatusOpenId(null)}/>}
 
       <CreateModal isOpen={modalOpen} onClose={() => setModalOpen(false)} onSuccess={load}/>
 

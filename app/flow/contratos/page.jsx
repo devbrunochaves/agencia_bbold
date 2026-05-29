@@ -441,7 +441,10 @@ function buildPDF(data, signMode = false) {
   pb.y += 12
   pb.p(`Vencimento: dia ${data.due_day} (${numWords(data.due_day)}) de cada mês.`)
   pb.sp(2)
-  pb.p(`Forma de pagamento: ${pm}.`)
+  const pmText = pm === 'Cartão de Crédito' && data.installments && parseInt(data.installments, 10) > 1
+    ? `${pm} em ${data.installments}x`
+    : pm
+  pb.p(`Forma de pagamento: ${pmText}.`)
   pb.par('Parágrafo Primeiro', 'Os pagamentos deverão ser efetuados dentro do prazo estipulado.')
   pb.par('Parágrafo Segundo', 'A CONTRATADA poderá emitir nota fiscal quando aplicável.')
   pb.hr()
@@ -782,7 +785,7 @@ function ContractRow({ c, onDownload, onDownloadSig, onStatusChange, onDelete, s
 const INIT = {
   client_name:'', client_doc:'', client_responsible:'', client_email:'', client_phone:'', client_address:'',
   package_name:'', monthly_value:'', start_date:'', duration_months:'', due_day:'', payment_method:'Pix',
-  revisions:'2', services:'', observations:'', selected_services:[],
+  installments:'1', revisions:'2', services:'', observations:'', selected_services:[],
 }
 
 function CreateModal({ isOpen, onClose, onSuccess }) {
@@ -903,9 +906,41 @@ function CreateModal({ isOpen, onClose, onSuccess }) {
                 })}
               </div>
             </Fld>
+            {form.payment_method === 'Cartão de Crédito' && (
+              <Fld label="Número de parcelas *">
+                <select value={form.installments} onChange={e => set('installments', e.target.value)}
+                  style={{ ...inputS, cursor:'pointer' }}
+                  onFocus={e => e.target.style.borderColor='var(--f-yellow)'}
+                  onBlur={e => e.target.style.borderColor='var(--f-border)'}>
+                  {Array.from({length:12}, (_,i) => i+1).map(n => (
+                    <option key={n} value={n}>{n}x{n === 1 ? ' (à vista)' : ''}</option>
+                  ))}
+                </select>
+              </Fld>
+            )}
             <Fld label="Data de início *">{inp('start_date','date')}</Fld>
-            <Fld label="Prazo contratual (meses) *">{inp('duration_months','number','3')}</Fld>
-            <Fld label="Dia de vencimento *">{inp('due_day','number','10')}</Fld>
+            <Fld label="Prazo contratual (meses) *">
+              <select value={form.duration_months} onChange={e => set('duration_months', e.target.value)}
+                style={{ ...inputS, cursor:'pointer' }}
+                onFocus={e => e.target.style.borderColor='var(--f-yellow)'}
+                onBlur={e => e.target.style.borderColor='var(--f-border)'}>
+                <option value="">Selecione…</option>
+                {Array.from({length:12}, (_,i) => i+1).map(n => (
+                  <option key={n} value={n}>{n} {n === 1 ? 'mês' : 'meses'}</option>
+                ))}
+              </select>
+            </Fld>
+            <Fld label="Dia de vencimento *">
+              <select value={form.due_day} onChange={e => set('due_day', e.target.value)}
+                style={{ ...inputS, cursor:'pointer' }}
+                onFocus={e => e.target.style.borderColor='var(--f-yellow)'}
+                onBlur={e => e.target.style.borderColor='var(--f-border)'}>
+                <option value="">Selecione…</option>
+                {[1, 5, 10, 15, 20, 25, 30].map(n => (
+                  <option key={n} value={n}>Dia {n}</option>
+                ))}
+              </select>
+            </Fld>
             <Fld label="Revisões por material">{inp('revisions','number','2')}</Fld>
           </div>
 

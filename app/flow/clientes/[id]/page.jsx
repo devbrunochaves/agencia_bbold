@@ -788,6 +788,142 @@ function CalendarioTab({ clientName }) {
   )
 }
 
+// ─── Grid Instagram Tab ───────────────────────────────────────────────────────
+
+function GridInstagramTab({ clientName }) {
+  const [images, setImages] = useState(Array(9).fill(null))
+
+  function handleFile(index, file) {
+    if (!file) return
+    setImages(prev => {
+      const next = [...prev]
+      if (next[index]) URL.revokeObjectURL(next[index])
+      next[index] = URL.createObjectURL(file)
+      return next
+    })
+  }
+
+  function clearImage(index) {
+    setImages(prev => {
+      const next = [...prev]
+      if (next[index]) URL.revokeObjectURL(next[index])
+      next[index] = null
+      return next
+    })
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div>
+        <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--f-text)', margin: 0 }}>
+          GRID INSTAGRAM — {clientName?.toUpperCase()}
+        </h2>
+        <p style={{ fontSize: 12, color: 'var(--f-muted)', marginTop: 3 }}>
+          Monte a pré-visualização do feed com 9 fotos (proporção 4:5 · 1080×1350px)
+        </p>
+      </div>
+
+      <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+
+        {/* ── Left: upload inputs ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: 260, flexShrink: 0 }}>
+          {Array.from({ length: 9 }, (_, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+
+              {/* number badge */}
+              <div style={{
+                width: 28, height: 28, borderRadius: 7, flexShrink: 0,
+                background: images[i] ? 'rgba(255,210,46,0.1)' : 'var(--f-bg)',
+                border: `1px solid ${images[i] ? 'rgba(255,210,46,0.45)' : 'var(--f-border)'}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 11, fontWeight: 800,
+                color: images[i] ? 'var(--f-yellow)' : 'var(--f-muted)',
+              }}>
+                {i + 1}
+              </div>
+
+              {/* file label */}
+              <label style={{
+                flex: 1, display: 'flex', alignItems: 'center', gap: 7,
+                padding: '8px 12px', borderRadius: 8, cursor: 'pointer',
+                background: images[i] ? 'rgba(34,197,94,0.06)' : 'var(--f-bg)',
+                border: `1px solid ${images[i] ? 'rgba(34,197,94,0.3)' : 'var(--f-border)'}`,
+                color: images[i] ? '#22C55E' : 'var(--f-muted)',
+                fontSize: 12, fontWeight: images[i] ? 700 : 400,
+                transition: 'all .15s',
+              }}>
+                <input
+                  type="file" accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={e => handleFile(i, e.target.files?.[0])}
+                />
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  {images[i]
+                    ? <polyline points="20 6 9 17 4 12"/>
+                    : <><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></>
+                  }
+                </svg>
+                {images[i] ? 'Foto carregada' : 'Anexar foto'}
+              </label>
+
+              {/* clear button */}
+              {images[i] && (
+                <button
+                  onClick={() => clearImage(i)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--f-muted-dim)', padding: 4, lineHeight: 1, flexShrink: 0, opacity: 0.7 }}
+                  title="Remover foto"
+                >
+                  <Icon name="xmark" size={12} />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* ── Right: grid preview ── */}
+        <div style={{ flex: 1, minWidth: 260 }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: 3,
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid var(--f-border)',
+            borderRadius: 12,
+            overflow: 'hidden',
+          }}>
+            {Array.from({ length: 9 }, (_, i) => (
+              <div
+                key={i}
+                style={{ aspectRatio: '4/5', position: 'relative', overflow: 'hidden', background: 'rgba(255,255,255,0.03)' }}
+              >
+                {images[i] ? (
+                  <img
+                    src={images[i]}
+                    alt={`Post ${i + 1}`}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  />
+                ) : (
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3,
+                  }}>
+                    <span style={{ fontSize: 26, fontWeight: 900, color: 'rgba(255,255,255,0.08)', lineHeight: 1 }}>{i + 1}</span>
+                    <span style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.12)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>foto {i + 1}</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <p style={{ fontSize: 10, color: 'var(--f-muted)', textAlign: 'center', marginTop: 8, opacity: 0.55, letterSpacing: '0.04em' }}>
+            1080 × 1350 px · leitura da esquerda para a direita
+          </p>
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ClientDetailPage() {
@@ -933,6 +1069,7 @@ export default function ClientDetailPage() {
     { key: 'conteudo',    label: 'Conteúdo' },
     { key: 'calendario',  label: 'Calendário' },
     { key: 'performance', label: 'Performance' },
+    { key: 'grid',        label: 'Grid Instagram' },
   ]
 
   return (
@@ -1097,6 +1234,11 @@ export default function ClientDetailPage() {
             onDelete={handleDeletePerf}
             clientName={client.name}
           />
+        )}
+
+        {/* ── Grid Instagram ── */}
+        {tab === 'grid' && (
+          <GridInstagramTab clientName={client.name} />
         )}
       </main>
     </>

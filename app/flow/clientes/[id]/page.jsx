@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import { jsPDF } from 'jspdf'
 import FlowHeader from '@/components/flow/FlowHeader'
 import StatusBadge from '@/components/flow/StatusBadge'
 import MetricCard from '@/components/flow/MetricCard'
@@ -791,7 +792,114 @@ function CalendarioTab({ clientName }) {
 // ─── Grid Instagram Tab ───────────────────────────────────────────────────────
 
 function GridInstagramTab({ clientName }) {
-  const [images, setImages] = useState(Array(9).fill(null))
+  const [images,      setImages]      = useState(Array(9).fill(null))
+  const [downloading, setDownloading] = useState(false)
+
+  async function downloadGridPDF() {
+    setDownloading(true)
+    try {
+      const PAGE_W = 210, PAGE_H = 297
+      const ML = 15, MR = 15
+      const GAP_MM = 1.5
+      const GRID_W  = PAGE_W - ML - MR                  // 180mm
+      const CELL_W  = (GRID_W - 2 * GAP_MM) / 3        // ~59mm
+      const CELL_H  = CELL_W * (5 / 4)                  // ~73.75mm
+      const GRID_H  = 3 * CELL_H + 2 * GAP_MM           // ~224mm
+
+      // Build canvas (4px per mm = good quality)
+      const S = 4
+      const cW  = Math.round(GRID_W * S)
+      const cH  = Math.round(GRID_H * S)
+      const cpW = Math.round(CELL_W * S)
+      const cpH = Math.round(CELL_H * S)
+      const gp  = Math.round(GAP_MM * S)
+
+      const canvas = document.createElement('canvas')
+      canvas.width  = cW
+      canvas.height = cH
+      const ctx = canvas.getContext('2d')
+
+      ctx.fillStyle = '#181818'
+      ctx.fillRect(0, 0, cW, cH)
+
+      for (let i = 0; i < 9; i++) {
+        const col = i % 3
+        const row = Math.floor(i / 3)
+        const x = col * (cpW + gp)
+        const y = row * (cpH + gp)
+
+        if (images[i]) {
+          const img = new window.Image()
+          img.src = images[i]
+          await new Promise(res => { img.onload = res; img.onerror = res })
+          const ir = img.naturalWidth / img.naturalHeight
+          const cr = cpW / cpH
+          let sw, sh, sx, sy
+          if (ir > cr) { sh = img.naturalHeight; sw = sh * cr; sx = (img.naturalWidth - sw) / 2; sy = 0 }
+          else         { sw = img.naturalWidth; sh = sw / cr; sx = 0; sy = (img.naturalHeight - sh) / 2 }
+          ctx.drawImage(img, sx, sy, sw, sh, x, y, cpW, cpH)
+        } else {
+          ctx.fillStyle = '#242424'
+          ctx.fillRect(x, y, cpW, cpH)
+          ctx.fillStyle = 'rgba(255,255,255,0.1)'
+          ctx.font = `bold ${Math.round(cpW * 0.28)}px Helvetica`
+          ctx.textAlign = 'center'
+          ctx.textBaseline = 'middle'
+          ctx.fillText(String(i + 1), x + cpW / 2, y + cpH / 2)
+        }
+      }
+
+      const gridImg = canvas.toDataURL('image/jpeg', 0.93)
+
+      // ── PDF ──
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' })
+      const d   = doc
+
+      // Header bar
+      d.setFillColor(18, 18, 18); d.rect(0, 0, PAGE_W, 28, 'F')
+      d.setFillColor(255, 210, 46); d.rect(0, 0, 5, 28, 'F')
+      d.setFontSize(16); d.setFont('helvetica', 'bold'); d.setTextColor(255, 210, 46)
+      d.text('BBold', ML + 4, 11)
+      d.setFontSize(8); d.setFont('helvetica', 'normal'); d.setTextColor(160, 160, 160)
+      d.text('Agência Digital de Marketing', ML + 4, 18)
+      d.setFontSize(7); d.setTextColor(100, 100, 100)
+      d.text('59.676.407/0001-86  ·  brunochavesdev@gmail.com', ML + 4, 24)
+
+      // Title block
+      let y = 38
+      d.setFontSize(13); d.setFont('helvetica', 'bold'); d.setTextColor(20, 20, 20)
+      d.text('AMOSTRA DO GRID — INSTAGRAM', PAGE_W / 2, y, { align: 'center' })
+      y += 7
+      d.setFontSize(9.5); d.setFont('helvetica', 'normal'); d.setTextColor(80, 80, 80)
+      d.text(`Cliente: ${clientName}`, PAGE_W / 2, y, { align: 'center' })
+      y += 5.5
+      d.setFontSize(7.5); d.setTextColor(140, 140, 140)
+      d.text('Prévia do feed · Proporção 4:5 (1080 × 1350 px) · Gerado por BBold Flow', PAGE_W / 2, y, { align: 'center' })
+      y += 6
+
+      // Grid image
+      d.addImage(gridImg, 'JPEG', ML, y, GRID_W, GRID_H)
+      y += GRID_H + 7
+
+      // Note
+      d.setFontSize(7.5); d.setTextColor(160, 160, 160)
+      d.text('Este material é uma pré-visualização para aprovação. As imagens finais podem sofrer ajustes.', PAGE_W / 2, y, { align: 'center' })
+
+      // Footer
+      const today = new Date()
+      const todayStr = `${String(today.getDate()).padStart(2,'0')}/${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}`
+      d.setDrawColor(210, 210, 210); d.setLineWidth(0.2)
+      d.line(ML, PAGE_H - 12, PAGE_W - MR, PAGE_H - 12)
+      d.setFontSize(7); d.setTextColor(160, 160, 160)
+      d.text(`BBold Agência Digital  ·  Gerado em ${todayStr}`, ML, PAGE_H - 7)
+      d.text('1 / 1', PAGE_W - MR, PAGE_H - 7, { align: 'right' })
+
+      const safe = (clientName || 'grid').replace(/[^\w]/g, '_').toLowerCase()
+      d.save(`grid_instagram_${safe}_${today.toISOString().slice(0,10)}.pdf`)
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   function handleFile(index, file) {
     if (!file) return
@@ -814,13 +922,34 @@ function GridInstagramTab({ clientName }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div>
-        <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--f-text)', margin: 0 }}>
-          GRID INSTAGRAM — {clientName?.toUpperCase()}
-        </h2>
-        <p style={{ fontSize: 12, color: 'var(--f-muted)', marginTop: 3 }}>
-          Monte a pré-visualização do feed com 9 fotos (proporção 4:5 · 1080×1350px)
-        </p>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+        <div>
+          <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--f-text)', margin: 0 }}>
+            GRID INSTAGRAM — {clientName?.toUpperCase()}
+          </h2>
+          <p style={{ fontSize: 12, color: 'var(--f-muted)', marginTop: 3 }}>
+            Monte a pré-visualização do feed com 9 fotos (proporção 4:5 · 1080×1350px)
+          </p>
+        </div>
+        <button
+          onClick={downloadGridPDF}
+          disabled={downloading || images.every(img => img === null)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 7,
+            padding: '9px 18px', borderRadius: 8, cursor: downloading ? 'wait' : 'pointer',
+            background: '#FFD22E', color: '#000', fontSize: 13, fontWeight: 800,
+            border: 'none', fontFamily: 'inherit', opacity: (downloading || images.every(img => img === null)) ? 0.45 : 1,
+            transition: 'opacity .15s', flexShrink: 0,
+          }}
+          title={images.every(img => img === null) ? 'Adicione ao menos uma foto para baixar' : 'Baixar amostra em PDF'}
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          {downloading ? 'Gerando PDF…' : 'Baixar Amostra PDF'}
+        </button>
       </div>
 
       <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap' }}>

@@ -794,7 +794,7 @@ function ContractRow({ c, onDownload, onDownloadSig, onStatusChange, onDelete, s
 
 const INIT = {
   client_name:'', client_doc:'', client_responsible:'', client_email:'', client_phone:'', client_address:'',
-  package_name:'', monthly_value:'', start_date:'', duration_months:'', due_day:'', payment_method:'Pix',
+  package_name:'', monthly_value:'', start_date:'', duration_months:'3', due_day:'10', payment_method:'Pix',
   installments:'1', revisions:'2', services:'', observations:'', selected_services:[],
 }
 
@@ -847,6 +847,7 @@ function CreateModal({ isOpen, onClose, onSuccess }) {
         duration_months: parseInt(form.duration_months, 10) || 0,
         due_day: parseInt(form.due_day, 10) || 1,
         payment_method: form.payment_method,
+        installments: parseInt(form.installments, 10) || 1,
         revisions: parseInt(form.revisions, 10) || 2,
         services: form.services.trim(),
         observations: form.observations.trim(),

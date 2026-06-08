@@ -3,30 +3,40 @@
 import { useState, useEffect, useRef } from 'react'
 import Icon from './FlowIcons'
 
-const PLANS       = ['Start', 'Growth', 'Premium', 'Custom']
-const STATUSES    = ['Ativo', 'Em onboarding', 'Pausado']
-const RESPONSIBLES = ['Ana Lima', 'Carlos M.', 'Juliana K.', 'Pedro H.']
+const PLANS    = ['Start', 'Growth', 'Premium', 'Custom']
+const STATUSES = ['Ativo', 'Em onboarding', 'Pausado']
 
 const EMPTY = {
-  name: '', niche: '', plan: 'Growth', responsible: 'Ana Lima',
+  name: '', niche: '', plan: 'Growth', responsible: '',
   status: 'Ativo', contents: 10, instagram: '', whatsapp: '', email: '', observations: '',
 }
 
 export default function ClientModal({ isOpen, onClose, onSave, editingClient }) {
-  const [form, setForm]     = useState(EMPTY)
-  const [errors, setErrors] = useState({})
-  const firstRef            = useRef(null)
+  const [form,        setForm]        = useState(EMPTY)
+  const [errors,      setErrors]      = useState({})
+  const [teamMembers, setTeamMembers] = useState([])
+  const firstRef = useRef(null)
 
-  // Populate form when modal opens
+  // Load team from localStorage + reset form when modal opens
   useEffect(() => {
     if (!isOpen) return
     setErrors({})
+
+    let active = []
+    try {
+      const stored = JSON.parse(localStorage.getItem('bbold_flow_team')) ?? []
+      active = stored.filter(m => m.status === 'Ativo')
+    } catch {}
+    setTeamMembers(active)
+
+    const defaultResp = active[0]?.name ?? ''
+
     if (editingClient) {
       setForm({
         name:         editingClient.name         ?? '',
         niche:        editingClient.niche        ?? '',
         plan:         editingClient.plan         ?? 'Growth',
-        responsible:  editingClient.responsible  ?? 'Ana Lima',
+        responsible:  editingClient.responsible  ?? defaultResp,
         status:       editingClient.status       ?? 'Ativo',
         contents:     editingClient.contents     ?? 10,
         instagram:    editingClient.instagram    ?? '',
@@ -35,7 +45,7 @@ export default function ClientModal({ isOpen, onClose, onSave, editingClient }) 
         observations: editingClient.observations ?? '',
       })
     } else {
-      setForm(EMPTY)
+      setForm({ ...EMPTY, responsible: defaultResp })
     }
     setTimeout(() => firstRef.current?.focus(), 80)
   }, [isOpen, editingClient])
@@ -130,7 +140,13 @@ export default function ClientModal({ isOpen, onClose, onSave, editingClient }) 
           <TwoCol>
             <Field label="Responsável interno">
               <select className="f-select" value={form.responsible} onChange={e => set('responsible', e.target.value)}>
-                {RESPONSIBLES.map(r => <option key={r} value={r}>{r}</option>)}
+                {teamMembers.length === 0
+                  ? <option value="">Nenhum membro cadastrado</option>
+                  : teamMembers.map(m => <option key={m.name} value={m.name}>{m.name}</option>)
+                }
+                {form.responsible && !teamMembers.find(m => m.name === form.responsible) && (
+                  <option value={form.responsible}>{form.responsible}</option>
+                )}
               </select>
             </Field>
             <Field label="Status">

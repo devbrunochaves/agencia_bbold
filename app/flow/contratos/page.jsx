@@ -834,7 +834,7 @@ function CreateModal({ isOpen, onClose, onSuccess }) {
     try {
       const parsedValue = parseCurrency(form.monthly_value)
       buildPDF({ ...form, monthly_value: parsedValue }, false)
-      const { error: dbErr } = await supabase.from('contracts').insert({
+      const { data: saved, error: dbErr } = await supabase.from('contracts').insert({
         client_name: form.client_name.trim(),
         client_doc: form.client_doc.trim(),
         client_responsible: form.client_responsible.trim(),
@@ -847,14 +847,19 @@ function CreateModal({ isOpen, onClose, onSuccess }) {
         duration_months: parseInt(form.duration_months, 10) || 0,
         due_day: parseInt(form.due_day, 10) || 1,
         payment_method: form.payment_method,
-        installments: parseInt(form.installments, 10) || 1,
         revisions: parseInt(form.revisions, 10) || 2,
         services: form.services.trim(),
         observations: form.observations.trim(),
         selected_services: form.selected_services,
         status: 'ativo',
-      })
+      }).select('id').single()
       if (dbErr) throw dbErr
+      // installments saved separately — column may not exist yet, ignore error
+      if (saved?.id) {
+        await supabase.from('contracts').update({
+          installments: parseInt(form.installments, 10) || 1,
+        }).eq('id', saved.id)
+      }
       setForm(INIT)
       onSuccess()
       onClose()

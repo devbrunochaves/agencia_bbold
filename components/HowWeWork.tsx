@@ -11,7 +11,7 @@ export default function HowWeWork() {
   return (
     <section
       id="como-ajudamos"
-      className="bg-black-mid border-y border-offwhite/[0.04] py-24 px-10"
+      className="bg-[#f0e8d8] border-y border-black/[0.04] py-24 px-10"
     >
       <div className="max-w-site mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
         <div className="reveal">
@@ -19,11 +19,11 @@ export default function HowWeWork() {
           <h2 className="section-title mt-2">
             Como a BBold<br /><em>estrutura</em><br />seu projeto
           </h2>
-          <p className="text-offwhite/60 leading-relaxed mb-4">
+          <p className="text-black/60 leading-relaxed mb-4">
             Muitas empresas têm um ótimo produto, mas perdem clientes para
             concorrentes com presença digital mais sólida. A BBold existe para mudar isso.
           </p>
-          <p className="text-offwhite/55 leading-relaxed mb-9">
+          <p className="text-black/55 leading-relaxed mb-9">
             Unimos design estratégico, desenvolvimento e performance para
             construir uma presença digital que gera resultado real — não apenas
             engajamento, mas autoridade e crescimento sustentável.
@@ -40,14 +40,14 @@ export default function HowWeWork() {
           {steps.map((s) => (
             <div
               key={s.num}
-              className="flex gap-6 items-start p-6 border border-offwhite/[0.07] rounded-sm transition-all duration-300 hover:border-yellow/25 hover:bg-yellow/[0.03]"
+              className="flex gap-6 items-start p-6 border border-black/[0.07] rounded-sm transition-all duration-300 hover:border-yellow/25 hover:bg-yellow/[0.03]"
             >
               <span className="font-display text-[2rem] text-yellow leading-none flex-shrink-0 w-10">
                 {s.num}
               </span>
               <div>
-                <h4 className="font-bold text-offwhite mb-1">{s.title}</h4>
-                <p className="text-sm text-offwhite/50 leading-relaxed">{s.desc}</p>
+                <h4 className="font-bold text-black mb-1">{s.title}</h4>
+                <p className="text-sm text-black/50 leading-relaxed">{s.desc}</p>
               </div>
             </div>
           ))}

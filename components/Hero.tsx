@@ -30,7 +30,7 @@ export default function Hero() {
 
         <h1
           ref={(el) => addRef(el, 1)}
-          className="reveal font-display text-[clamp(2.8rem,5.5vw,5rem)] leading-[0.95] tracking-wide text-offwhite mb-9"
+          className="reveal font-display text-[clamp(2.8rem,5.5vw,5rem)] leading-[0.95] tracking-wide text-black mb-9"
         >
           Sua empresa<br />
           precisa parecer<br />
@@ -40,7 +40,7 @@ export default function Hero() {
 
         <p
           ref={(el) => addRef(el, 2)}
-          className="reveal text-[1.05rem] text-offwhite/55 max-w-md mb-11 leading-[1.8]"
+          className="reveal text-[1.05rem] text-black/55 max-w-md mb-11 leading-[1.8]"
         >
           Empresas fortes transmitem autoridade, profissionalismo e confiança
           em todos os pontos da presença digital — do site ao Instagram,
@@ -56,7 +56,7 @@ export default function Hero() {
           </Link>
           <Link
             href="/#metodo"
-            className="inline-flex items-center gap-2 border border-offwhite/20 text-offwhite/60 font-semibold text-sm tracking-widest uppercase px-8 py-4 rounded-sm hover:border-yellow/50 hover:text-yellow transition-all hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 border border-black/20 text-black/60 font-semibold text-sm tracking-widest uppercase px-8 py-4 rounded-sm hover:border-yellow/50 hover:text-yellow transition-all hover:-translate-y-0.5"
           >
             Conhecer o método
           </Link>
@@ -77,7 +77,7 @@ export default function Hero() {
         />
       </div>
 
-      <div className="absolute bottom-9 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2.5 text-[0.65rem] tracking-[0.2em] uppercase text-offwhite/20">
+      <div className="absolute bottom-9 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2.5 text-[0.65rem] tracking-[0.2em] uppercase text-black/20">
         <span>Scroll</span>
         <div className="w-px h-12 bg-gradient-to-b from-yellow/40 to-transparent animate-[scrollLine_1.8s_ease-in-out_infinite]" />
       </div>

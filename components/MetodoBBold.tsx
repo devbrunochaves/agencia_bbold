@@ -32,7 +32,7 @@ export default function MetodoBBold() {
   return (
     <section
       id="metodo"
-      className="py-28 px-10 bg-black border-y border-offwhite/[0.05] relative overflow-hidden"
+      className="py-28 px-10 bg-[#f0e8d8] border-y border-black/[0.05] relative overflow-hidden"
     >
       <span className="absolute top-1/2 right-[-1%] -translate-y-1/2 font-display text-[clamp(9rem,20vw,18rem)] text-yellow/[0.025] pointer-events-none select-none leading-none">
         MÉTODO
@@ -44,27 +44,27 @@ export default function MetodoBBold() {
           <h2 className="section-title mt-2">
             Método <em>BBOLD</em>
           </h2>
-          <p className="text-offwhite/45 max-w-lg mx-auto leading-relaxed mt-2">
+          <p className="text-black/45 max-w-lg mx-auto leading-relaxed mt-2">
             Um processo estruturado para transformar a presença digital da sua
             empresa em autoridade reconhecida no mercado.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-px bg-offwhite/[0.06] rounded-sm overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-px bg-black/[0.06] rounded-sm overflow-hidden">
           {steps.map((s) => (
             <div
               key={s.num}
-              className="reveal bg-black p-8 xl:p-10 flex flex-col gap-5 group hover:bg-black-light transition-colors duration-500"
+              className="reveal bg-[#ede6d6] p-8 xl:p-10 flex flex-col gap-5 group hover:bg-[#e5dcc8] transition-colors duration-500"
             >
               <span className="font-display text-[2.8rem] text-yellow leading-none">
                 {s.num}
               </span>
               <div>
-                <h3 className="font-bold text-offwhite text-[1rem] mb-3 leading-snug tracking-wide">
+                <h3 className="font-bold text-black text-[1rem] mb-3 leading-snug tracking-wide">
                   {s.title}
                 </h3>
                 <div className="w-7 h-[2px] bg-yellow/50 mb-4 group-hover:w-11 transition-all duration-300" />
-                <p className="text-[0.85rem] text-offwhite/45 leading-relaxed">
+                <p className="text-[0.85rem] text-black/45 leading-relaxed">
                   {s.desc}
                 </p>
               </div>

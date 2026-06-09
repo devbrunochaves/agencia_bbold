@@ -18,6 +18,7 @@ const config: Config = {
           light: "#1E1E1E",
         },
         offwhite: "#F0EFE8",
+        cream: "#f7f0e5",
         gray: {
           dim: "#2A2A2A",
         },

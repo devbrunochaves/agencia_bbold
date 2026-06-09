@@ -10,15 +10,15 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background-color: #0A0A0A;
-  color: #F0EFE8;
+  background-color: #f7f0e5;
+  color: #0A0A0A;
   overflow-x: hidden;
 }
 
 ::selection { background: #F5C518; color: #0A0A0A; }
 
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #0A0A0A; }
+::-webkit-scrollbar-track { background: #f7f0e5; }
 ::-webkit-scrollbar-thumb { background: #F5C518; border-radius: 3px; }
 
 @layer utilities {
@@ -26,7 +26,7 @@ body {
     @apply inline-block text-[0.72rem] font-bold tracking-[0.2em] uppercase text-yellow border border-yellow px-3 py-1 rounded-sm mb-5;
   }
   .section-title {
-    @apply font-display text-[clamp(2.2rem,5vw,4rem)] leading-[1.05] text-offwhite tracking-wide mb-5;
+    @apply font-display text-[clamp(2.2rem,5vw,4rem)] leading-[1.05] text-[#0A0A0A] tracking-wide mb-5;
   }
   .section-title em {
     font-style: normal;

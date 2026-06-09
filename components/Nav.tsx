@@ -26,7 +26,7 @@ export default function Nav() {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-black/95 backdrop-blur-md py-3 border-b border-yellow/15"
+          ? "bg-cream/95 backdrop-blur-md py-3 border-b border-yellow/15"
           : "py-5"
       }`}
     >
@@ -50,7 +50,7 @@ export default function Nav() {
                 className={`text-[0.85rem] font-semibold tracking-widest uppercase transition-colors duration-200 ${
                   l.label === "Fale Conosco"
                     ? "bg-yellow text-black px-5 py-2 rounded-sm hover:bg-yellow-dark"
-                    : "text-offwhite/75 hover:text-yellow"
+                    : "text-black/75 hover:text-yellow"
                 }`}
               >
                 {l.label}
@@ -74,17 +74,17 @@ export default function Nav() {
           onClick={() => setMenuOpen(!menuOpen)}
         >
           <span
-            className={`block w-6 h-0.5 bg-offwhite transition-all duration-300 ${
+            className={`block w-6 h-0.5 bg-black transition-all duration-300 ${
               menuOpen ? "translate-y-[7px] rotate-45" : ""
             }`}
           />
           <span
-            className={`block w-6 h-0.5 bg-offwhite transition-all duration-300 ${
+            className={`block w-6 h-0.5 bg-black transition-all duration-300 ${
               menuOpen ? "opacity-0" : ""
             }`}
           />
           <span
-            className={`block w-6 h-0.5 bg-offwhite transition-all duration-300 ${
+            className={`block w-6 h-0.5 bg-black transition-all duration-300 ${
               menuOpen ? "-translate-y-[7px] -rotate-45" : ""
             }`}
           />
@@ -93,13 +93,13 @@ export default function Nav() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden fixed inset-0 bg-black flex flex-col items-center justify-center gap-9 z-40">
+        <div className="md:hidden fixed inset-0 bg-cream flex flex-col items-center justify-center gap-9 z-40">
           {[...links, { href: "/#contato", label: "Fale Conosco" }].map((l) => (
             <Link
               key={l.href}
               href={l.href}
               onClick={() => setMenuOpen(false)}
-              className="text-2xl font-semibold tracking-widest uppercase text-offwhite/80 hover:text-yellow transition-colors"
+              className="text-2xl font-semibold tracking-widest uppercase text-black/80 hover:text-yellow transition-colors"
             >
               {l.label}
             </Link>

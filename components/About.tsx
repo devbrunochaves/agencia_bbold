@@ -11,7 +11,7 @@ export default function About() {
         <div className="reveal relative">
           <div className="aspect-[4/5] bg-[#ede6d6] border border-black/[0.08] rounded-lg overflow-hidden">
             <Image
-              src="/img/foto-site.jpeg"
+              src="/img/foto-site.jpg"
               alt="Bruno Chaves"
               width={800}
               height={1000}

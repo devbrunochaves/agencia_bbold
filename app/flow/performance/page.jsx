@@ -118,8 +118,8 @@ export default function PerformancePage() {
   // ── Unique metrics ───────────────────────────────────────────────────────────
   const metrics = [...new Set(records.map(r => r.metric))]
 
-  const reachMetric = detectMetric(metrics, ['alcance', 'seguidores', 'impressões', 'visitas']) ?? metrics[0]
-  const engMetric   = detectMetric(metrics, ['engaj', 'taxa', 'interaç']) ?? metrics[1] ?? metrics[0]
+  const reachMetric = detectMetric(metrics, ['alcance', 'seguidores', 'visualiz', 'visitas']) ?? metrics[0]
+  const engMetric   = detectMetric(metrics, ['interaç', 'engaj', 'taxa']) ?? metrics[1] ?? metrics[0]
 
   // ── Build per-client data ────────────────────────────────────────────────────
   const clientIds = Object.keys(clientMap)
@@ -207,7 +207,7 @@ export default function PerformancePage() {
           <MetricCard
             icon="chart"
             value={avgEng > 0 ? `${avgEng.toFixed(1)}%` : '—'}
-            label="Engajamento Médio"
+            label="Interações Médias"
             desc="média dos clientes"
             accentColor="#22C55E"
           />
@@ -221,7 +221,7 @@ export default function PerformancePage() {
           <MetricCard
             icon="zap"
             value={bestClient ? `${bestClient.value.toFixed(1)}%` : '—'}
-            label="Melhor Engajamento"
+            label="Melhor Interação"
             desc={bestClient?.name ?? 'sem dados'}
             accentColor="#8B5CF6"
           />
@@ -271,13 +271,13 @@ export default function PerformancePage() {
               <div className="f-card">
                 <div className="f-card-header">
                   <div>
-                    <h2 className="f-card-title">{engMetric ? `${engMetric} por Cliente` : 'Engajamento por Cliente'}</h2>
+                    <h2 className="f-card-title">{engMetric ? `${engMetric} por Cliente` : 'Interações por Cliente'}</h2>
                     <p className="f-card-subtitle">{periodLabel}</p>
                   </div>
                 </div>
                 {engData.length === 0 ? (
                   <div style={{ padding:'32px 20px', textAlign:'center', color:'var(--f-muted)', fontSize:13 }}>
-                    Nenhum registro de "{engMetric ?? 'Engajamento'}" neste período.
+                    Nenhum registro de "{engMetric ?? 'Interações'}" neste período.
                   </div>
                 ) : (
                   <div style={{ padding:'16px 20px', display:'flex', flexDirection:'column', gap:14 }}>

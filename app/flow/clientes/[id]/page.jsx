@@ -15,16 +15,16 @@ const STATUS_COLOR = {
 }
 
 const METRIC_NAMES = [
-  'Seguidores Instagram', 'Seguidores YouTube', 'Alcance médio', 'Engajamento (%)',
-  'Impressões', 'Curtidas', 'Comentários', 'Compartilhamentos', 'Saves',
+  'Seguidores Instagram', 'Seguidores YouTube', 'Alcance médio', 'Interações',
+  'Visualizações', 'Curtidas', 'Comentários', 'Compartilhamentos', 'Saves',
 ]
 
 const METRIC_COLORS = {
   'Seguidores Instagram': '#EC4899',
   'Seguidores YouTube':   '#EF4444',
   'Alcance médio':        '#4ADE80',
-  'Engajamento (%)':      '#A78BFA',
-  'Impressões':           '#FFD22E',
+  'Interações':           '#A78BFA',
+  'Visualizações':        '#FFD22E',
   'Curtidas':             '#3B82F6',
   'Comentários':          '#A3E635',
   'Compartilhamentos':    '#F9A8D4',
@@ -1314,7 +1314,7 @@ export default function ClientDetailPage() {
 
               // Latest engagement from performance records
               const engRecords = perf
-                .filter(r => r.metric === 'Engajamento (%)')
+                .filter(r => r.metric === 'Interações')
                 .sort((a, b) => a.recordedAt.localeCompare(b.recordedAt))
               const latestEng = engRecords[engRecords.length - 1]
               const prevEng   = engRecords[engRecords.length - 2]
@@ -1337,7 +1337,7 @@ export default function ClientDetailPage() {
                   <MetricCard icon="file"     value={String(client.contents)}       label="Conteúdos/mês"    desc="contratados no plano"     accentColor={accentColor} trend={null} />
                   <MetricCard icon="check"    value={String(pendingApprovals)}       label="Em aprovação"     desc="aguardando revisão"        accentColor="#F59E0B"     trend={null} />
                   <MetricCard icon="calendar" value={String(publishedThisMonth || publishedTotal)} label="Publicados" desc={publishedThisMonth > 0 ? "neste mês" : "total"} accentColor="#22C55E" trend={pubTrend} />
-                  <MetricCard icon="trending" value={engValue}                       label="Engajamento médio" desc={latestEng ? `registrado em ${fmtDate(latestEng.recordedAt)}` : 'sem dados ainda'} accentColor="#3B82F6" trend={engTrend} />
+                  <MetricCard icon="trending" value={engValue}                       label="Interações médias" desc={latestEng ? `registrado em ${fmtDate(latestEng.recordedAt)}` : 'sem dados ainda'} accentColor="#3B82F6" trend={engTrend} />
                 </div>
               )
             })()}

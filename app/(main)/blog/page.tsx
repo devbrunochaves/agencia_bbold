@@ -42,19 +42,19 @@ export default async function BlogPage() {
         <h1 className="section-title mt-2">
           Conteúdo que<br /><em>educa</em> e inspira
         </h1>
-        <p className="text-offwhite/55 max-w-xl leading-relaxed">
+        <p className="text-black/55 max-w-xl leading-relaxed">
           Design, marketing digital, tráfego pago e posicionamento de marca —
           tudo que você precisa saber para crescer no digital.
         </p>
       </div>
 
       {posts.length === 0 ? (
-        <div className="text-center py-24 border border-offwhite/[0.06] rounded-lg">
-          <p className="font-display text-[2rem] text-offwhite/30 tracking-wide mb-3">EM BREVE</p>
-          <p className="text-offwhite/40 text-sm">Os primeiros artigos estão chegando. Volte em breve!</p>
+        <div className="text-center py-24 border border-black/[0.06] rounded-lg">
+          <p className="font-display text-[2rem] text-black/30 tracking-wide mb-3">EM BREVE</p>
+          <p className="text-black/40 text-sm">Os primeiros artigos estão chegando. Volte em breve!</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {posts.map((post: {
             _id: string;
             slug: { current: string };
@@ -68,9 +68,9 @@ export default async function BlogPage() {
             <Link
               key={post._id}
               href={`/blog/${post.slug.current}`}
-              className="group bg-black-light border border-offwhite/[0.07] rounded-lg overflow-hidden hover:border-yellow/30 transition-all duration-300 hover:-translate-y-1 flex flex-col"
+              className="group bg-[#ede6d6] border border-black/[0.07] rounded-lg overflow-hidden hover:border-yellow/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] flex flex-col"
             >
-              <div className="aspect-video bg-black-mid overflow-hidden relative">
+              <div className="aspect-video bg-[#d8cfbf] overflow-hidden relative">
                 {post.coverImage ? (
                   <Image src={urlFor(post.coverImage)} alt={post.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
@@ -85,9 +85,9 @@ export default async function BlogPage() {
                 )}
               </div>
               <div className="p-6 flex flex-col flex-1">
-                <h2 className="font-display text-[1.4rem] tracking-wide text-offwhite mb-3 group-hover:text-yellow transition-colors leading-tight">{post.title}</h2>
-                {post.excerpt && <p className="text-sm text-offwhite/50 leading-relaxed mb-4 line-clamp-3 flex-1">{post.excerpt}</p>}
-                <div className="flex items-center justify-between text-[0.75rem] text-offwhite/30 mt-auto pt-4 border-t border-offwhite/[0.06]">
+                <h2 className="font-display text-[1.4rem] tracking-wide text-black mb-3 group-hover:text-yellow transition-colors leading-tight">{post.title}</h2>
+                {post.excerpt && <p className="text-sm text-black/50 leading-relaxed mb-4 line-clamp-3 flex-1">{post.excerpt}</p>}
+                <div className="flex items-center justify-between text-[0.75rem] text-black/30 mt-auto pt-4 border-t border-black/[0.06]">
                   {post.publishedAt && <span>{formatDate(post.publishedAt)}</span>}
                   {post.readTime && <span>{post.readTime} min de leitura</span>}
                 </div>

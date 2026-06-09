@@ -51,21 +51,21 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 const ptComponents = {
   block: {
     normal: ({ children }: { children?: React.ReactNode }) => (
-      <p className="text-offwhite/70 leading-relaxed mb-5">{children}</p>
+      <p className="text-black/70 leading-relaxed mb-5">{children}</p>
     ),
     h2: ({ children }: { children?: React.ReactNode }) => (
-      <h2 className="font-display text-[2rem] tracking-wide text-offwhite mt-10 mb-4">{children}</h2>
+      <h2 className="font-display text-[2rem] tracking-wide text-black mt-10 mb-4">{children}</h2>
     ),
     h3: ({ children }: { children?: React.ReactNode }) => (
-      <h3 className="font-display text-[1.5rem] tracking-wide text-offwhite mt-8 mb-3">{children}</h3>
+      <h3 className="font-display text-[1.5rem] tracking-wide text-black mt-8 mb-3">{children}</h3>
     ),
     blockquote: ({ children }: { children?: React.ReactNode }) => (
-      <blockquote className="border-l-4 border-yellow pl-5 py-2 my-6 text-offwhite/60 italic">{children}</blockquote>
+      <blockquote className="border-l-4 border-yellow pl-5 py-2 my-6 text-black/60 italic">{children}</blockquote>
     ),
   },
   marks: {
     strong: ({ children }: { children?: React.ReactNode }) => (
-      <strong className="text-offwhite font-bold">{children}</strong>
+      <strong className="text-black font-bold">{children}</strong>
     ),
     em: ({ children }: { children?: React.ReactNode }) => (
       <em className="text-yellow not-italic font-semibold">{children}</em>
@@ -83,7 +83,7 @@ const ptComponents = {
           <Image src={urlFor(value.asset)} alt={value.alt || ""} fill className="object-cover" />
         </div>
         {value.caption && (
-          <figcaption className="text-center text-sm text-offwhite/35 mt-2">{value.caption}</figcaption>
+          <figcaption className="text-center text-sm text-black/35 mt-2">{value.caption}</figcaption>
         )}
       </figure>
     ),
@@ -98,7 +98,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   return (
     <main className="pt-28 pb-24 px-10">
       <div className="max-w-[720px] mx-auto">
-        <Link href="/blog" className="inline-flex items-center gap-2 text-sm text-offwhite/40 hover:text-yellow transition-colors mb-10">
+        <Link href="/blog" className="inline-flex items-center gap-2 text-sm text-black/40 hover:text-yellow transition-colors mb-10">
           ← Voltar para o blog
         </Link>
         <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -107,12 +107,12 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               {categoryLabels[post.category] || post.category}
             </span>
           )}
-          {post.publishedAt && <span className="text-sm text-offwhite/35">{formatDate(post.publishedAt)}</span>}
-          {post.readTime && <span className="text-sm text-offwhite/35">{post.readTime} min de leitura</span>}
+          {post.publishedAt && <span className="text-sm text-black/35">{formatDate(post.publishedAt)}</span>}
+          {post.readTime && <span className="text-sm text-black/35">{post.readTime} min de leitura</span>}
         </div>
-        <h1 className="font-display text-[clamp(2.2rem,6vw,3.8rem)] leading-[1.05] tracking-wide text-offwhite mb-6">{post.title}</h1>
+        <h1 className="font-display text-[clamp(2.2rem,6vw,3.8rem)] leading-[1.05] tracking-wide text-black mb-6">{post.title}</h1>
         {post.excerpt && (
-          <p className="text-lg text-offwhite/55 leading-relaxed mb-8 border-l-4 border-yellow pl-5">{post.excerpt}</p>
+          <p className="text-lg text-black/55 leading-relaxed mb-8 border-l-4 border-yellow pl-5">{post.excerpt}</p>
         )}
         {post.coverImage && (
           <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-10">

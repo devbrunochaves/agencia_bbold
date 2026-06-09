@@ -39,3 +39,16 @@ export const recentPostsQuery = groq`
     coverImage
   }
 `;
+
+export const latestPostsQuery = groq`
+  *[_type == "post"] | order(publishedAt desc)[0...4] {
+    _id,
+    title,
+    slug,
+    excerpt,
+    category,
+    publishedAt,
+    readTime,
+    coverImage
+  }
+`;

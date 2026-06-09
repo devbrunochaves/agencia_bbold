@@ -32,7 +32,7 @@ export default function Contact() {
   };
 
   const inputClass =
-    "w-full bg-black-light border border-offwhite/10 rounded-sm px-5 py-4 text-offwhite text-sm placeholder-offwhite/25 outline-none focus:border-yellow focus:shadow-[0_0_0_3px_rgba(245,197,24,0.1)] transition-all";
+    "w-full bg-white/60 border border-black/10 rounded-sm px-5 py-4 text-black text-sm placeholder-black/25 outline-none focus:border-yellow focus:shadow-[0_0_0_3px_rgba(245,197,24,0.1)] transition-all";
 
   return (
     <section id="contato" className="py-24 px-10 max-w-site mx-auto">
@@ -42,7 +42,7 @@ export default function Contact() {
           <h2 className="section-title mt-2">
             Vamos conversar<br />sobre seu negócio?
           </h2>
-          <p className="text-offwhite/60 leading-relaxed mb-8">
+          <p className="text-black/60 leading-relaxed mb-8">
             Estamos em Serra, ES — mas atendemos em todo o Brasil de forma
             remota. Envie uma mensagem e retornamos em até 24h.
           </p>
@@ -58,13 +58,13 @@ export default function Contact() {
                     href={c.href}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-3 text-offwhite/60 hover:text-yellow transition-colors"
+                    className="flex items-center gap-3 text-black/60 hover:text-yellow transition-colors"
                   >
                     <span className="text-lg">{c.icon}</span>
                     <span>{c.label}</span>
                   </a>
                 ) : (
-                  <div className="flex items-center gap-3 text-offwhite/60">
+                  <div className="flex items-center gap-3 text-black/60">
                     <span className="text-lg">{c.icon}</span>
                     <span>{c.label}</span>
                   </div>
@@ -100,7 +100,7 @@ export default function Contact() {
           >
             Enviar mensagem →
           </button>
-          <p className="text-center text-[0.78rem] text-offwhite/35">Respondemos em até 24 horas úteis.</p>
+          <p className="text-center text-[0.78rem] text-black/35">Respondemos em até 24 horas úteis.</p>
         </form>
       </div>
 

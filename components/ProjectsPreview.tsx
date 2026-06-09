@@ -4,12 +4,12 @@ import Link from "next/link";
 import { getProjetosDestaque } from "@/data/projetos";
 
 const categoryColors: Record<string, string> = {
-  "Advocacia": "text-blue-300",
-  "Saúde & Nutrição": "text-green-300",
-  "Barbearia": "text-purple-300",
-  "Moda & Varejo": "text-pink-300",
-  "Estética & Beleza": "text-rose-300",
-  "Gastronomia": "text-orange-300",
+  "Advocacia": "text-blue-700",
+  "Saúde & Nutrição": "text-green-700",
+  "Barbearia": "text-purple-700",
+  "Moda & Varejo": "text-pink-700",
+  "Estética & Beleza": "text-rose-700",
+  "Gastronomia": "text-orange-700",
 };
 
 export default function ProjectsPreview() {
@@ -25,14 +25,14 @@ export default function ProjectsPreview() {
             <span className="text-[0.7rem] font-bold tracking-widest uppercase text-yellow border border-yellow/30 px-3 py-1 rounded-sm">
               Portfólio
             </span>
-            <h2 className="font-display text-[clamp(2.5rem,6vw,4.5rem)] leading-[0.95] tracking-wide text-offwhite mt-4">
+            <h2 className="font-display text-[clamp(2.5rem,6vw,4.5rem)] leading-[0.95] tracking-wide text-black mt-4">
               PROJETOS QUE<br />
               <span className="text-yellow">FALAM</span> POR NÓS
             </h2>
           </div>
           <Link
             href="/projetos"
-            className="shrink-0 inline-flex items-center gap-2 border-2 border-offwhite/20 text-offwhite font-bold text-sm tracking-widest uppercase px-6 py-3 rounded-sm hover:border-yellow hover:text-yellow transition-all"
+            className="shrink-0 inline-flex items-center gap-2 border-2 border-black/20 text-black font-bold text-sm tracking-widest uppercase px-6 py-3 rounded-sm hover:border-yellow hover:text-yellow transition-all"
           >
             Ver todos os projetos →
           </Link>
@@ -44,10 +44,10 @@ export default function ProjectsPreview() {
             <Link
               key={projeto.slug}
               href={`/projetos/${projeto.slug}`}
-              className="group bg-black-light rounded-lg overflow-hidden border border-offwhite/5 hover:border-yellow/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.5)]"
+              className="group bg-[#ede6d6] rounded-lg overflow-hidden border border-black/5 hover:border-yellow/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.12)]"
             >
               {/* Cover */}
-              <div className="relative aspect-[4/3] bg-black-mid overflow-hidden flex items-center justify-center">
+              <div className="relative aspect-[4/3] bg-[#d8cfbf] overflow-hidden flex items-center justify-center">
                 <div className="font-display text-[5rem] leading-none text-yellow/10 group-hover:text-yellow/20 transition-colors select-none">
                   {String(i + 1).padStart(2, "0")}
                 </div>
@@ -60,23 +60,23 @@ export default function ProjectsPreview() {
 
               {/* Content */}
               <div className="p-6">
-                <p className="text-xs text-offwhite/25 tracking-widest uppercase mb-1">
+                <p className="text-xs text-black/25 tracking-widest uppercase mb-1">
                   {projeto.cliente} · {projeto.ano}
                 </p>
-                <h3 className="font-display text-[1.35rem] tracking-wide text-offwhite mb-2 group-hover:text-yellow transition-colors">
+                <h3 className="font-display text-[1.35rem] tracking-wide text-black mb-2 group-hover:text-yellow transition-colors">
                   {projeto.titulo}
                 </h3>
-                <p className="text-sm text-offwhite/45 leading-relaxed mb-4 line-clamp-2">
+                <p className="text-sm text-black/45 leading-relaxed mb-4 line-clamp-2">
                   {projeto.descricaoCurta}
                 </p>
 
                 {/* Resultado principal */}
                 {projeto.resultados[0] && (
-                  <div className="pt-4 border-t border-offwhite/5 flex items-baseline gap-2">
+                  <div className="pt-4 border-t border-black/5 flex items-baseline gap-2">
                     <span className="font-display text-[1.6rem] text-yellow leading-none">
                       {projeto.resultados[0].valor}
                     </span>
-                    <span className="text-xs text-offwhite/35">
+                    <span className="text-xs text-black/35">
                       {projeto.resultados[0].label}
                     </span>
                   </div>

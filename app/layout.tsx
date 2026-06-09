@@ -56,7 +56,7 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className="font-body bg-black text-offwhite">
+      <body className="font-body bg-cream text-black">
         {children}
       </body>
     </html>

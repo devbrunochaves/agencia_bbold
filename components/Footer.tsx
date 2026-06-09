@@ -3,8 +3,8 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-black-mid border-t border-offwhite/[0.06] pt-16 pb-7">
-      <div className="max-w-site mx-auto px-10 grid grid-cols-1 md:grid-cols-3 gap-14 pb-12 border-b border-offwhite/[0.06]">
+    <footer className="bg-[#ede6d6] border-t border-black/[0.06] pt-16 pb-7">
+      <div className="max-w-site mx-auto px-10 grid grid-cols-1 md:grid-cols-3 gap-14 pb-12 border-b border-black/[0.06]">
         <div>
           <Image
             src="/img/LOGO-PRINCIPAL.svg"
@@ -13,7 +13,7 @@ export default function Footer() {
             height={40}
             className="h-10 w-auto mb-4"
           />
-          <p className="text-sm text-offwhite/40 leading-relaxed">
+          <p className="text-sm text-black/40 leading-relaxed">
             Posicionamento digital para empresas.<br />
             Serra, Espírito Santo — Brasil.
           </p>
@@ -34,7 +34,7 @@ export default function Footer() {
               <li key={s}>
                 <Link
                   href="/#servicos"
-                  className="text-sm text-offwhite/45 hover:text-offwhite transition-colors"
+                  className="text-sm text-black/45 hover:text-black transition-colors"
                 >
                   {s}
                 </Link>
@@ -59,7 +59,7 @@ export default function Footer() {
                 href={s.href}
                 target={s.href.startsWith("http") ? "_blank" : undefined}
                 rel="noreferrer"
-                className="inline-block text-[0.82rem] font-bold tracking-wide uppercase text-offwhite/50 border border-offwhite/10 px-3.5 py-2 rounded-sm text-center hover:border-yellow hover:text-yellow transition-all"
+                className="inline-block text-[0.82rem] font-bold tracking-wide uppercase text-black/50 border border-black/10 px-3.5 py-2 rounded-sm text-center hover:border-yellow hover:text-yellow transition-all"
               >
                 {s.label}
               </a>
@@ -68,10 +68,10 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="max-w-site mx-auto px-10 mt-7 flex flex-col md:flex-row items-center justify-between gap-2.5 text-[0.8rem] text-offwhite/25">
+      <div className="max-w-site mx-auto px-10 mt-7 flex flex-col md:flex-row items-center justify-between gap-2.5 text-[0.8rem] text-black/25">
         <p>© 2026 Agência BBold. Todos os direitos reservados.</p>
         <p>
-          Desenvolvido por <strong className="text-offwhite/45">Bruno Chaves</strong>
+          Desenvolvido por <strong className="text-black/45">Bruno Chaves</strong>
         </p>
       </div>
     </footer>

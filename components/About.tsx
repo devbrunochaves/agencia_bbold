@@ -14,7 +14,7 @@ export default function About() {
 
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-20 items-center">
         <div className="reveal relative">
-          <div className="aspect-[4/5] bg-black-light border border-offwhite/[0.08] rounded-lg overflow-hidden flex items-center justify-center">
+          <div className="aspect-[4/5] bg-[#ede6d6] border border-black/[0.08] rounded-lg overflow-hidden flex items-center justify-center">
             <div className="flex flex-col items-center gap-4 p-10 text-center">
               <Image
                 src="/img/icone ID. VISUAL.svg"
@@ -23,7 +23,7 @@ export default function About() {
                 height={120}
                 className="w-28 opacity-80 drop-shadow-[0_0_30px_rgba(245,197,24,0.4)]"
               />
-              <span className="font-display text-[1.8rem] tracking-widest text-offwhite/40">
+              <span className="font-display text-[1.8rem] tracking-widest text-black/40">
                 Bruno Chaves
               </span>
             </div>
@@ -41,18 +41,18 @@ export default function About() {
           <h2 className="section-title mt-2">
             Experiência real.<br /><em>Resultado</em> concreto.
           </h2>
-          <p className="text-offwhite/75 leading-relaxed mb-4">
+          <p className="text-black/75 leading-relaxed mb-4">
             Sou <strong className="text-yellow">Bruno Chaves</strong>, designer gráfico com mais de 15 anos de mercado.
             Durante esse tempo, atuei em agências, clubes de futebol, empresas de distribuição e projetos
             digitais — sempre com foco em criar comunicação visual que funciona.
           </p>
-          <p className="text-offwhite/55 leading-relaxed mb-4">
+          <p className="text-black/55 leading-relaxed mb-4">
             Nos últimos anos expandi minha atuação para o desenvolvimento front-end, dominando ReactJS,
             Tailwind e tecnologias modernas da web. Hoje, essa combinação — design estratégico + código
             de qualidade — é o que diferencia a BBold.
           </p>
-          <p className="text-offwhite/55 leading-relaxed mb-8">
-            A agência também conta com <strong className="text-offwhite">gestão administrativa organizada e rigorosa</strong>,
+          <p className="text-black/55 leading-relaxed mb-8">
+            A agência também conta com <strong className="text-black">gestão administrativa organizada e rigorosa</strong>,
             garantindo processos claros, contratos profissionais e entregas dentro do prazo.
           </p>
           <div className="flex flex-wrap gap-2">

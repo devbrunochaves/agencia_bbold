@@ -6,6 +6,7 @@ import HowWeWork from "@/components/HowWeWork";
 import CustomProjects from "@/components/CustomProjects";
 import ProjectsPreview from "@/components/ProjectsPreview";
 import About from "@/components/About";
+import BlogPreview from "@/components/BlogPreview";
 import CtaBand from "@/components/CtaBand";
 import Contact from "@/components/Contact";
 import RevealInit from "@/components/RevealInit";
@@ -22,6 +23,7 @@ export default function Home() {
       <CustomProjects />
       <ProjectsPreview />
       <About />
+      <BlogPreview />
       <CtaBand />
       <Contact />
     </>

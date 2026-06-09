@@ -25,41 +25,41 @@ export default async function ProjetoPage({ params }: { params: Promise<{ slug: 
   return (
     <main className="pt-28 pb-24 px-10">
       <div className="max-w-[800px] mx-auto">
-        <Link href="/projetos" className="inline-flex items-center gap-2 text-sm text-offwhite/40 hover:text-yellow transition-colors mb-10">
+        <Link href="/projetos" className="inline-flex items-center gap-2 text-sm text-black/40 hover:text-yellow transition-colors mb-10">
           ← Voltar para projetos
         </Link>
         <div className="flex flex-wrap items-center gap-3 mb-6">
           <span className="text-[0.7rem] font-bold tracking-widest uppercase bg-yellow text-black px-2.5 py-1 rounded-sm">{projeto.nicho}</span>
-          <span className="text-sm text-offwhite/35">{projeto.cliente}</span>
-          <span className="text-sm text-offwhite/35">{projeto.ano}</span>
+          <span className="text-sm text-black/35">{projeto.cliente}</span>
+          <span className="text-sm text-black/35">{projeto.ano}</span>
         </div>
-        <h1 className="font-display text-[clamp(2.4rem,6vw,4rem)] leading-[1.0] tracking-wide text-offwhite mb-6">{projeto.titulo}</h1>
-        <p className="text-lg text-offwhite/55 leading-relaxed mb-10 border-l-4 border-yellow pl-5">{projeto.descricaoCurta}</p>
-        <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black-light mb-10 flex items-center justify-center border border-offwhite/5">
+        <h1 className="font-display text-[clamp(2.4rem,6vw,4rem)] leading-[1.0] tracking-wide text-black mb-6">{projeto.titulo}</h1>
+        <p className="text-lg text-black/55 leading-relaxed mb-10 border-l-4 border-yellow pl-5">{projeto.descricaoCurta}</p>
+        <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-[#ede6d6] mb-10 flex items-center justify-center border border-black/5">
           <div className="text-center">
             <div className="font-display text-[6rem] leading-none text-yellow/10">{projeto.titulo.charAt(0)}</div>
-            <p className="text-offwhite/20 text-xs mt-2 tracking-widest uppercase">Imagens do projeto em breve</p>
+            <p className="text-black/20 text-xs mt-2 tracking-widest uppercase">Imagens do projeto em breve</p>
           </div>
         </div>
         {projeto.resultados.length > 0 && (
           <div className="grid grid-cols-3 gap-4 mb-12">
             {projeto.resultados.map((r) => (
-              <div key={r.label} className="bg-black-light rounded-lg p-5 border border-offwhite/5 text-center">
+              <div key={r.label} className="bg-[#ede6d6] rounded-lg p-5 border border-black/5 text-center">
                 <p className="font-display text-[2rem] text-yellow leading-none mb-1">{r.valor}</p>
-                <p className="text-xs text-offwhite/40 leading-tight">{r.label}</p>
+                <p className="text-xs text-black/40 leading-tight">{r.label}</p>
               </div>
             ))}
           </div>
         )}
         <div className="mb-12">
-          <h2 className="font-display text-[1.8rem] tracking-wide text-offwhite mb-4">O Projeto</h2>
-          <p className="text-offwhite/65 leading-relaxed text-[1.05rem]">{projeto.descricaoCompleta}</p>
+          <h2 className="font-display text-[1.8rem] tracking-wide text-black mb-4">O Projeto</h2>
+          <p className="text-black/65 leading-relaxed text-[1.05rem]">{projeto.descricaoCompleta}</p>
         </div>
         <div className="mb-12">
-          <h2 className="font-display text-[1.8rem] tracking-wide text-offwhite mb-4">Serviços Aplicados</h2>
+          <h2 className="font-display text-[1.8rem] tracking-wide text-black mb-4">Serviços Aplicados</h2>
           <div className="flex flex-wrap gap-2">
             {projeto.servicos.map((s) => (
-              <span key={s} className="text-sm font-bold tracking-widest uppercase bg-black-light text-offwhite/60 border border-offwhite/10 px-4 py-2 rounded-sm">{s}</span>
+              <span key={s} className="text-sm font-bold tracking-widest uppercase bg-[#ede6d6] text-black/60 border border-black/10 px-4 py-2 rounded-sm">{s}</span>
             ))}
           </div>
         </div>

@@ -12,7 +12,7 @@ const STATUS_CONFIG: Record<string, { label: string; tone: BadgeTone }> = {
   closed: { label: "Encerrado", tone: "neutral" },
 
   // tasks.status
-  backlog: { label: "A iniciar", tone: "neutral" },
+  backlog: { label: "Backlog", tone: "neutral" },
   todo: { label: "A iniciar", tone: "neutral" },
   in_progress: { label: "Criando", tone: "info" },
   internal_review: { label: "Revisão interna", tone: "waiting" },

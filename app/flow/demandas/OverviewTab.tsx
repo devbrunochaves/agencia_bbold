@@ -1,94 +1,59 @@
-"use client";
-
-import { useMemo, useState } from "react";
-import { Checkbox, Select } from "@/components/flow/ui";
-import { demoTasks } from "@/data/flow-demo/tasks";
+import { OPEN_TASK_STATUSES, type Task } from "@/modules/tasks/domain/types";
+import { currentWeekRange, isDueToday, isOverdue } from "./format";
 import TaskTable from "./TaskTable";
 
-const rangeOptions = [
-  { value: "7", label: "7 dias" },
-  { value: "14", label: "14 dias" },
-  { value: "30", label: "30 dias" },
-];
+function todayISODate(): string {
+  return new Date().toISOString().slice(0, 10);
+}
 
-export default function OverviewTab() {
-  const [range, setRange] = useState("14");
-  const [assignee, setAssignee] = useState("all");
-  const [status, setStatus] = useState("all");
-  const [showCompleted, setShowCompleted] = useState(false);
+export default function OverviewTab({
+  tasks,
+  rangeDays,
+  onEdit,
+  onChangeStatus,
+}: {
+  tasks: Task[];
+  rangeDays: number;
+  onEdit: (task: Task) => void;
+  onChangeStatus: (task: Task, status: Task["status"]) => void;
+}) {
+  const today = todayISODate();
+  const rangeEnd = new Date();
+  rangeEnd.setDate(rangeEnd.getDate() + rangeDays);
+  const rangeEndISO = rangeEnd.toISOString().slice(0, 10);
 
-  const assignees = Array.from(new Set(demoTasks.map((t) => t.assignee)));
+  const overdue = tasks.filter(isOverdue);
+  const dueToday = tasks.filter(isDueToday);
+  const upcoming = tasks.filter(
+    (t) => t.dueDate && !isOverdue(t) && !isDueToday(t) && t.dueDate <= rangeEndISO
+  );
+  const noDate = tasks.filter((t) => !t.dueDate);
 
-  const filtered = useMemo(() => {
-    return demoTasks.filter((task) => {
-      if (!showCompleted && task.status === "completed") return false;
-      if (assignee !== "all" && task.assignee !== assignee) return false;
-      if (status !== "all" && task.status !== status) return false;
-      return true;
-    });
-  }, [assignee, status, showCompleted]);
-
-  const overdue = filtered.filter((t) => t.overdue);
-  const today = filtered.filter((t) => t.dueToday);
-  const upcoming = filtered.filter((t) => t.dueDate && !t.overdue && !t.dueToday);
-  const noDate = filtered.filter((t) => !t.dueDate);
+  const [weekStart, weekEnd] = currentWeekRange();
+  const openCount = tasks.filter((t) => OPEN_TASK_STATUSES.includes(t.status)).length;
+  const dueThisWeek = tasks.filter(
+    (t) => t.dueDate && t.dueDate >= weekStart && t.dueDate <= weekEnd
+  ).length;
 
   const blocks = [
     { key: "atrasadas", label: "Atrasadas", tasks: overdue, tone: "text-flow-danger" },
-    { key: "hoje", label: "Hoje", tasks: today, tone: "text-flow-yellow" },
+    { key: "hoje", label: "Hoje", tasks: dueToday, tone: "text-flow-yellow" },
     { key: "proximos", label: "Próximos dias", tasks: upcoming, tone: "text-flow-info" },
     { key: "sem-data", label: "Sem data", tasks: noDate, tone: "text-flow-text-muted" },
   ];
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="flex overflow-hidden rounded-lg border border-flow-border">
-          {rangeOptions.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => setRange(option.value)}
-              className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                range === option.value
-                  ? "bg-flow-yellow text-black"
-                  : "text-flow-text-secondary hover:bg-flow-panel-alt"
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-
-        <Select
-          aria-label="Responsável"
-          value={assignee}
-          onChange={(e) => setAssignee(e.target.value)}
-          className="w-40"
-        >
-          <option value="all">Todos os responsáveis</option>
-          {assignees.map((name) => (
-            <option key={name} value={name}>
-              {name}
-            </option>
-          ))}
-        </Select>
-
-        <Select aria-label="Status" value={status} onChange={(e) => setStatus(e.target.value)} className="w-44">
-          <option value="all">Todos os status</option>
-          <option value="in_progress">Criando</option>
-          <option value="waiting_client">Aguardando cliente</option>
-          <option value="internal_review">Revisão interna</option>
-          <option value="changes_requested">Alteração</option>
-          <option value="approved">Aprovado</option>
-        </Select>
-
-        <Checkbox
-          id="show-completed"
-          label="Mostrar concluídas"
-          checked={showCompleted}
-          onChange={(e) => setShowCompleted(e.target.checked)}
-        />
+      <div className="flex flex-wrap items-center gap-4 text-sm text-flow-text-muted">
+        <span>
+          <strong className="text-flow-text-primary">{openCount}</strong> demandas abertas
+        </span>
+        <span>
+          <strong className="text-flow-danger">{overdue.length}</strong> atrasadas
+        </span>
+        <span>
+          <strong className="text-flow-text-primary">{dueThisWeek}</strong> entregas nesta semana
+        </span>
       </div>
 
       <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
@@ -100,7 +65,12 @@ export default function OverviewTab() {
         ))}
       </div>
 
-      <TaskTable tasks={filtered} emptyMessage="Nenhuma demanda no período selecionado." />
+      <TaskTable
+        tasks={tasks}
+        emptyMessage="Nenhuma demanda encontrada com os filtros atuais."
+        onEdit={onEdit}
+        onChangeStatus={onChangeStatus}
+      />
     </div>
   );
 }

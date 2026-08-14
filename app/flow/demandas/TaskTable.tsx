@@ -1,37 +1,91 @@
-import { Badge, StatusBadge, Table, type TableColumn } from "@/components/flow/ui";
-import type { DemoTask } from "@/data/flow-demo/tasks";
+"use client";
 
-const priorityTone: Record<DemoTask["priority"], "neutral" | "warning" | "danger"> = {
-  none: "neutral",
-  normal: "neutral",
-  high: "warning",
-  urgent: "danger",
-};
+import { MoreHorizontal } from "lucide-react";
+import { Avatar, Badge, DropdownMenu, IconButton, StatusBadge, Table, type TableColumn } from "@/components/flow/ui";
+import { TASK_PRIORITY_MAP, TASK_STATUSES, type Task, type TaskStatus } from "@/modules/tasks/domain/types";
+import { formatDueDate, isOverdue } from "./format";
 
-const priorityLabel: Record<DemoTask["priority"], string> = {
-  none: "—",
-  normal: "Normal",
-  high: "Alta",
-  urgent: "Urgente",
-};
-
-export default function TaskTable({ tasks, emptyMessage }: { tasks: DemoTask[]; emptyMessage?: string }) {
-  const columns: TableColumn<DemoTask>[] = [
-    { key: "title", header: "Demanda", render: (t) => <span className="font-medium text-flow-text-primary">{t.title}</span> },
-    { key: "client", header: "Cliente", render: (t) => t.client },
-    { key: "assignee", header: "Responsável", render: (t) => t.assignee },
+export default function TaskTable({
+  tasks,
+  emptyMessage,
+  onEdit,
+  onChangeStatus,
+}: {
+  tasks: Task[];
+  emptyMessage?: string;
+  onEdit: (task: Task) => void;
+  onChangeStatus: (task: Task, status: TaskStatus) => void;
+}) {
+  const columns: TableColumn<Task>[] = [
+    {
+      key: "title",
+      header: "Demanda",
+      render: (t) => (
+        <button
+          type="button"
+          onClick={() => onEdit(t)}
+          className="text-left font-medium text-flow-text-primary hover:text-flow-yellow"
+        >
+          {t.title}
+        </button>
+      ),
+    },
+    {
+      key: "client",
+      header: "Cliente",
+      render: (t) => <Badge tone="neutral">{t.clientName}</Badge>,
+    },
+    {
+      key: "assignee",
+      header: "Responsável",
+      render: (t) =>
+        t.assignee ? (
+          <div className="flex items-center gap-2">
+            <Avatar name={t.assignee.name} size="sm" />
+            <span>{t.assignee.name}</span>
+          </div>
+        ) : (
+          <span className="text-flow-text-muted">—</span>
+        ),
+    },
     {
       key: "due",
       header: "Data",
-      render: (t) =>
-        t.dueDate ? (
-          <span className={t.overdue ? "text-flow-danger" : ""}>{t.dueDate}</span>
-        ) : (
-          <span className="text-flow-text-muted">Sem data</span>
-        ),
+      render: (t) => (
+        <span className={isOverdue(t) ? "font-medium text-flow-danger" : ""}>
+          {formatDueDate(t.dueDate)}
+        </span>
+      ),
     },
-    { key: "priority", header: "Prioridade", render: (t) => <Badge tone={priorityTone[t.priority]}>{priorityLabel[t.priority]}</Badge> },
+    {
+      key: "priority",
+      header: "Prioridade",
+      render: (t) => <Badge tone={TASK_PRIORITY_MAP[t.priority].color}>{TASK_PRIORITY_MAP[t.priority].label}</Badge>,
+    },
     { key: "status", header: "Status", render: (t) => <StatusBadge status={t.status} /> },
+    {
+      key: "actions",
+      header: "",
+      className: "w-10",
+      render: (t) => (
+        <DropdownMenu
+          trigger={
+            <IconButton icon={<MoreHorizontal size={16} strokeWidth={1.75} />} aria-label="Ações" size="sm" />
+          }
+          items={[
+            { key: "edit", label: "Editar", onSelect: () => onEdit(t) },
+            ...TASK_STATUSES.filter((s) => s.value !== t.status && s.value !== "cancelled").map((s) => ({
+              key: s.value,
+              label: `Mover para: ${s.label}`,
+              onSelect: () => onChangeStatus(t, s.value),
+            })),
+            ...(t.status !== "cancelled"
+              ? [{ key: "cancel", label: "Cancelar", danger: true, onSelect: () => onChangeStatus(t, "cancelled" as TaskStatus) }]
+              : []),
+          ]}
+        />
+      ),
+    },
   ];
 
   return <Table columns={columns} rows={tasks} rowKey={(row) => row.id} emptyMessage={emptyMessage} />;

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { listClients, type ClientStatus } from "@/modules/clients";
 import { listServices } from "@/modules/services";
+import { getOpenTaskCountsByClient } from "@/modules/tasks";
 import ClientesView from "./ClientesView";
 
 export const metadata: Metadata = {
@@ -20,13 +21,19 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
     ? (params.status as ClientStatus)
     : undefined;
 
-  const [allClients, filteredClients, services] = await Promise.all([
+  const [allClients, filteredClients, services, openTaskCounts] = await Promise.all([
     listClients(),
     listClients({ status, search: params.search, serviceId: params.service }),
     listServices(),
+    getOpenTaskCountsByClient(),
   ]);
 
   return (
-    <ClientesView clients={filteredClients} services={services} totalCount={allClients.length} />
+    <ClientesView
+      clients={filteredClients}
+      services={services}
+      totalCount={allClients.length}
+      openTaskCounts={openTaskCounts}
+    />
   );
 }

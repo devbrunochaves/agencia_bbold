@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AppUser, MembershipContext, Organization, UserContext } from "../domain/types";
+import type { OrganizationMember } from "../domain/member";
 
 interface RoleRow {
   id: string;
@@ -82,4 +83,30 @@ export async function getUserContext(
     memberships,
     currentMembership: memberships[0] ?? null,
   };
+}
+
+interface MembershipMemberRow {
+  user_id: string;
+  role: { name: string } | null;
+  user: { full_name: string | null; email: string } | null;
+}
+
+/** Active memberships of an organization, for pickers (task assignee, etc). */
+export async function listActiveMembers(
+  supabase: SupabaseClient,
+  organizationId: string
+): Promise<OrganizationMember[]> {
+  const { data, error } = await supabase
+    .from("memberships")
+    .select("user_id, role:roles ( name ), user:users ( full_name, email )")
+    .eq("organization_id", organizationId)
+    .eq("status", "active");
+
+  if (error) throw error;
+
+  return ((data as unknown as MembershipMemberRow[]) ?? []).map((row) => ({
+    userId: row.user_id,
+    name: row.user?.full_name || row.user?.email || "—",
+    roleName: row.role?.name ?? "",
+  }));
 }

@@ -55,3 +55,22 @@ join public.services s
     or (c.name = 'CSS Log' and s.slug = 'website')
   )
 on conflict do nothing;
+
+-- ---------------------------------------------------------------------------
+-- Demo tasks — left unassigned (assignee_id null) since no real membership
+-- user id is known at seed time. Assign manually after creating the owner
+-- membership, e.g.:
+--   update public.tasks set assignee_id = '<user-uuid>' where title = '...';
+-- ---------------------------------------------------------------------------
+insert into public.tasks (organization_id, client_id, service_id, title, description, status, priority, due_date)
+select c.organization_id, c.id, s.id, t.title, t.description, t.status, t.priority, t.due_date
+from (values
+  ('Padaria Diplomata', 'social-media', 'Post café da tarde', 'Peça para o feed anunciando o combo da tarde.', 'in_progress', 'normal', current_date + 2),
+  ('Padaria Diplomata', 'social-media', 'Reels bastidores', 'Reels mostrando a produção dos pães do dia.', 'waiting_client', 'high', current_date - 1),
+  ('Padaria Diplomata', 'social-media', 'Carrossel institucional', 'Carrossel sobre a história da padaria.', 'todo', 'normal', current_date + 6),
+  ('CSS Log', 'website', 'Ajuste de SEO na home', 'Revisar meta tags e headings da página inicial.', 'internal_review', 'normal', current_date + 4),
+  ('CSS Log', 'website', 'Formulário de contato', 'Implementar validação e envio por e-mail.', 'backlog', 'none', current_date + 12)
+) as t(client_name, service_slug, title, description, status, priority, due_date)
+join public.clients c on c.name = t.client_name
+join public.services s on s.slug = t.service_slug and s.organization_id = c.organization_id
+on conflict do nothing;

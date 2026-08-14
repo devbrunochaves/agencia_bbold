@@ -41,10 +41,12 @@ export default function ClientesView({
   clients,
   services,
   totalCount,
+  openTaskCounts,
 }: {
   clients: Client[];
   services: Service[];
   totalCount: number;
+  openTaskCounts: Record<string, number>;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -79,8 +81,9 @@ export default function ClientesView({
     () => ({
       total: totalCount,
       active: clients.filter((c) => c.status === "active").length,
+      withOpenWork: Object.values(openTaskCounts).filter((count) => count > 0).length,
     }),
-    [clients, totalCount]
+    [clients, totalCount, openTaskCounts]
   );
 
   async function handleStatusChange(client: Client, status: ClientStatus) {
@@ -121,7 +124,11 @@ export default function ClientesView({
       header: "Serviços",
       render: (c) => (c.services.length > 0 ? c.services.map((s) => s.serviceName).join(", ") : "—"),
     },
-    { key: "deliveries", header: "Entregas", render: () => <span className="text-flow-text-muted">—</span> },
+    {
+      key: "deliveries",
+      header: "Entregas",
+      render: (c) => openTaskCounts[c.id] ?? 0,
+    },
     { key: "status", header: "Situação", render: (c) => <StatusBadge status={c.status} /> },
     { key: "document", header: "Documento", render: (c) => formatDocument(c) },
     {
@@ -180,7 +187,7 @@ export default function ClientesView({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <MetricCard label="Clientes cadastrados" value={String(counts.total)} />
           <MetricCard label="Ativos" value={String(counts.active)} tone="success" />
-          <MetricCard label="Com trabalho em aberto" value="—" helperText="Disponível após Demandas" />
+          <MetricCard label="Com trabalho em aberto" value={String(counts.withOpenWork)} tone="info" />
           <MetricCard label="Contratos recorrentes" value="—" helperText="Disponível após Contratos" />
           <MetricCard label="Sem contrato" value="—" helperText="Disponível após Contratos" />
         </div>

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { listClients, type ClientStatus } from "@/modules/clients";
+import { listServices } from "@/modules/services";
 import ClientesView from "./ClientesView";
 
 export const metadata: Metadata = {
@@ -6,6 +8,25 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function ClientesPage() {
-  return <ClientesView />;
+interface ClientesPageProps {
+  searchParams: Promise<{ status?: string; search?: string; service?: string }>;
+}
+
+const VALID_STATUSES: ClientStatus[] = ["prospect", "active", "paused", "closed"];
+
+export default async function ClientesPage({ searchParams }: ClientesPageProps) {
+  const params = await searchParams;
+  const status = VALID_STATUSES.includes(params.status as ClientStatus)
+    ? (params.status as ClientStatus)
+    : undefined;
+
+  const [allClients, filteredClients, services] = await Promise.all([
+    listClients(),
+    listClients({ status, search: params.search, serviceId: params.service }),
+    listServices(),
+  ]);
+
+  return (
+    <ClientesView clients={filteredClients} services={services} totalCount={allClients.length} />
+  );
 }

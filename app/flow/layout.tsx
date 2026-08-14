@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { getCurrentUserContext } from "@/modules/identity";
 import AppShell from "@/components/flow/AppShell";
+import FullScreenMessage from "@/components/flow/FullScreenMessage";
 
 export default async function FlowLayout({ children }: { children: ReactNode }) {
   const context = await getCurrentUserContext();
@@ -13,18 +14,35 @@ export default async function FlowLayout({ children }: { children: ReactNode }) 
   }
 
   if (!context.currentMembership) {
-    return (
-      <div className="dark flex h-screen items-center justify-center bg-flow-bg px-4 text-center text-flow-text-primary">
-        <div>
-          <p className="text-xs font-semibold tracking-[0.3em] text-flow-yellow">BBOLD</p>
-          <h1 className="mt-1 text-xl font-semibold">Sem acesso a nenhuma organização</h1>
-          <p className="mt-2 max-w-sm text-sm text-flow-text-muted">
-            Sua conta está autenticada, mas ainda não possui um convite ativo em nenhuma
-            organização do BBOLD Flow. Peça a um administrador para te convidar.
-          </p>
-        </div>
-      </div>
-    );
+    switch (context.accountStatus) {
+      case "suspended":
+        return (
+          <FullScreenMessage title="Acesso suspenso">
+            Seu acesso à organização está suspenso. Fale com um administrador para reativá-lo.
+          </FullScreenMessage>
+        );
+      case "removed":
+        return (
+          <FullScreenMessage title="Acesso removido">
+            Seu acesso a esta organização foi removido. Fale com um administrador se isso for um
+            engano.
+          </FullScreenMessage>
+        );
+      case "invited_only":
+        return (
+          <FullScreenMessage title="Convite pendente">
+            Você tem um convite pendente para esta organização, mas ainda não foi ativado. Fale com
+            quem te convidou.
+          </FullScreenMessage>
+        );
+      default:
+        return (
+          <FullScreenMessage title="Nenhuma organização disponível">
+            Sua conta está autenticada, mas não possui um vínculo ativo com nenhuma organização do
+            BBOLD Flow. Peça a um administrador para te convidar.
+          </FullScreenMessage>
+        );
+    }
   }
 
   const { user, currentMembership } = context;

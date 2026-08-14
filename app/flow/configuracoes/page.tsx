@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { getFinancialSettings, listFinancialCategories } from "@/modules/finance";
+import { requirePermission } from "@/modules/identity";
+import AccessDenied from "@/components/flow/AccessDenied";
 import ConfiguracoesView from "./ConfiguracoesView";
 
 export const metadata: Metadata = {
@@ -8,6 +10,9 @@ export const metadata: Metadata = {
 };
 
 export default async function ConfiguracoesPage() {
+  const check = await requirePermission("settings.view");
+  if (!check.ok) return <AccessDenied />;
+
   const [settings, categories] = await Promise.all([
     getFinancialSettings(),
     listFinancialCategories({ includeInactive: true }),

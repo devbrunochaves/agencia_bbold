@@ -11,4 +11,4 @@ Substituído módulo a módulo conforme cada fase entrega dados reais:
 - `tasks.ts` → real desde a fase 4 (`/flow/demandas`), mas ainda usado pelo Dashboard até a fase 8
 - `financial.ts` → removido na fase 5: nada mais o importa (`/flow/financeiro` e `/flow` usam `modules/finance` real)
 - `contracts.ts` → removido na fase 6: nada mais o importa (`/flow/contratos` usa `modules/contracts` real)
-- `members.ts` → fase 7 (Acessos)
+- `members.ts` → removido na fase 7: nada mais o importa (`/flow/acessos` usa `modules/identity` real). `clients.ts`/`tasks.ts` remain — the dashboard's non-financial cards and the demandas Kanban still read from them.

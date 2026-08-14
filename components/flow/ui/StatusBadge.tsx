@@ -33,6 +33,11 @@ const STATUS_CONFIG: Record<string, { label: string; tone: BadgeTone }> = {
   sent: { label: "Enviado", tone: "waiting" },
   signed: { label: "Assinado", tone: "success" },
   expired: { label: "Expirado", tone: "danger" },
+
+  // memberships.status (active/cancelled already covered above)
+  invited: { label: "Convite pendente", tone: "waiting" },
+  suspended: { label: "Suspenso", tone: "danger" },
+  removed: { label: "Removido", tone: "neutral" },
 };
 
 export default function StatusBadge({ status }: { status: string }) {

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { getFinancialOverview, listFinancialCategories, listFinancialRecurrences } from "@/modules/finance";
 import { currentCompetenceMonth } from "@/modules/finance/domain/competence";
 import { listClients } from "@/modules/clients";
+import { requirePermission } from "@/modules/identity";
+import AccessDenied from "@/components/flow/AccessDenied";
 import FinanceiroView from "./FinanceiroView";
 
 export const metadata: Metadata = {
@@ -16,6 +18,9 @@ export default async function FinanceiroPage({
 }: {
   searchParams: Promise<{ competence?: string }>;
 }) {
+  const check = await requirePermission("finance.view");
+  if (!check.ok) return <AccessDenied />;
+
   const params = await searchParams;
   const competenceMonth = competenceRegex.test(params.competence ?? "")
     ? (params.competence as string)

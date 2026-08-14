@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { TrendingUp, Clock, AlertCircle, Users } from "lucide-react";
-import { getCurrentUserContext } from "@/modules/identity";
+import { requirePermission, hasPermission, getDefaultRoute } from "@/modules/identity";
 import PageHeader from "@/components/flow/PageHeader";
+import AccessDenied from "@/components/flow/AccessDenied";
 import { MetricCard, PageContainer, ProgressBar, StatusBadge } from "@/components/flow/ui";
 import { getFinancialOverview } from "@/modules/finance";
 import { currentCompetenceMonth } from "@/modules/finance/domain/competence";
@@ -20,9 +22,25 @@ const upcomingDeliveries = demoTasks.filter((t) => t.dueDate && t.status !== "co
 const clientsInProduction = demoClients.filter((c) => c.status === "active");
 
 export default async function FlowDashboardPage() {
-  const context = await getCurrentUserContext();
-  const organizationName = context?.currentMembership?.organization.name ?? "";
-  const financialOverview = await getFinancialOverview(currentCompetenceMonth());
+  const check = await requirePermission("dashboard.view");
+  if (!check.ok) {
+    // §65/§66 — a user without dashboard.view shouldn't land on a page
+    // that just tells them no; send them to the first module they can
+    // actually see. Only show AccessDenied if there is truly nowhere to go.
+    if (check.reason === "forbidden" && check.context?.currentMembership) {
+      redirect(getDefaultRoute(check.context.currentMembership.permissions));
+    }
+    return <AccessDenied />;
+  }
+
+  const { context } = check;
+  const organizationName = context.currentMembership?.organization.name ?? "";
+
+  // §20 — the financial overview is only ever fetched when the caller
+  // actually has finance.view. Never fetch-then-hide: a user without the
+  // permission gets no financial query executed on their behalf at all.
+  const canViewFinance = hasPermission(context.currentMembership, "finance.view");
+  const financialOverview = canViewFinance ? await getFinancialOverview(currentCompetenceMonth()) : null;
 
   return (
     <>
@@ -34,13 +52,17 @@ export default async function FlowDashboardPage() {
       <PageContainer>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <MetricCard icon={TrendingUp} label="Em produção" value="4" tone="info" helperText="demandas ativas" />
-          <MetricCard
-            icon={TrendingUp}
-            label="Receita do mês"
-            value={financialOverview ? formatCentsAsBRL(financialOverview.receivedCents) : "—"}
-            tone="success"
-            helperText="recebido, realizado"
-          />
+          {canViewFinance ? (
+            <MetricCard
+              icon={TrendingUp}
+              label="Receita do mês"
+              value={financialOverview ? formatCentsAsBRL(financialOverview.receivedCents) : "—"}
+              tone="success"
+              helperText="recebido, realizado"
+            />
+          ) : (
+            <MetricCard icon={TrendingUp} label="Receita do mês" value="—" tone="neutral" helperText="Sem acesso ao Financeiro" />
+          )}
           <MetricCard icon={AlertCircle} label="Pendências" value="3" tone="warning" helperText="aguardando ação" />
           <MetricCard icon={Users} label="Clientes ativos" value={String(clientsInProduction.length)} tone="neutral" />
         </div>
@@ -142,22 +164,30 @@ export default async function FlowDashboardPage() {
             </ul>
           </div>
 
-          <div className="rounded-2xl border border-flow-border bg-flow-panel p-6">
-            <h2 className="text-sm font-semibold text-flow-text-primary">O mês em dinheiro</h2>
-            <p className="mt-4 text-2xl font-semibold text-flow-success">
-              {financialOverview ? formatCentsAsBRL(financialOverview.receivedCents) : "—"}
-            </p>
-            <p className="text-xs text-flow-text-muted">recebido até agora</p>
-            <p className="mt-4 text-2xl font-semibold text-flow-danger">
-              {financialOverview ? formatCentsAsBRL(financialOverview.paidExpensesCents) : "—"}
-            </p>
-            <p className="text-xs text-flow-text-muted">despesas do mês</p>
-          </div>
+          {canViewFinance ? (
+            <div className="rounded-2xl border border-flow-border bg-flow-panel p-6">
+              <h2 className="text-sm font-semibold text-flow-text-primary">O mês em dinheiro</h2>
+              <p className="mt-4 text-2xl font-semibold text-flow-success">
+                {financialOverview ? formatCentsAsBRL(financialOverview.receivedCents) : "—"}
+              </p>
+              <p className="text-xs text-flow-text-muted">recebido até agora</p>
+              <p className="mt-4 text-2xl font-semibold text-flow-danger">
+                {financialOverview ? formatCentsAsBRL(financialOverview.paidExpensesCents) : "—"}
+              </p>
+              <p className="text-xs text-flow-text-muted">despesas do mês</p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-flow-border bg-flow-panel p-6 text-center">
+              <h2 className="text-sm font-semibold text-flow-text-primary">O mês em dinheiro</h2>
+              <p className="mt-3 text-xs text-flow-text-muted">Você não possui acesso ao Financeiro.</p>
+            </div>
+          )}
         </div>
 
         <p className="mt-6 text-center text-xs text-flow-text-muted">
-          Receita e despesas do mês já usam dados reais do Financeiro. Os demais indicadores
-          (faturamento do ano, distribuição, carga da equipe) permanecem ilustrativos até a fase 8.
+          Receita e despesas do mês já usam dados reais do Financeiro (quando você tem acesso a ele).
+          Os demais indicadores (faturamento do ano, distribuição, carga da equipe) permanecem
+          ilustrativos até a fase 8.
         </p>
       </PageContainer>
     </>

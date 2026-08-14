@@ -1,112 +1,145 @@
 "use client";
 
 import { useState } from "react";
-import { UserPlus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Settings2, UserPlus, Users } from "lucide-react";
 import PageHeader from "@/components/flow/PageHeader";
-import { Avatar, Badge, Button, Input, PageContainer, Select } from "@/components/flow/ui";
-import { demoMembers } from "@/data/flow-demo/members";
+import { Avatar, Badge, Button, EmptyState, MetricCard, PageContainer, StatusBadge } from "@/components/flow/ui";
+import type { Member } from "@/modules/identity/domain/members";
+import type { RoleWithPermissions, Permission } from "@/modules/identity/domain/roles";
+import type { Client } from "@/modules/clients/domain/types";
+import InviteDrawer from "./InviteDrawer";
+import MemberDrawer from "./MemberDrawer";
+import RolesDrawer from "./RolesDrawer";
 
-const roleTone = {
-  Owner: "warning",
-  Admin: "info",
-  Member: "neutral",
-} as const;
+export default function AcessosView({
+  members,
+  roles,
+  permissions,
+  clients,
+  canManage,
+  currentUserId,
+}: {
+  members: Member[];
+  roles: RoleWithPermissions[];
+  permissions: Permission[];
+  clients: Client[];
+  canManage: boolean;
+  currentUserId: string;
+}) {
+  const router = useRouter();
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [rolesOpen, setRolesOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
 
-export default function AcessosView() {
-  const [invited, setInvited] = useState(false);
+  const activeCount = members.filter((m) => m.status === "active").length;
+  const invitedCount = members.filter((m) => m.status === "invited").length;
+
+  function refresh() {
+    setSelectedMember(null);
+    router.refresh();
+  }
 
   return (
     <>
-      <PageHeader title="Acessos" subtitle="Equipe e permissões" />
+      <PageHeader
+        title="Acessos"
+        subtitle="Equipe e permissões"
+        actions={
+          canManage ? (
+            <>
+              <Button variant="secondary" icon={<Settings2 size={16} strokeWidth={2} />} onClick={() => setRolesOpen(true)}>
+                Gerenciar papéis
+              </Button>
+              <Button icon={<UserPlus size={16} strokeWidth={2} />} onClick={() => setInviteOpen(true)}>
+                Convidar pessoa
+              </Button>
+            </>
+          ) : undefined
+        }
+      />
 
       <PageContainer>
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[380px_1fr]">
-          <div className="rounded-2xl border border-flow-border bg-flow-panel p-6">
-            <h2 className="text-sm font-semibold text-flow-text-primary">Convidar pessoa</h2>
-            <form
-              className="mt-4 flex flex-col gap-4"
-              onSubmit={(e) => {
-                e.preventDefault();
-                setInvited(true);
-              }}
-            >
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="invite-email" className="text-xs font-medium text-flow-text-muted">
-                  E-mail
-                </label>
-                <Input id="invite-email" type="email" placeholder="pessoa@agenciabbold.com.br" required />
-              </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <MetricCard label="Membros" value={String(members.length)} />
+          <MetricCard label="Ativos" value={String(activeCount)} tone="success" />
+          <MetricCard label="Convites pendentes" value={String(invitedCount)} tone="waiting" />
+          <MetricCard label="Papéis" value={String(roles.length)} tone="neutral" />
+        </div>
 
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="invite-role" className="text-xs font-medium text-flow-text-muted">
-                  Papel
-                </label>
-                <Select id="invite-role" defaultValue="member">
-                  <option value="admin">Admin</option>
-                  <option value="member">Member</option>
-                </Select>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="invite-expiry" className="text-xs font-medium text-flow-text-muted">
-                  Validade do convite
-                </label>
-                <Select id="invite-expiry" defaultValue="7">
-                  <option value="7">7 dias</option>
-                  <option value="14">14 dias</option>
-                  <option value="30">30 dias</option>
-                </Select>
-              </div>
-
-              <Button type="submit" icon={<UserPlus size={16} strokeWidth={2} />}>
-                Enviar convite
-              </Button>
-
-              {invited && (
-                <p className="text-xs text-flow-text-muted">
-                  Convites reais chegam na fase 7 — este formulário ainda não grava no banco.
-                </p>
-              )}
-            </form>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            {demoMembers.map((member) => (
-              <div
-                key={member.id}
-                className="flex flex-col gap-4 rounded-2xl border border-flow-border bg-flow-panel p-5 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="flex items-center gap-3">
-                  <Avatar name={member.name} />
-                  <div>
-                    <p className="text-sm font-medium text-flow-text-primary">{member.name}</p>
-                    <p className="text-xs text-flow-text-muted">{member.email}</p>
+        <div className="mt-6">
+          {members.length === 0 ? (
+            <EmptyState
+              icon={Users}
+              title="Nenhum membro ainda"
+              description="Convide a primeira pessoa para a organização."
+              action={canManage ? <Button onClick={() => setInviteOpen(true)}>+ Convidar pessoa</Button> : undefined}
+            />
+          ) : (
+            <div className="flex flex-col gap-3">
+              {members.map((member) => (
+                <button
+                  key={member.membershipId}
+                  type="button"
+                  onClick={() => setSelectedMember(member)}
+                  className="flex flex-col gap-4 rounded-2xl border border-flow-border bg-flow-panel p-5 text-left transition-colors hover:border-flow-border-strong sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <Avatar name={member.name} />
+                    <div>
+                      <p className="text-sm font-medium text-flow-text-primary">
+                        {member.name}
+                        {member.userId === currentUserId && (
+                          <span className="ml-2 text-xs text-flow-text-muted">(você)</span>
+                        )}
+                      </p>
+                      <p className="text-xs text-flow-text-muted">{member.email}</p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-2">
-                  <Badge tone={roleTone[member.role]}>{member.role}</Badge>
-                </div>
+                  <div className="flex items-center gap-2">
+                    <Badge tone={member.roleKey === "owner" ? "warning" : "neutral"}>{member.roleName}</Badge>
+                    <StatusBadge status={member.status} />
+                  </div>
 
-                <div className="flex flex-wrap gap-1.5 sm:max-w-xs sm:justify-end">
-                  {["Dashboard", "Demandas", "Financeiro", "Contratos", "Clientes"].map((module) => (
-                    <span
-                      key={module}
-                      className={`rounded-full border px-2 py-0.5 text-[11px] ${
-                        member.permissions.includes(module)
-                          ? "border-flow-yellow/30 bg-flow-yellow/10 text-flow-yellow"
-                          : "border-flow-border text-flow-text-muted/50"
-                      }`}
-                    >
-                      {module}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+                  <div className="text-xs text-flow-text-muted sm:text-right">
+                    {member.clientAccessMode === "all"
+                      ? "Todos os clientes"
+                      : `${member.allowedClientIds.length} cliente(s) selecionado(s)`}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </PageContainer>
+
+      <InviteDrawer
+        open={inviteOpen}
+        onClose={() => setInviteOpen(false)}
+        onInvited={() => router.refresh()}
+        roles={roles}
+        clients={clients}
+      />
+
+      <MemberDrawer
+        open={selectedMember !== null}
+        onClose={() => setSelectedMember(null)}
+        onChanged={refresh}
+        member={selectedMember}
+        roles={roles}
+        clients={clients}
+        canManage={canManage}
+        isSelf={selectedMember?.userId === currentUserId}
+      />
+
+      <RolesDrawer
+        open={rolesOpen}
+        onClose={() => setRolesOpen(false)}
+        onChanged={() => router.refresh()}
+        roles={roles}
+        canManage={canManage}
+      />
     </>
   );
 }

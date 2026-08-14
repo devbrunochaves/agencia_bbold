@@ -13,6 +13,7 @@ interface RoleRow {
 
 interface MembershipRow {
   id: string;
+  client_access_mode: "all" | "restricted";
   organization: Organization;
   role: RoleRow;
 }
@@ -51,6 +52,7 @@ export async function getUserContext(
     .select(
       `
         id,
+        client_access_mode,
         organization:organizations ( id, name, slug ),
         role:roles (
           id, key, name, organization_id, is_system,
@@ -75,13 +77,36 @@ export async function getUserContext(
         isSystem: row.role.is_system,
       },
       permissions: new Set(row.role.role_permissions.map((rp) => rp.permission.key)),
+      clientAccessMode: row.client_access_mode,
     })
   );
+
+  const currentMembership = memberships[0] ?? null;
+  let accountStatus: UserContext["accountStatus"] = "active";
+
+  if (!currentMembership) {
+    // No active membership — find out why, so the UI can tell "suspended"
+    // apart from "never invited" apart from "invite not yet accepted".
+    const { data: anyMembership } = await supabase
+      .from("memberships")
+      .select("status")
+      .eq("user_id", authUser.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!anyMembership) accountStatus = "no_membership";
+    else if (anyMembership.status === "suspended") accountStatus = "suspended";
+    else if (anyMembership.status === "removed") accountStatus = "removed";
+    else if (anyMembership.status === "invited") accountStatus = "invited_only";
+    else accountStatus = "no_membership";
+  }
 
   return {
     user,
     memberships,
-    currentMembership: memberships[0] ?? null,
+    currentMembership,
+    accountStatus,
   };
 }
 

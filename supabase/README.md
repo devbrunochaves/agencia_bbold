@@ -8,8 +8,9 @@ Supabase fora desse fluxo.
 
 Esta sessão não tem acesso ao projeto Supabase de produção do
 `agencia-bbold` (as credenciais/URL só existem como env var na Vercel).
-Reconfirmado nas fases 3, 4, 5 e novamente na 6 (nova tentativa explícita a
-cada vez, incluindo checar se o projeto teria saído de um estado pausado):
+Reconfirmado nas fases 3, 4, 5, 6 e novamente na 7 — a última verificação
+antes de tocar em segurança/acessos (nova tentativa explícita a cada vez,
+incluindo checar se o projeto teria saído de um estado pausado):
 `mcp__Supabase__list_projects` continua enxergando só os mesmos dois
 projetos da conta — `css-marketing-hub` (INACTIVE) e `Gabriel Reparo`
 (ACTIVE, projeto de outro cliente) — nenhum dos dois é o `agencia-bbold`, e
@@ -36,6 +37,7 @@ Ordem:
 5. `20260814140000_tasks.sql` — tabela `tasks`, triggers de `completed_at` e consistência cross-entidade, RLS (reaproveita `tasks.view`/`tasks.manage` da fase 1)
 6. `20260814150000_finance.sql` — `financial_categories`, `financial_recurrences`, `financial_entries`, `organization_financial_settings`; triggers de consistência e de normalização de nota fiscal; RLS (reaproveita `finance.view`/`finance.manage` da fase 1). `financial_entries.contract_id` é `uuid` sem FK — a foreign key para `contracts` entra na migration da fase 6
 7. `20260814160000_contracts.sql` — `contract_templates`, `contracts`, `contract_installments`; colunas incrementais de dados jurídicos em `organizations` (contratada) e endereço/representante em `clients` (contratante); FK real em `financial_entries.contract_id` e nova coluna `financial_recurrences.contract_id`; RLS (reaproveita `contracts.view`/`contracts.manage` da fase 1)
+8. `20260814170000_access_control.sql` — `memberships.status` ganha `suspended`/`removed`; nova coluna `memberships.client_access_mode` (`all`/`restricted`); permissões `members.view`/`settings.view`/`settings.manage`; ativa `member_client_access` como restrição real via `can_view_client()`, aplicada em `clients`/`tasks`/`contracts` (financeiro fica de fora — ver decisão abaixo); RLS de `member_client_access` restrita à própria membership ou a quem tem `members.manage`; trigger `prevent_last_owner_removal`
 
 ## Dados de demonstração
 
@@ -91,6 +93,20 @@ outra organização, e imutabilidade do snapshot (editar o cliente depois não
 altera `contracts.client_snapshot`). Transições de status inválidas
 (`draft` → `signed` pulando `sent`) são bloqueadas na application layer
 (`canTransition`), não no banco — documentado como teste manual do app.
+
+`supabase/tests/access_rls.sql` cobre o controle de acesso da fase 7:
+isolamento multi-tenant, bloqueio por falta de permissão de módulo
+(`finance.view`), distinção entre `clients.view` e `clients.manage`, o
+cenário central de restrição por cliente (`can_view_client()` aplicado a
+`clients`/`tasks`), a confirmação explícita de que o Financeiro permanece em
+nível de organização mesmo para uma membership restrita (decisão
+deliberada, não lacuna), membership suspensa perdendo todo acesso
+imediatamente, o trigger `prevent_last_owner_removal` impedindo a remoção
+do último Owner ativo, e a garantia de que `member_client_access` não é
+globalmente legível por um membro comum. Fecha com um bloco de comentários
+listando tentativas de manipulação direta (URL, `organization_id`
+forjado, Server Action com permissão revogada) e por que cada uma falha
+pela própria construção do código.
 
 Não há framework de teste JS configurado no projeto (nenhum script `test` no
 `package.json`) — decisão mantida por não haver ainda superfície que

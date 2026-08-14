@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { listTasks, type TaskStatus } from "@/modules/tasks";
 import { listClients } from "@/modules/clients";
 import { listServices } from "@/modules/services";
-import { listOrganizationMembers } from "@/modules/identity";
+import { listOrganizationMembers, requirePermission } from "@/modules/identity";
+import AccessDenied from "@/components/flow/AccessDenied";
 import DemandasView from "./DemandasView";
 
 export const metadata: Metadata = {
@@ -33,6 +34,9 @@ const VALID_STATUSES: TaskStatus[] = [
 ];
 
 export default async function DemandasPage({ searchParams }: DemandasPageProps) {
+  const check = await requirePermission("tasks.view");
+  if (!check.ok) return <AccessDenied />;
+
   const params = await searchParams;
   const status = VALID_STATUSES.includes(params.status as TaskStatus)
     ? (params.status as TaskStatus)

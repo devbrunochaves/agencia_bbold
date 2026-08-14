@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { getContract, getContractorSnapshot, listContractTemplates } from "@/modules/contracts";
 import { listClients } from "@/modules/clients";
 import { listServices } from "@/modules/services";
+import { requirePermission } from "@/modules/identity";
+import AccessDenied from "@/components/flow/AccessDenied";
 import ContractEditorView from "./ContractEditorView";
 
 export const metadata: Metadata = {
@@ -14,6 +16,9 @@ export default async function NovoContratoPage({
 }: {
   searchParams: Promise<{ id?: string }>;
 }) {
+  const check = await requirePermission("contracts.manage");
+  if (!check.ok) return <AccessDenied backHref="/flow/contratos" />;
+
   const params = await searchParams;
 
   const [clients, services, templates, contractorSnapshot, contract] = await Promise.all([

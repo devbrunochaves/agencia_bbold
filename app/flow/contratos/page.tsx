@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { listContracts, type ContractStatus } from "@/modules/contracts";
 import { listClients } from "@/modules/clients";
 import { listServices } from "@/modules/services";
+import { requirePermission } from "@/modules/identity";
+import AccessDenied from "@/components/flow/AccessDenied";
 import ContratosView from "./ContratosView";
 
 export const metadata: Metadata = {
@@ -16,6 +18,9 @@ interface ContratosPageProps {
 }
 
 export default async function ContratosPage({ searchParams }: ContratosPageProps) {
+  const check = await requirePermission("contracts.view");
+  if (!check.ok) return <AccessDenied />;
+
   const params = await searchParams;
   const status = VALID_STATUSES.includes(params.status as ContractStatus)
     ? (params.status as ContractStatus)

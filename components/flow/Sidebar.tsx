@@ -38,9 +38,7 @@ export default function Sidebar({
     });
   }
 
-  const items = flowNavItems.filter(
-    (item) => item.permission === null || permissionSet.has(item.permission)
-  );
+  const items = flowNavItems.filter((item) => permissionSet.has(item.permission));
 
   return (
     <nav

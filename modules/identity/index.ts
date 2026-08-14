@@ -1,4 +1,17 @@
 export * from "./domain/types";
 export * from "./domain/member";
+export * from "./domain/members";
+export * from "./domain/access";
+export * from "./domain/roles";
+export * from "./domain/schemas";
 export { getCurrentUserContext } from "./application/get-current-user-context";
 export { listOrganizationMembers } from "./application/list-organization-members";
+export { requirePermission, type PermissionCheckResult } from "./application/require-permission";
+export { listMembers } from "./application/list-members";
+export { inviteMember, type InviteMemberResult } from "./application/invite-member";
+export { updateMemberRole } from "./application/update-member-role";
+export { updateMemberClientAccess } from "./application/update-member-client-access";
+export { changeMemberStatus } from "./application/change-member-status";
+export { listRoles, listPermissions } from "./application/list-roles";
+export { createRole, updateRolePermissions } from "./application/manage-roles";
+export { IdentityAppError, UnauthorizedError, ValidationError } from "./application/errors";

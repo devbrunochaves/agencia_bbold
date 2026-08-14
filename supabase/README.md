@@ -8,8 +8,8 @@ Supabase fora desse fluxo.
 
 Esta sessão não tem acesso ao projeto Supabase de produção do
 `agencia-bbold` (as credenciais/URL só existem como env var na Vercel).
-Reconfirmado nas fases 3, 4 e novamente na 5 (nova tentativa explícita a cada
-vez, incluindo checar se o projeto teria saído de um estado pausado):
+Reconfirmado nas fases 3, 4, 5 e novamente na 6 (nova tentativa explícita a
+cada vez, incluindo checar se o projeto teria saído de um estado pausado):
 `mcp__Supabase__list_projects` continua enxergando só os mesmos dois
 projetos da conta — `css-marketing-hub` (INACTIVE) e `Gabriel Reparo`
 (ACTIVE, projeto de outro cliente) — nenhum dos dois é o `agencia-bbold`, e
@@ -35,6 +35,7 @@ Ordem:
 4. `20260814130000_clients_and_services.sql` — tabelas `clients`, `services`, `client_services`, RLS, FK real em `member_client_access.client_id`
 5. `20260814140000_tasks.sql` — tabela `tasks`, triggers de `completed_at` e consistência cross-entidade, RLS (reaproveita `tasks.view`/`tasks.manage` da fase 1)
 6. `20260814150000_finance.sql` — `financial_categories`, `financial_recurrences`, `financial_entries`, `organization_financial_settings`; triggers de consistência e de normalização de nota fiscal; RLS (reaproveita `finance.view`/`finance.manage` da fase 1). `financial_entries.contract_id` é `uuid` sem FK — a foreign key para `contracts` entra na migration da fase 6
+7. `20260814160000_contracts.sql` — `contract_templates`, `contracts`, `contract_installments`; colunas incrementais de dados jurídicos em `organizations` (contratada) e endereço/representante em `clients` (contratante); FK real em `financial_entries.contract_id` e nova coluna `financial_recurrences.contract_id`; RLS (reaproveita `contracts.view`/`contracts.manage` da fase 1)
 
 ## Dados de demonstração
 
@@ -45,7 +46,11 @@ real existe até o passo abaixo ser feito manualmente), o catálogo de
 categorias financeiras (entradas e saídas), a meta financeira/saldo inicial
 da organização, e alguns lançamentos financeiros demo (competência = mês
 atual, para que o seed continue fazendo sentido sempre que for rodado).
-**Nunca rode esse arquivo em produção.** Depois de rodá-lo em um
+além de dados jurídicos placeholder da BBOLD (contratada) e quatro modelos
+de contrato (Social Media, Website, Landing Page, Identidade Visual).
+**Substitua os dados jurídicos placeholder pelos reais antes de gerar
+qualquer contrato de verdade.** **Nunca rode esse arquivo em produção.**
+Depois de rodá-lo em um
 ambiente de dev, crie um usuário via Supabase Auth e vincule-o a uma
 organização inserindo uma linha em `memberships` (o próprio arquivo traz o
 comando de exemplo) — só assim `clients.view`/`clients.manage` resolvem via
@@ -79,6 +84,13 @@ duplicidade de recorrência (`financial_entries_recurrence_competence_uidx`).
 Os cálculos puros (`modules/finance/domain/rules.ts` — lucro realizado,
 saldo em caixa, progresso de meta, atraso derivado) ficam documentados no
 mesmo arquivo como testes manuais de fixture, já que não há test runner.
+
+`supabase/tests/contracts_rls.sql` cobre contratos: isolamento multi-tenant,
+bloqueio sem `contracts.manage`, cliente de outra organização, template de
+outra organização, e imutabilidade do snapshot (editar o cliente depois não
+altera `contracts.client_snapshot`). Transições de status inválidas
+(`draft` → `signed` pulando `sent`) são bloqueadas na application layer
+(`canTransition`), não no banco — documentado como teste manual do app.
 
 Não há framework de teste JS configurado no projeto (nenhum script `test` no
 `package.json`) — decisão mantida por não haver ainda superfície que

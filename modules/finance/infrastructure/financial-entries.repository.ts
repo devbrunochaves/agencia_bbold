@@ -231,3 +231,34 @@ export async function insertGeneratedEntries(
   if (error) throw error;
   return rows.length;
 }
+
+/** Entries generated from a signed contract (one_time/installment billing). */
+export async function insertEntriesForContract(
+  supabase: SupabaseClient,
+  rows: {
+    organization_id: string;
+    client_id: string;
+    contract_id: string;
+    category_id: string;
+    description: string;
+    amount: string;
+    competence_month: string;
+    due_date: string;
+    created_by: string;
+  }[]
+): Promise<number> {
+  if (rows.length === 0) return 0;
+  const { error } = await supabase.from("financial_entries").insert(rows.map((r) => ({ ...r, type: "income" })));
+  if (error) throw error;
+  return rows.length;
+}
+
+export async function countEntriesByContract(supabase: SupabaseClient, contractId: string): Promise<number> {
+  const { count, error } = await supabase
+    .from("financial_entries")
+    .select("id", { count: "exact", head: true })
+    .eq("contract_id", contractId);
+
+  if (error) throw error;
+  return count ?? 0;
+}

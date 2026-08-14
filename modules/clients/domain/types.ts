@@ -27,6 +27,17 @@ export interface Client {
   createdAt: string;
   updatedAt: string;
   services: ClientServiceLink[];
+  // Added in phase 6 (contracts) — nullable, no UI to edit these yet in
+  // /flow/clientes; populated only via contract snapshot review for now.
+  addressStreet: string | null;
+  addressNumber: string | null;
+  addressComplement: string | null;
+  addressNeighborhood: string | null;
+  addressCity: string | null;
+  addressState: string | null;
+  addressZipCode: string | null;
+  representativeName: string | null;
+  representativeDocument: string | null;
 }
 
 export const CLIENT_STATUS_LABEL: Record<ClientStatus, string> = {

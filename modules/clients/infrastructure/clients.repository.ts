@@ -19,6 +19,15 @@ interface ClientRow {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  address_street: string | null;
+  address_number: string | null;
+  address_complement: string | null;
+  address_neighborhood: string | null;
+  address_city: string | null;
+  address_state: string | null;
+  address_zip_code: string | null;
+  representative_name: string | null;
+  representative_document: string | null;
   client_services: {
     service_id: string;
     status: Client["services"][number]["status"];
@@ -30,6 +39,9 @@ const CLIENT_SELECT = `
   id, organization_id, name, legal_name, document_type, document_number,
   email, phone, website, status, client_type, start_date, notes,
   created_by, created_at, updated_at,
+  address_street, address_number, address_complement, address_neighborhood,
+  address_city, address_state, address_zip_code,
+  representative_name, representative_document,
   client_services ( service_id, status, service:services ( name ) )
 `;
 
@@ -51,6 +63,15 @@ function toClient(row: ClientRow): Client {
     createdBy: row.created_by,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    addressStreet: row.address_street,
+    addressNumber: row.address_number,
+    addressComplement: row.address_complement,
+    addressNeighborhood: row.address_neighborhood,
+    addressCity: row.address_city,
+    addressState: row.address_state,
+    addressZipCode: row.address_zip_code,
+    representativeName: row.representative_name,
+    representativeDocument: row.representative_document,
     services: (row.client_services ?? [])
       .filter((cs) => cs.status !== "ended")
       .map((cs) => ({

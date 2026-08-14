@@ -20,6 +20,23 @@ insert into public.organizations (id, name, slug) values
   ('00000000-0000-0000-0000-000000000001', 'BBOLD', 'bbold')
 on conflict (slug) do nothing;
 
+-- Contractor (BBOLD) legal data used on every contract's contractor_snapshot.
+-- Placeholder values — replace with the real CNPJ/address before signing an
+-- actual contract from this seed.
+update public.organizations set
+  legal_name = 'BBOLD Serviços Digitais LTDA',
+  document_number = '00000000000000',
+  address_street = 'Rua Exemplo',
+  address_number = '100',
+  address_neighborhood = 'Centro',
+  address_city = 'São Paulo',
+  address_state = 'SP',
+  address_zip_code = '00000-000',
+  representative_name = 'Bruno Chaves',
+  representative_document = '00000000000',
+  default_forum = 'São Paulo/SP'
+where id = '00000000-0000-0000-0000-000000000001';
+
 insert into public.organizations (id, name, slug) values
   ('00000000-0000-0000-0000-000000000002', 'Padaria Diplomata (demo)', 'padaria-diplomata-demo')
 on conflict (slug) do nothing;
@@ -149,3 +166,114 @@ from (values
 join public.financial_categories cat on cat.name = t.category_name and cat.type = 'expense'
   and cat.organization_id = '00000000-0000-0000-0000-000000000001'
 on conflict do nothing;
+
+-- ---------------------------------------------------------------------------
+-- Contract templates — development
+-- ---------------------------------------------------------------------------
+insert into public.contract_templates (organization_id, name, slug, service_id, content)
+select
+  '00000000-0000-0000-0000-000000000001',
+  t.name,
+  t.slug,
+  s.id,
+  t.content
+from (values
+  ('Social Media', 'social-media', 'social-media', $tpl$CONTRATO DE PRESTAÇÃO DE SERVIÇOS — GESTÃO DE REDES SOCIAIS
+
+CONTRATANTE: {{client_legal_name}}, documento {{client_document}}, com endereço em {{client_address}}.
+CONTRATADA: {{contractor_legal_name}}, documento {{contractor_document}}, com endereço em {{contractor_address}}.
+
+CLÁUSULA 1ª — DO OBJETO
+A CONTRATADA prestará serviços de gestão de redes sociais para a CONTRATANTE, compreendendo: {{description}}
+
+CLÁUSULA 2ª — DO VALOR
+O valor dos serviços é de {{contract_value}}, pago via {{payment_method}}, em {{installments}} parcela(s).
+
+CLÁUSULA 3ª — DA VIGÊNCIA
+Vigência a partir de {{start_date}}{{end_date}}.
+
+CLÁUSULA 4ª — DO FORO
+Fica eleito o foro de {{city}}.
+
+{{city}}, {{signature_date}}.
+
+_______________________________
+{{client_legal_name}} — CONTRATANTE
+
+_______________________________
+{{contractor_legal_name}} — CONTRATADA$tpl$),
+  ('Website', 'website', 'website', $tpl$CONTRATO DE PRESTAÇÃO DE SERVIÇOS — DESENVOLVIMENTO DE WEBSITE
+
+CONTRATANTE: {{client_legal_name}}, documento {{client_document}}, com endereço em {{client_address}}.
+CONTRATADA: {{contractor_legal_name}}, documento {{contractor_document}}, com endereço em {{contractor_address}}.
+
+CLÁUSULA 1ª — DO OBJETO
+A CONTRATADA desenvolverá o website da CONTRATANTE, conforme escopo: {{description}}
+
+CLÁUSULA 2ª — DO VALOR E FORMA DE PAGAMENTO
+Valor total de {{contract_value}}, via {{payment_method}}, em {{installments}} parcela(s).
+
+CLÁUSULA 3ª — DO PRAZO
+Início em {{start_date}}{{end_date}}.
+
+CLÁUSULA 4ª — DO FORO
+Foro de {{city}}.
+
+{{city}}, {{signature_date}}.
+
+_______________________________
+{{client_legal_name}} — CONTRATANTE
+
+_______________________________
+{{contractor_legal_name}} — CONTRATADA$tpl$),
+  ('Landing Page', 'landing-page', 'landing-page', $tpl$CONTRATO DE PRESTAÇÃO DE SERVIÇOS — LANDING PAGE
+
+CONTRATANTE: {{client_legal_name}}, documento {{client_document}}.
+CONTRATADA: {{contractor_legal_name}}, documento {{contractor_document}}.
+
+CLÁUSULA 1ª — DO OBJETO
+Criação de landing page conforme escopo: {{description}}
+
+CLÁUSULA 2ª — DO VALOR
+{{contract_value}}, via {{payment_method}}, em {{installments}} parcela(s).
+
+CLÁUSULA 3ª — DA VIGÊNCIA
+{{start_date}}{{end_date}}.
+
+CLÁUSULA 4ª — DO FORO
+{{city}}.
+
+{{city}}, {{signature_date}}.
+
+_______________________________
+{{client_legal_name}} — CONTRATANTE
+
+_______________________________
+{{contractor_legal_name}} — CONTRATADA$tpl$),
+  ('Identidade Visual', 'identidade-visual', 'identidade-visual', $tpl$CONTRATO DE PRESTAÇÃO DE SERVIÇOS — IDENTIDADE VISUAL
+
+CONTRATANTE: {{client_legal_name}}, documento {{client_document}}.
+CONTRATADA: {{contractor_legal_name}}, documento {{contractor_document}}.
+
+CLÁUSULA 1ª — DO OBJETO
+Desenvolvimento de identidade visual conforme escopo: {{description}}
+
+CLÁUSULA 2ª — DO VALOR
+{{contract_value}}, via {{payment_method}}, em {{installments}} parcela(s).
+
+CLÁUSULA 3ª — DA VIGÊNCIA
+{{start_date}}{{end_date}}.
+
+CLÁUSULA 4ª — DO FORO
+{{city}}.
+
+{{city}}, {{signature_date}}.
+
+_______________________________
+{{client_legal_name}} — CONTRATANTE
+
+_______________________________
+{{contractor_legal_name}} — CONTRATADA$tpl$)
+) as t(name, slug, service_slug, content)
+join public.services s on s.slug = t.service_slug and s.organization_id = '00000000-0000-0000-0000-000000000001'
+on conflict (organization_id, slug) do nothing;

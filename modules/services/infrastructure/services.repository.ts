@@ -35,3 +35,14 @@ export async function listServices(
   if (error) throw error;
   return (data as ServiceRow[]).map(toService);
 }
+
+export async function getServiceById(supabase: SupabaseClient, id: string): Promise<Service | null> {
+  const { data, error } = await supabase
+    .from("services")
+    .select("id, organization_id, name, slug, description, active")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data ? toService(data as ServiceRow) : null;
+}

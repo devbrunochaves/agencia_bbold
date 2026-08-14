@@ -109,6 +109,61 @@ export async function createRecurrence(
   return recurrence;
 }
 
+export async function createRecurrenceForContract(
+  supabase: SupabaseClient,
+  organizationId: string,
+  createdBy: string,
+  input: {
+    contractId: string;
+    clientId: string;
+    categoryId: string;
+    description: string;
+    amountCents: number;
+    startDate: string;
+    endDate: string | null;
+    dayOfMonth: number;
+  }
+): Promise<FinancialRecurrence> {
+  const { data, error } = await supabase
+    .from("financial_recurrences")
+    .insert({
+      organization_id: organizationId,
+      created_by: createdBy,
+      contract_id: input.contractId,
+      type: "income",
+      client_id: input.clientId,
+      category_id: input.categoryId,
+      description: input.description,
+      amount: centsToAmountString(input.amountCents),
+      frequency: "monthly",
+      start_date: input.startDate,
+      end_date: input.endDate,
+      day_of_month: input.dayOfMonth,
+    })
+    .select("id")
+    .single();
+
+  if (error) throw error;
+
+  const recurrence = await getRecurrenceById(supabase, data.id);
+  if (!recurrence) throw new Error("Recorrência criada, mas não foi possível recarregá-la.");
+  return recurrence;
+}
+
+export async function getRecurrenceByContractId(
+  supabase: SupabaseClient,
+  contractId: string
+): Promise<FinancialRecurrence | null> {
+  const { data, error } = await supabase
+    .from("financial_recurrences")
+    .select(RECURRENCE_SELECT)
+    .eq("contract_id", contractId)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data ? toRecurrence(data as unknown as RecurrenceRow) : null;
+}
+
 export async function updateRecurrenceActive(
   supabase: SupabaseClient,
   id: string,

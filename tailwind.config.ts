@@ -29,16 +29,21 @@ const config: Config = {
         // into each other.
         flow: {
           bg: "#0B0B0C",
+          surface: "#111214",
+          "surface-hover": "#17181B",
           panel: "#111214",
           "panel-alt": "#161719",
           border: "#232427",
+          "border-strong": "#33353A",
           yellow: "#FFD400",
           "yellow-dark": "#E0B900",
           success: "#22C55E",
           danger: "#EF4444",
+          warning: "#FFD400",
           info: "#3B82F6",
           waiting: "#A855F7",
           "text-primary": "#F5F5F5",
+          "text-secondary": "#C7C8CC",
           "text-muted": "#9A9CA3",
         },
       },
@@ -48,6 +53,14 @@ const config: Config = {
       },
       maxWidth: {
         site: "1200px",
+        flow: "1600px",
+      },
+      boxShadow: {
+        flow: "0 1px 2px rgba(0,0,0,0.4)",
+        "flow-lg": "0 20px 40px rgba(0,0,0,0.55)",
+      },
+      transitionDuration: {
+        DEFAULT: "180ms",
       },
     },
   },

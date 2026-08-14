@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { getFinancialOverview, listFinancialCategories, listFinancialRecurrences } from "@/modules/finance";
+import { currentCompetenceMonth } from "@/modules/finance/domain/competence";
+import { listClients } from "@/modules/clients";
 import FinanceiroView from "./FinanceiroView";
 
 export const metadata: Metadata = {
@@ -6,6 +9,30 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function FinanceiroPage() {
-  return <FinanceiroView />;
+const competenceRegex = /^\d{4}-\d{2}-01$/;
+
+export default async function FinanceiroPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ competence?: string }>;
+}) {
+  const params = await searchParams;
+  const competenceMonth = competenceRegex.test(params.competence ?? "")
+    ? (params.competence as string)
+    : currentCompetenceMonth();
+
+  const [overview, categories, clients, recurrences] = await Promise.all([
+    getFinancialOverview(competenceMonth),
+    listFinancialCategories(),
+    listClients(),
+    listFinancialRecurrences(),
+  ]);
+
+  if (!overview) {
+    return null;
+  }
+
+  return (
+    <FinanceiroView overview={overview} categories={categories} clients={clients} recurrences={recurrences} />
+  );
 }

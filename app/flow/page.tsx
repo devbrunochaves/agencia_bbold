@@ -3,6 +3,9 @@ import { TrendingUp, Clock, AlertCircle, Users } from "lucide-react";
 import { getCurrentUserContext } from "@/modules/identity";
 import PageHeader from "@/components/flow/PageHeader";
 import { MetricCard, PageContainer, ProgressBar, StatusBadge } from "@/components/flow/ui";
+import { getFinancialOverview } from "@/modules/finance";
+import { currentCompetenceMonth } from "@/modules/finance/domain/competence";
+import { formatCentsAsBRL } from "@/modules/finance/domain/money";
 import { demoTasks } from "@/data/flow-demo/tasks";
 import { demoClients } from "@/data/flow-demo/clients";
 
@@ -19,6 +22,7 @@ const clientsInProduction = demoClients.filter((c) => c.status === "active");
 export default async function FlowDashboardPage() {
   const context = await getCurrentUserContext();
   const organizationName = context?.currentMembership?.organization.name ?? "";
+  const financialOverview = await getFinancialOverview(currentCompetenceMonth());
 
   return (
     <>
@@ -30,7 +34,13 @@ export default async function FlowDashboardPage() {
       <PageContainer>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <MetricCard icon={TrendingUp} label="Em produção" value="4" tone="info" helperText="demandas ativas" />
-          <MetricCard icon={TrendingUp} label="Receita do mês" value="R$ 9.400" tone="success" trend={{ direction: "up", label: "+12%" }} />
+          <MetricCard
+            icon={TrendingUp}
+            label="Receita do mês"
+            value={financialOverview ? formatCentsAsBRL(financialOverview.receivedCents) : "—"}
+            tone="success"
+            helperText="recebido, realizado"
+          />
           <MetricCard icon={AlertCircle} label="Pendências" value="3" tone="warning" helperText="aguardando ação" />
           <MetricCard icon={Users} label="Clientes ativos" value={String(clientsInProduction.length)} tone="neutral" />
         </div>
@@ -134,16 +144,20 @@ export default async function FlowDashboardPage() {
 
           <div className="rounded-2xl border border-flow-border bg-flow-panel p-6">
             <h2 className="text-sm font-semibold text-flow-text-primary">O mês em dinheiro</h2>
-            <p className="mt-4 text-2xl font-semibold text-flow-success">R$ 9.400</p>
+            <p className="mt-4 text-2xl font-semibold text-flow-success">
+              {financialOverview ? formatCentsAsBRL(financialOverview.receivedCents) : "—"}
+            </p>
             <p className="text-xs text-flow-text-muted">recebido até agora</p>
-            <p className="mt-4 text-2xl font-semibold text-flow-danger">R$ 6.250</p>
+            <p className="mt-4 text-2xl font-semibold text-flow-danger">
+              {financialOverview ? formatCentsAsBRL(financialOverview.paidExpensesCents) : "—"}
+            </p>
             <p className="text-xs text-flow-text-muted">despesas do mês</p>
           </div>
         </div>
 
         <p className="mt-6 text-center text-xs text-flow-text-muted">
-          Dados ilustrativos — os indicadores reais entram na fase 8, conectados a
-          Clientes, Demandas, Financeiro e Equipe.
+          Receita e despesas do mês já usam dados reais do Financeiro. Os demais indicadores
+          (faturamento do ano, distribuição, carga da equipe) permanecem ilustrativos até a fase 8.
         </p>
       </PageContainer>
     </>

@@ -74,3 +74,78 @@ from (values
 join public.clients c on c.name = t.client_name
 join public.services s on s.slug = t.service_slug and s.organization_id = c.organization_id
 on conflict do nothing;
+
+-- ---------------------------------------------------------------------------
+-- Financial categories — BBOLD demo organization
+-- ---------------------------------------------------------------------------
+insert into public.financial_categories (organization_id, name, type, sort_order) values
+  ('00000000-0000-0000-0000-000000000001', 'Clientes fixos', 'income', 0),
+  ('00000000-0000-0000-0000-000000000001', 'Landing Pages e Sites', 'income', 1),
+  ('00000000-0000-0000-0000-000000000001', 'Pagamentos parcelados', 'income', 2),
+  ('00000000-0000-0000-0000-000000000001', 'Infoprodutos', 'income', 3),
+  ('00000000-0000-0000-0000-000000000001', 'Projetos avulsos', 'income', 4),
+  ('00000000-0000-0000-0000-000000000001', 'Outros', 'income', 5),
+  ('00000000-0000-0000-0000-000000000001', 'Ferramentas', 'expense', 0),
+  ('00000000-0000-0000-0000-000000000001', 'Colaboradores', 'expense', 1),
+  ('00000000-0000-0000-0000-000000000001', 'Impostos', 'expense', 2),
+  ('00000000-0000-0000-0000-000000000001', 'Pró-labore', 'expense', 3),
+  ('00000000-0000-0000-0000-000000000001', 'Lucro distribuído', 'expense', 4),
+  ('00000000-0000-0000-0000-000000000001', 'Despesas variáveis', 'expense', 5),
+  ('00000000-0000-0000-0000-000000000001', 'Outros', 'expense', 6)
+on conflict (organization_id, type, name) do nothing;
+
+-- ---------------------------------------------------------------------------
+-- Financial settings — goal and opening balance for the BBOLD demo org
+-- ---------------------------------------------------------------------------
+insert into public.organization_financial_settings (organization_id, monthly_revenue_goal, opening_balance, opening_balance_date)
+values ('00000000-0000-0000-0000-000000000001', 20000.00, 12000.00, '2026-08-01')
+on conflict (organization_id) do nothing;
+
+-- ---------------------------------------------------------------------------
+-- Demo financial entries — competence is the current month, so the seed
+-- keeps making sense whenever it's actually run (not hardcoded to a past
+-- Agosto/2026).
+-- ---------------------------------------------------------------------------
+insert into public.financial_entries (
+  organization_id, client_id, category_id, type, description, amount,
+  competence_month, due_date, paid_at, requires_invoice
+)
+select
+  '00000000-0000-0000-0000-000000000001',
+  c.id,
+  cat.id,
+  'income',
+  t.description,
+  t.amount,
+  date_trunc('month', current_date)::date,
+  t.due_date,
+  t.paid_at,
+  true
+from (values
+  ('CSS Log', 'Clientes fixos', 'Mensalidade website', 5000.00, current_date - 5, current_date - 3),
+  ('Padaria Diplomata', 'Clientes fixos', 'Mensalidade Social Media', 1800.00, current_date - 2, current_date - 1),
+  ('Bianca Calil Nutri', 'Landing Pages e Sites', 'Landing page — sinal', 1000.00, current_date + 5, null)
+) as t(client_name, category_name, description, amount, due_date, paid_at)
+join public.clients c on c.name = t.client_name
+join public.financial_categories cat on cat.name = t.category_name and cat.type = 'income' and cat.organization_id = c.organization_id
+on conflict do nothing;
+
+insert into public.financial_entries (
+  organization_id, category_id, type, description, amount, competence_month, due_date, paid_at
+)
+select
+  '00000000-0000-0000-0000-000000000001',
+  cat.id,
+  'expense',
+  t.description,
+  t.amount,
+  date_trunc('month', current_date)::date,
+  t.due_date,
+  t.paid_at
+from (values
+  ('Ferramentas', 'Ferramentas de design e gestão', 480.00, current_date - 10, current_date - 10),
+  ('Colaboradores', 'Freelancer — social media', 1200.00, current_date - 1, null)
+) as t(category_name, description, amount, due_date, paid_at)
+join public.financial_categories cat on cat.name = t.category_name and cat.type = 'expense'
+  and cat.organization_id = '00000000-0000-0000-0000-000000000001'
+on conflict do nothing;

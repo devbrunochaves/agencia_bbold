@@ -6,9 +6,9 @@ fidelidade visual às telas antes de existirem repositories reais
 sempre through daqui, e sempre com um comentário/label deixando claro que é
 mock.
 
-Será substituído módulo a módulo:
-- `clients.ts` → fase 3 (Clientes)
-- `tasks.ts` → fase 4 (Demandas)
-- `financial.ts` → fase 5 (Financeiro)
+Substituído módulo a módulo conforme cada fase entrega dados reais:
+- `clients.ts` → real desde a fase 3 (`/flow/clientes`), mas ainda usado pelo Dashboard (`/flow`) e pelo Kanban de Demandas até a fase 8
+- `tasks.ts` → real desde a fase 4 (`/flow/demandas`), mas ainda usado pelo Dashboard até a fase 8
+- `financial.ts` → removido na fase 5: nada mais o importa (`/flow/financeiro` e `/flow` usam `modules/finance` real)
 - `contracts.ts` → fase 6 (Contratos)
 - `members.ts` → fase 7 (Acessos)

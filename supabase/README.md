@@ -8,9 +8,9 @@ Supabase fora desse fluxo.
 
 Esta sessão não tem acesso ao projeto Supabase de produção do
 `agencia-bbold` (as credenciais/URL só existem como env var na Vercel).
-Reconfirmado nas fases 3, 4, 5, 6 e novamente na 7 — a última verificação
-antes de tocar em segurança/acessos (nova tentativa explícita a cada vez,
-incluindo checar se o projeto teria saído de um estado pausado):
+Reconfirmado nas fases 3, 4, 5, 6, 7 e novamente na 8 — a última
+verificação antes de conectar a Dashboard (nova tentativa explícita a cada
+vez, incluindo checar se o projeto teria saído de um estado pausado):
 `mcp__Supabase__list_projects` continua enxergando só os mesmos dois
 projetos da conta — `css-marketing-hub` (INACTIVE) e `Gabriel Reparo`
 (ACTIVE, projeto de outro cliente) — nenhum dos dois é o `agencia-bbold`, e
@@ -19,7 +19,9 @@ de precisar ser "acordado": ele simplesmente não está entre os projetos que
 esta conta/sessão enxerga, então não há nada a reativar por aqui. Nenhuma
 migration foi aplicada a nenhum dos dois projetos visíveis. As migrations
 abaixo foram escritas e versionadas, mas **ainda não foram aplicadas** ao
-banco remoto correto. Para aplicar:
+banco remoto correto. A fase 8 (Dashboard) não precisou de nenhuma migration
+nova — nenhuma coluna/tabela adicional, apenas composição de dados já
+existentes. Para aplicar:
 
 ```bash
 # via Supabase CLI, com o projeto já linkado
@@ -108,6 +110,20 @@ listando tentativas de manipulação direta (URL, `organization_id`
 forjado, Server Action com permissão revogada) e por que cada uma falha
 pela própria construção do código.
 
-Não há framework de teste JS configurado no projeto (nenhum script `test` no
-`package.json`) — decisão mantida por não haver ainda superfície que
-justifique a máquina extra.
+A partir da fase 8, a Dashboard passou a agregar bastante lógica pura
+(distribuição de demandas, ordenação de entregas, progresso por cliente,
+soma de receita/despesa realizada), e isso finalmente justificou um runner
+leve: `vitest` (`npm test`, config em `vitest.config.ts`, escopo restrito a
+`modules/**/*.test.ts` — nenhum teste de JSX/UI). Cobre exclusivamente
+regras, não Supabase nem React:
+- `modules/dashboard/domain/__tests__/aggregate.test.ts` — buckets
+  mutuamente exclusivos de `buildTaskDistribution` somando ao total,
+  ordenação de `sortUpcomingDeliveries` (atrasadas primeiro, depois
+  prazo mais próximo), e `computeClientProgressPercentage` (percentual
+  real e o caso 0/0 sem gerar `NaN`)
+- `modules/finance/domain/__tests__/rules.test.ts` — `sumPaidIncome`/
+  `sumPaidExpenses`/`computeRealizedProfit` só contam lançamentos
+  efetivamente pagos, nunca misturando previsto/pendente/cancelado
+
+O restante do projeto segue sem framework de teste JS para UI — decisão
+mantida por não haver ainda superfície que justifique a máquina extra.

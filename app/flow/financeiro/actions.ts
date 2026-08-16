@@ -32,6 +32,7 @@ function toUserMessage(error: unknown): string {
 function revalidateFinance() {
   revalidatePath("/flow/financeiro");
   revalidatePath("/flow/configuracoes");
+  revalidatePath("/flow");
 }
 
 export async function createFinancialEntryAction(

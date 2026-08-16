@@ -23,6 +23,7 @@ export async function createTaskAction(input: TaskFormInput): Promise<ActionResu
     const task = await createTask(input);
     revalidatePath("/flow/demandas");
     revalidatePath("/flow/clientes");
+    revalidatePath("/flow");
     return { ok: true, data: { id: task.id } };
   } catch (error) {
     return { ok: false, message: toUserMessage(error) };
@@ -37,6 +38,7 @@ export async function updateTaskAction(
     const task = await updateTask({ ...input, id });
     revalidatePath("/flow/demandas");
     revalidatePath("/flow/clientes");
+    revalidatePath("/flow");
     return { ok: true, data: { id: task.id } };
   } catch (error) {
     return { ok: false, message: toUserMessage(error) };
@@ -51,6 +53,7 @@ export async function changeTaskStatusAction(
     const task = await changeTaskStatus({ id, status });
     revalidatePath("/flow/demandas");
     revalidatePath("/flow/clientes");
+    revalidatePath("/flow");
     return { ok: true, data: { id: task.id } };
   } catch (error) {
     return { ok: false, message: toUserMessage(error) };
@@ -64,6 +67,7 @@ export async function assignTaskAction(
   try {
     const task = await assignTask({ id, assigneeId });
     revalidatePath("/flow/demandas");
+    revalidatePath("/flow");
     return { ok: true, data: { id: task.id } };
   } catch (error) {
     return { ok: false, message: toUserMessage(error) };

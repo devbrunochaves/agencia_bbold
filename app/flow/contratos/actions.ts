@@ -23,6 +23,7 @@ function toUserMessage(error: unknown): string {
 function revalidateContracts() {
   revalidatePath("/flow/contratos");
   revalidatePath("/flow/financeiro");
+  revalidatePath("/flow");
 }
 
 export async function createContractAction(input: ContractFormInput): Promise<ActionResult<{ id: string }>> {

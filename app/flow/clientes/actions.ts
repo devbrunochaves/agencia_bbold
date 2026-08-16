@@ -22,6 +22,7 @@ export async function createClientAction(input: ClientFormInput): Promise<Action
   try {
     const client = await createClient(input);
     revalidatePath("/flow/clientes");
+    revalidatePath("/flow");
     return { ok: true, data: { id: client.id } };
   } catch (error) {
     return { ok: false, message: toUserMessage(error) };
@@ -35,6 +36,7 @@ export async function updateClientAction(
   try {
     const client = await updateClient({ ...input, id });
     revalidatePath("/flow/clientes");
+    revalidatePath("/flow");
     return { ok: true, data: { id: client.id } };
   } catch (error) {
     return { ok: false, message: toUserMessage(error) };
@@ -48,6 +50,7 @@ export async function changeClientStatusAction(
   try {
     const client = await changeClientStatus({ id, status });
     revalidatePath("/flow/clientes");
+    revalidatePath("/flow");
     return { ok: true, data: { id: client.id } };
   } catch (error) {
     return { ok: false, message: toUserMessage(error) };

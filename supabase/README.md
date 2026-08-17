@@ -8,9 +8,9 @@ Supabase fora desse fluxo.
 
 Esta sessão não tem acesso ao projeto Supabase de produção do
 `agencia-bbold` (as credenciais/URL só existem como env var na Vercel).
-Reconfirmado nas fases 3, 4, 5, 6, 7 e novamente na 8 — a última
-verificação antes de conectar a Dashboard (nova tentativa explícita a cada
-vez, incluindo checar se o projeto teria saído de um estado pausado):
+Reconfirmado nas fases 3, 4, 5, 6, 7, 8 e novamente na 9 — a última
+verificação antes da auditoria completa da V1 (nova tentativa explícita a
+cada vez, incluindo checar se o projeto teria saído de um estado pausado):
 `mcp__Supabase__list_projects` continua enxergando só os mesmos dois
 projetos da conta — `css-marketing-hub` (INACTIVE) e `Gabriel Reparo`
 (ACTIVE, projeto de outro cliente) — nenhum dos dois é o `agencia-bbold`, e
@@ -20,8 +20,9 @@ esta conta/sessão enxerga, então não há nada a reativar por aqui. Nenhuma
 migration foi aplicada a nenhum dos dois projetos visíveis. As migrations
 abaixo foram escritas e versionadas, mas **ainda não foram aplicadas** ao
 banco remoto correto. A fase 8 (Dashboard) não precisou de nenhuma migration
-nova — nenhuma coluna/tabela adicional, apenas composição de dados já
-existentes. Para aplicar:
+nova. A fase 9 (auditoria) adicionou uma única migration de hardening
+(#9 abaixo) — nenhuma feature nova, apenas correções de gaps encontrados na
+auditoria. Para aplicar:
 
 ```bash
 # via Supabase CLI, com o projeto já linkado
@@ -40,6 +41,7 @@ Ordem:
 6. `20260814150000_finance.sql` — `financial_categories`, `financial_recurrences`, `financial_entries`, `organization_financial_settings`; triggers de consistência e de normalização de nota fiscal; RLS (reaproveita `finance.view`/`finance.manage` da fase 1). `financial_entries.contract_id` é `uuid` sem FK — a foreign key para `contracts` entra na migration da fase 6
 7. `20260814160000_contracts.sql` — `contract_templates`, `contracts`, `contract_installments`; colunas incrementais de dados jurídicos em `organizations` (contratada) e endereço/representante em `clients` (contratante); FK real em `financial_entries.contract_id` e nova coluna `financial_recurrences.contract_id`; RLS (reaproveita `contracts.view`/`contracts.manage` da fase 1)
 8. `20260814170000_access_control.sql` — `memberships.status` ganha `suspended`/`removed`; nova coluna `memberships.client_access_mode` (`all`/`restricted`); permissões `members.view`/`settings.view`/`settings.manage`; ativa `member_client_access` como restrição real via `can_view_client()`, aplicada em `clients`/`tasks`/`contracts` (financeiro fica de fora — ver decisão abaixo); RLS de `member_client_access` restrita à própria membership ou a quem tem `members.manage`; trigger `prevent_last_owner_removal`
+9. `20260817000000_audit_hardening.sql` — fruto da auditoria completa da fase 9, corrige 4 gaps sem adicionar feature nova: (a) `memberships_manage` (`for all`, permitia hard-DELETE) trocada por `memberships_insert`/`memberships_update` — nenhuma policy de DELETE, membership nunca é apagada fisicamente; (b) trigger `contract_installments_same_org`, faltante desde a fase 6 (todas as outras 5 relações cross-entidade já tinham o trigger equivalente); (c) trigger `member_client_access_same_org`, mesma classe de gap; (d) `financial_entries_contract_due_date_uidx` e `financial_recurrences_contract_id_uidx` — backstop de idempotência no banco para a geração de financeiro a partir de contrato, que antes só era protegida por um count-check na application layer (race condition sob concorrência)
 
 ## Dados de demonstração
 
@@ -124,6 +126,20 @@ regras, não Supabase nem React:
 - `modules/finance/domain/__tests__/rules.test.ts` — `sumPaidIncome`/
   `sumPaidExpenses`/`computeRealizedProfit` só contam lançamentos
   efetivamente pagos, nunca misturando previsto/pendente/cancelado
+
+A fase 9 (auditoria) expandiu a cobertura para as regras que a própria
+auditoria identificou como as mais arriscadas de quebrar silenciosamente:
+- `modules/identity/domain/__tests__/permissions.test.ts` — `hasPermission`
+  nunca libera por padrão (contexto nulo, chave ausente, permissão vazia)
+- `modules/contracts/domain/__tests__/rules.test.ts` — transições de status
+  (`canTransition`), divisão de parcelas sem perder/ganhar centavo
+  (`splitAmountIntoInstallments`), o bloqueio de dados jurídicos incompletos
+  (`getMissingContractorFields`, §76), e o bug de timezone corrigido nesta
+  fase em `sumSignedValueForMonth` — um contrato assinado tarde da noite no
+  Brasil próximo da virada do mês não pode mais cair no mês errado
+- `modules/finance/domain/__tests__/competence.test.ts` — `shiftCompetenceMonth`
+  na virada do ano (dezembro→janeiro e vice-versa) e `computeGoalProgress`
+  (percentual/excedente/meta zerada sem divisão por zero)
 
 O restante do projeto segue sem framework de teste JS para UI — decisão
 mantida por não haver ainda superfície que justifique a máquina extra.

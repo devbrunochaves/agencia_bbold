@@ -1,9 +1,11 @@
 -- BBOLD Flow — manual RLS/permission verification for tasks
 --
--- Same approach as supabase/tests/clients_rls.sql: no JS test runner
--- configured, run each block manually via impersonation
+-- Same approach as supabase/tests/clients_rls.sql: SQL-level RLS tests, run
+-- each block manually via impersonation
 -- (https://supabase.com/docs/guides/database/testing). Builds on the same
--- two-organization fixture as clients_rls.sql.
+-- two-organization fixture as clients_rls.sql. Predates phase 7's
+-- client_access_mode restriction (can_view_client()) — that dimension is
+-- covered in access_rls.sql Test 4, not duplicated here.
 
 begin;
 

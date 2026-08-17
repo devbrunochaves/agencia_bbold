@@ -141,3 +141,42 @@ rollback;
 --     getCurrentUserContext(), never from the input object — there is no
 --     parameter to forge in the first place.
 -- ---------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------
+-- Test 9 (added fase 9 audit) — memberships cannot be hard-deleted.
+-- 20260817000000_audit_hardening.sql replaced the single `for all`
+-- memberships_manage policy with insert/update-only policies, closing a
+-- gap where `members.manage` also implied DELETE despite the documented
+-- "removed, never DELETEd" intent.
+-- -----------------------------------------------------------------------
+-- set local request.jwt.claim.sub = '<owner-uuid>';
+-- delete from public.memberships where id = '<restricted-membership-id>';
+-- EXPECT: 0 rows affected (no DELETE policy exists) — the membership row
+-- must still exist afterward; only `status = 'removed'` via UPDATE works.
+
+-- -----------------------------------------------------------------------
+-- Test 10 (added fase 9 audit) — cross-organization data cannot be
+-- attached via contract_installments or member_client_access, even by an
+-- attacker who knows a foreign-org id.
+-- -----------------------------------------------------------------------
+-- insert into public.contract_installments (organization_id, contract_id, installment_number, amount, due_date)
+--   values ('a0000000-0000-0000-0000-000000000001', '<a-contract-belonging-to-org-b>', 1, 100.00, current_date);
+-- EXPECT: exception "contract_installments: organization_id must match the contract's organization".
+--
+-- insert into public.member_client_access (membership_id, client_id)
+--   values ('<an-org-a-membership>', '<a-client-belonging-to-org-b>');
+-- EXPECT: exception "member_client_access: membership and client must belong to the same organization".
+
+-- -----------------------------------------------------------------------
+-- Test 11 (added fase 9 audit) — contract → financial_entries generation
+-- is idempotent at the DB level, not just the application's count-check.
+-- -----------------------------------------------------------------------
+-- Two inserts of financial_entries with the same (contract_id, due_date)
+-- (simulating a concurrent double-submit of "gerar financeiro" racing past
+-- the application's existingCount check) must have the second fail:
+-- insert into public.financial_entries (organization_id, client_id, category_id, contract_id, type, description, amount, competence_month, due_date)
+--   values ('a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', '<category-id>', '<contract-id>', 'income', 'Parcela 1/1', 500.00, date_trunc('month', current_date)::date, current_date);
+-- insert into public.financial_entries (organization_id, client_id, category_id, contract_id, type, description, amount, competence_month, due_date)
+--   values ('a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', '<category-id>', '<contract-id>', 'income', 'Parcela 1/1 (duplicada)', 500.00, date_trunc('month', current_date)::date, current_date);
+-- EXPECT: the second insert violates financial_entries_contract_due_date_uidx.
+-- ---------------------------------------------------------------------------

@@ -1,14 +1,21 @@
 -- BBOLD Flow — manual RLS/permission verification for clients/services
 --
--- No JS test runner is configured in this project (package.json has no
--- "test" script — documented since phase 1), and standing up pgTAP or a
--- similar framework just for this would be more machinery than the current
--- surface area justifies. Instead: run each block below in the Supabase SQL
--- editor (or psql) against a project with the migrations applied, using
+-- These are SQL-level RLS tests, not JS unit tests — `npm test` (vitest,
+-- added phase 8) covers pure domain logic; it never touches a database and
+-- can't exercise RLS. Standing up pgTAP or a similar framework for these
+-- would be more machinery than the current surface area justifies. Instead:
+-- run each block below in the Supabase SQL editor (or psql) against a
+-- project with the migrations applied, using
 -- `set local role authenticated; set local request.jwt.claim.sub = '<uuid>'`
 -- to impersonate a specific auth user per Supabase's documented RLS testing
 -- pattern (https://supabase.com/docs/guides/database/testing). Each block
 -- states what it proves and what a pass/fail looks like.
+--
+-- This file predates phase 7's client_access_mode/member_client_access
+-- restriction (it only exercises has_permission()); the additional
+-- restricted-visibility dimension on SELECT/UPDATE (can_view_client()) is
+-- covered end-to-end in access_rls.sql Test 4 instead of being duplicated
+-- here — the scenarios below remain valid, just not exhaustive on that axis.
 
 -- Setup: two organizations, two users, one membership each.
 begin;

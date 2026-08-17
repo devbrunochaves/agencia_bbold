@@ -14,6 +14,7 @@ const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElem
       <ChevronDown
         size={14}
         strokeWidth={1.75}
+        aria-hidden="true"
         className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-flow-text-muted"
       />
     </div>

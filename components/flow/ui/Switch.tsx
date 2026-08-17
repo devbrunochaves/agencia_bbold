@@ -14,7 +14,7 @@ export default function Switch({
       type="button"
       role="switch"
       aria-checked={checked}
-      aria-label={label}
+      aria-label={label ?? (checked ? "Ativado" : "Desativado")}
       onClick={() => onChange(!checked)}
       className={`relative h-5 w-9 shrink-0 rounded-full transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-flow-yellow focus-visible:ring-offset-2 focus-visible:ring-offset-flow-bg ${
         checked ? "bg-flow-yellow" : "bg-flow-border-strong"

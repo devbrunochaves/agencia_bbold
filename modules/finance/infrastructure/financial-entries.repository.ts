@@ -61,6 +61,9 @@ function toEntry(row: FinancialEntryRow): FinancialEntry {
 
 export interface ListFinancialEntriesFilters {
   competenceMonth?: string;
+  /** Inclusive [competenceFrom, competenceTo] range — use instead of N separate competenceMonth calls when fetching several months at once (e.g. a 12-month chart). */
+  competenceFrom?: string;
+  competenceTo?: string;
   type?: FinancialEntryType;
   categoryId?: string;
   status?: FinancialEntryStatus;
@@ -82,6 +85,8 @@ export async function listEntries(
     .order("due_date", { ascending: true, nullsFirst: false });
 
   if (filters.competenceMonth) query = query.eq("competence_month", filters.competenceMonth);
+  if (filters.competenceFrom) query = query.gte("competence_month", filters.competenceFrom);
+  if (filters.competenceTo) query = query.lte("competence_month", filters.competenceTo);
   if (filters.type) query = query.eq("type", filters.type);
   if (filters.categoryId) query = query.eq("category_id", filters.categoryId);
   if (filters.status) query = query.eq("status", filters.status);

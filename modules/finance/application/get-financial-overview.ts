@@ -59,23 +59,32 @@ export async function getFinancialOverview(competenceMonth: string): Promise<Fin
     shiftCompetenceMonth(competenceMonth, i - (CASHFLOW_MONTHS - 1))
   );
 
-  const [entries, entriesSinceOpening, cashflowByMonth] = await Promise.all([
+  // Fase 9 audit (§41) — a single ranged query + in-memory grouping,
+  // instead of one round-trip per cashflow month.
+  const [entries, entriesSinceOpening, cashflowRangeEntries] = await Promise.all([
     listEntries(supabase, organizationId, { competenceMonth }),
     listEntries(supabase, organizationId, { status: "paid", paidSince: settings.openingBalanceDate }),
-    Promise.all(
-      monthKeys.map(async (month) => {
-        const monthEntries = await listEntries(supabase, organizationId, {
-          competenceMonth: month,
-          status: "paid",
-        });
-        return {
-          month,
-          incomeCents: sumPaidIncome(monthEntries),
-          expenseCents: sumPaidExpenses(monthEntries),
-        };
-      })
-    ),
+    listEntries(supabase, organizationId, {
+      competenceFrom: monthKeys[0],
+      competenceTo: monthKeys[monthKeys.length - 1],
+      status: "paid",
+    }),
   ]);
+
+  const entriesByMonth = new Map<string, typeof cashflowRangeEntries>();
+  for (const entry of cashflowRangeEntries) {
+    const bucket = entriesByMonth.get(entry.competenceMonth) ?? [];
+    bucket.push(entry);
+    entriesByMonth.set(entry.competenceMonth, bucket);
+  }
+  const cashflowByMonth = monthKeys.map((month) => {
+    const monthEntries = entriesByMonth.get(month) ?? [];
+    return {
+      month,
+      incomeCents: sumPaidIncome(monthEntries),
+      expenseCents: sumPaidExpenses(monthEntries),
+    };
+  });
 
   const receivedCents = sumPaidIncome(entries);
   const paidExpensesCents = sumPaidExpenses(entries);

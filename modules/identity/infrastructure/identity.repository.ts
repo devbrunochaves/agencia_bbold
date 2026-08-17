@@ -61,7 +61,12 @@ export async function getUserContext(
       `
     )
     .eq("user_id", authUser.id)
-    .eq("status", "active");
+    .eq("status", "active")
+    // Fase 9 audit (§59) — without an explicit order, "the first membership"
+    // was whatever order Postgres happened to return, not a stable choice.
+    // Until a real organization switcher exists, the oldest membership
+    // (first one the user was added to) is the deterministic default.
+    .order("created_at", { ascending: true });
 
   if (error) throw error;
 

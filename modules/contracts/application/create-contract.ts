@@ -7,7 +7,7 @@ import { getTemplateById } from "../infrastructure/contract-templates.repository
 import { getOrganizationContractorSnapshot } from "../infrastructure/organization-snapshot.repository";
 import { renderTemplate, DEFAULT_CONTRACT_TEMPLATE } from "../domain/template-engine";
 import { buildTemplateValues } from "../domain/build-template-values";
-import { splitAmountIntoInstallments } from "../domain/rules";
+import { splitAmountIntoInstallments, getMissingContractorFields } from "../domain/rules";
 import type { Contract } from "../domain/types";
 import { UnauthorizedError, ValidationError } from "./errors";
 
@@ -24,6 +24,14 @@ export async function createContract(input: ContractFormInput): Promise<Contract
   const supabase = await createSupabaseServerClient();
 
   const contractorSnapshot = await getOrganizationContractorSnapshot(supabase, organizationId);
+
+  // §76 — never freeze a contract_snapshot with missing legal data silently.
+  const missingFields = getMissingContractorFields(contractorSnapshot);
+  if (missingFields.length > 0) {
+    throw new ValidationError(
+      `Configure os dados jurídicos da BBOLD antes de criar um contrato. Faltando: ${missingFields.join(", ")}.`
+    );
+  }
 
   const template = data.templateId ? await getTemplateById(supabase, data.templateId) : null;
   if (data.templateId && (!template || template.organizationId !== organizationId)) {

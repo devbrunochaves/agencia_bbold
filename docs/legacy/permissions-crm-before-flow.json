@@ -1,0 +1,25 @@
+{
+  "_comment": "Backup histórico, somente leitura — NÃO usar em migrations, seed ou runtime. Registro das 16 linhas da tabela public.permissions encontrada no projeto Supabase tsjyuiypepaffkqihfye antes da homologação da V1 do BBOLD Flow. Essa tabela era resíduo de um protótipo de CRM anterior (conceitos leads/pipeline/proposals/brands/diagnoses, que não existem na V1 do Flow) — sem dados de cliente, PII ou credenciais. A tabela foi removida (`drop table public.permissions;`) antes de aplicar as migrations oficiais do Flow, que recriam `public.permissions` com um catálogo e schema diferentes.",
+  "source_project_ref": "tsjyuiypepaffkqihfye",
+  "table": "public.permissions",
+  "dropped_at": "2026-08-17",
+  "row_count": 16,
+  "rows": [
+    { "id": "a4c0b577-03ec-40ac-adac-e3029ecb5e4b", "key": "leads:read", "module": "leads", "description": "Visualizar leads, histórico de estágios e dados de qualificação", "created_at": "2026-07-22 14:38:52.086077+00" },
+    { "id": "8bd15c1a-c150-4ba2-a5ee-f38ff9e7f3c5", "key": "leads:write", "module": "leads", "description": "Criar, editar e mover leads entre estágios do pipeline", "created_at": "2026-07-22 14:38:52.086077+00" },
+    { "id": "3fc3ad96-0f0a-4d39-9c00-743c9ab9d259", "key": "clients:read", "module": "clients", "description": "Visualizar clientes e seus dados cadastrais", "created_at": "2026-07-22 14:38:52.086077+00" },
+    { "id": "96dbefee-2ce0-4c17-9831-989e8cdcb87f", "key": "clients:write", "module": "clients", "description": "Criar, editar e arquivar clientes", "created_at": "2026-07-22 14:38:52.086077+00" },
+    { "id": "b04b022a-334c-4815-9daa-36bc1e9702df", "key": "proposals:read", "module": "proposals", "description": "Visualizar propostas e seus itens", "created_at": "2026-07-22 14:38:52.086077+00" },
+    { "id": "b99a99df-5e1d-43bf-a0d2-0c4db89b5c52", "key": "proposals:write", "module": "proposals", "description": "Criar, editar e alterar o status de propostas", "created_at": "2026-07-22 14:38:52.086077+00" },
+    { "id": "323b82c3-9f60-40dc-aa31-cdf7787a143d", "key": "pipeline:manage", "module": "pipeline", "description": "Criar e configurar pipelines e seus estágios", "created_at": "2026-07-22 14:38:52.086077+00" },
+    { "id": "75f653fc-10bd-436c-9931-446350524e4f", "key": "members:manage", "module": "members", "description": "Convidar, remover e alterar roles de membros da organização", "created_at": "2026-07-22 14:38:52.086077+00" },
+    { "id": "90344c80-bc3b-4fb7-8405-0a21ffd075d1", "key": "org:settings", "module": "organization", "description": "Alterar configurações gerais da organização", "created_at": "2026-07-22 14:38:52.086077+00" },
+    { "id": "254148b5-5abb-4519-9724-57ec3a938f16", "key": "brands:read", "module": "brands", "description": "Visualizar marcas e perfis sociais vinculados a clientes", "created_at": "2026-07-22 14:38:52.086077+00" },
+    { "id": "c0f084bf-fd2a-4efa-8819-96677304c4b3", "key": "brands:write", "module": "brands", "description": "Criar e editar marcas e perfis sociais", "created_at": "2026-07-22 14:38:52.086077+00" },
+    { "id": "88d2c81c-c424-4395-9097-514bd7245041", "key": "catalog:manage", "module": "catalog", "description": "Criar e editar serviços e tipos de entrega do catálogo", "created_at": "2026-07-22 14:38:52.086077+00" },
+    { "id": "e26b4f71-b634-4ae6-ac59-96a3e92f64c1", "key": "activities:read", "module": "activities", "description": "Visualizar atividades comerciais registradas", "created_at": "2026-07-22 14:38:52.086077+00" },
+    { "id": "ce8d4827-0fca-4bce-b4d2-249d8f3cff81", "key": "activities:write", "module": "activities", "description": "Registrar e editar atividades comerciais", "created_at": "2026-07-22 14:38:52.086077+00" },
+    { "id": "c698020e-2339-42ab-bcb3-4623aca35955", "key": "diagnoses:read", "module": "diagnoses", "description": "Visualizar diagnósticos de leads", "created_at": "2026-07-22 14:38:52.086077+00" },
+    { "id": "969cfc26-68e8-4ebb-bbf9-d5403271217f", "key": "diagnoses:write", "module": "diagnoses", "description": "Criar e atualizar diagnósticos de leads", "created_at": "2026-07-22 14:38:52.086077+00" }
+  ]
+}

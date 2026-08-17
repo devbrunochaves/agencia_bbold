@@ -6,23 +6,20 @@ Supabase fora desse fluxo.
 
 ## Aplicar as migrations
 
-Esta sessão não tem acesso ao projeto Supabase de produção do
-`agencia-bbold` (as credenciais/URL só existem como env var na Vercel).
-Reconfirmado nas fases 3, 4, 5, 6, 7, 8 e novamente na 9 — a última
-verificação antes da auditoria completa da V1 (nova tentativa explícita a
-cada vez, incluindo checar se o projeto teria saído de um estado pausado):
-`mcp__Supabase__list_projects` continua enxergando só os mesmos dois
-projetos da conta — `css-marketing-hub` (INACTIVE) e `Gabriel Reparo`
-(ACTIVE, projeto de outro cliente) — nenhum dos dois é o `agencia-bbold`, e
-nenhum terceiro projeto apareceu. O projeto correto não está pausado a ponto
-de precisar ser "acordado": ele simplesmente não está entre os projetos que
-esta conta/sessão enxerga, então não há nada a reativar por aqui. Nenhuma
-migration foi aplicada a nenhum dos dois projetos visíveis. As migrations
-abaixo foram escritas e versionadas, mas **ainda não foram aplicadas** ao
-banco remoto correto. A fase 8 (Dashboard) não precisou de nenhuma migration
-nova. A fase 9 (auditoria) adicionou uma única migration de hardening
-(#9 abaixo) — nenhuma feature nova, apenas correções de gaps encontrados na
-auditoria. Para aplicar:
+**Atualização — projeto real conectado.** O projeto Supabase oficial do
+BBOLD Flow é `tsjyuiypepaffkqihfye` ("Plataforma BBOLD", organização
+"Agência BBOLD"), confirmado por reautenticação da integração Supabase
+para a conta dona do projeto (as fases 1–9 não tinham acesso a essa conta —
+só enxergavam `css-marketing-hub` e `Gabriel Reparo`, de uma organização
+diferente, nunca tocados).
+
+**As 10 migrations abaixo já foram aplicadas a esse projeto** (etapa de
+homologação, ver `docs/flow-e2e-checklist.md`). O schema `public` estava
+quase vazio: havia uma única tabela residual `permissions` (16 linhas) de
+um protótipo de CRM anterior, sem relação com o Flow — removida após
+verificação de que não tinha FK/view/function dependente e backup em
+`docs/legacy/permissions-crm-before-flow.json`. Para reaplicar em outro
+ambiente (ex: recriar um projeto de homologação):
 
 ```bash
 # via Supabase CLI, com o projeto já linkado
@@ -42,6 +39,7 @@ Ordem:
 7. `20260814160000_contracts.sql` — `contract_templates`, `contracts`, `contract_installments`; colunas incrementais de dados jurídicos em `organizations` (contratada) e endereço/representante em `clients` (contratante); FK real em `financial_entries.contract_id` e nova coluna `financial_recurrences.contract_id`; RLS (reaproveita `contracts.view`/`contracts.manage` da fase 1)
 8. `20260814170000_access_control.sql` — `memberships.status` ganha `suspended`/`removed`; nova coluna `memberships.client_access_mode` (`all`/`restricted`); permissões `members.view`/`settings.view`/`settings.manage`; ativa `member_client_access` como restrição real via `can_view_client()`, aplicada em `clients`/`tasks`/`contracts` (financeiro fica de fora — ver decisão abaixo); RLS de `member_client_access` restrita à própria membership ou a quem tem `members.manage`; trigger `prevent_last_owner_removal`
 9. `20260817000000_audit_hardening.sql` — fruto da auditoria completa da fase 9, corrige 4 gaps sem adicionar feature nova: (a) `memberships_manage` (`for all`, permitia hard-DELETE) trocada por `memberships_insert`/`memberships_update` — nenhuma policy de DELETE, membership nunca é apagada fisicamente; (b) trigger `contract_installments_same_org`, faltante desde a fase 6 (todas as outras 5 relações cross-entidade já tinham o trigger equivalente); (c) trigger `member_client_access_same_org`, mesma classe de gap; (d) `financial_entries_contract_due_date_uidx` e `financial_recurrences_contract_id_uidx` — backstop de idempotência no banco para a geração de financeiro a partir de contrato, que antes só era protegida por um count-check na application layer (race condition sob concorrência)
+10. `20260817010000_fix_owner_admin_permission_grants.sql` — encontrada durante a homologação (aplicação real contra o projeto `tsjyuiypepaffkqihfye`): Owner tinha só 11 das 14 permissões do catálogo, Admin só 10 das 13 esperadas. O comentário da migration 8 presumia que o cross-join de Owner/Admin da migration 3 "pegaria automaticamente" as 3 permissões novas (`members.view`/`settings.view`/`settings.manage`) — falso, era um `INSERT` único, não uma regra viva. Esta migration reaplica o grant (idempotente, `on conflict do nothing`) para Owner (todas) e Admin (todas exceto `organization.manage`). A migration 8 foi deixada intacta (já aplicada no projeto real; reescrevê-la desincronizaria o arquivo do que de fato rodou) — qualquer permissão nova futura precisa conceder explicitamente a Owner/Admin na mesma migration que a cria, não presumir herança automática
 
 ## Dados de demonstração
 

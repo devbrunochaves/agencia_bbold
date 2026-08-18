@@ -8,7 +8,6 @@ import { Button, Checkbox, EmptyState, Select, Tabs } from "@/components/flow/ui
 import type { Task, TaskStatus } from "@/modules/tasks/domain/types";
 import { TASK_STATUSES } from "@/modules/tasks/domain/types";
 import type { Client } from "@/modules/clients/domain/types";
-import type { Service } from "@/modules/services/domain/types";
 import type { OrganizationMember } from "@/modules/identity/domain/member";
 import { changeTaskStatusAction } from "./actions";
 import FolderPanel from "./FolderPanel";
@@ -28,12 +27,10 @@ const rangeOptions = [
 export default function DemandasView({
   tasks,
   clients,
-  services,
   members,
 }: {
   tasks: Task[];
   clients: Client[];
-  services: Service[];
   members: OrganizationMember[];
 }) {
   const router = useRouter();
@@ -47,8 +44,14 @@ export default function DemandasView({
   const activeStatus = searchParams.get("status") ?? "";
   const activeAssignee = searchParams.get("assignee") ?? "";
   const activeClient = searchParams.get("client");
-  const activeService = searchParams.get("service");
   const showCompleted = searchParams.get("completed") === "1";
+
+  function selectFolder(clientId: string | null) {
+    // Selecting a client folder shows all of their demandas regardless of
+    // service — clear any leftover `service` filter (e.g. from a direct
+    // link) so it doesn't silently narrow the folder's own view.
+    updateQuery({ client: clientId, service: null });
+  }
 
   function updateQuery(next: Record<string, string | null>) {
     const params = new URLSearchParams(searchParams.toString());
@@ -144,12 +147,10 @@ export default function DemandasView({
 
       <div className="flex">
         <FolderPanel
-          services={services}
           clients={clients}
-          activeServiceId={activeService}
+          tasks={tasks}
           activeClientId={activeClient}
-          onSelectService={(serviceId) => updateQuery({ service: serviceId, client: null })}
-          onSelectClient={(serviceId, clientId) => updateQuery({ service: serviceId, client: clientId })}
+          onSelectClient={selectFolder}
         />
 
         <div className="min-w-0 flex-1">

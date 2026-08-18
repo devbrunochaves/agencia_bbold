@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { listTasks, type TaskStatus } from "@/modules/tasks";
 import { listClients } from "@/modules/clients";
-import { listServices } from "@/modules/services";
 import { listOrganizationMembers, requirePermission } from "@/modules/identity";
 import AccessDenied from "@/components/flow/AccessDenied";
 import DemandasView from "./DemandasView";
@@ -42,7 +41,7 @@ export default async function DemandasPage({ searchParams }: DemandasPageProps) 
     ? (params.status as TaskStatus)
     : undefined;
 
-  const [tasks, clients, services, members] = await Promise.all([
+  const [tasks, clients, members] = await Promise.all([
     listTasks({
       status,
       assigneeId: params.assignee || undefined,
@@ -51,9 +50,8 @@ export default async function DemandasPage({ searchParams }: DemandasPageProps) 
       includeCompleted: params.completed === "1",
     }),
     listClients(),
-    listServices(),
     listOrganizationMembers(),
   ]);
 
-  return <DemandasView tasks={tasks} clients={clients} services={services} members={members} />;
+  return <DemandasView tasks={tasks} clients={clients} members={members} />;
 }

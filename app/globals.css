@@ -9,8 +9,6 @@
 
 html { scroll-behavior: smooth; }
 
-*, *::before, *::after { cursor: none !important; }
-
 body {
   background-color: #f7f0e5;
   color: #0A0A0A;

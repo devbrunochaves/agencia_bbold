@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Bebas_Neue, Barlow, Inter } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
-import CustomCursor from "@/components/CustomCursor";
 
 const bebasNeue = Bebas_Neue({
   weight: "400",
@@ -58,7 +57,6 @@ export default function RootLayout({
         </Script>
       </head>
       <body className="font-body bg-cream text-black">
-        <CustomCursor />
         {children}
       </body>
     </html>

@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Client, ClientStatus } from "../domain/types";
 import type { ClientFormInput } from "../domain/schemas";
@@ -168,21 +169,28 @@ export async function createClient(
   createdBy: string,
   input: ClientFormInput
 ): Promise<Client> {
-  const { data, error } = await supabase
-    .from("clients")
-    .insert({
-      organization_id: organizationId,
-      created_by: createdBy,
-      ...toClientRowInput(input),
-    })
-    .select("id")
-    .single();
+  // No .select() chained onto this insert: INSERT ... RETURNING evaluates
+  // the SELECT policy (can_view_client, which self-joins clients) against
+  // the just-inserted row using the command's own snapshot, and that row
+  // isn't visible to a self-referencing query within the same statement —
+  // Postgres raises "new row violates row-level security policy" even
+  // though the row is fully visible right after, in a separate statement.
+  // Generating the id here and reading it back with a plain follow-up
+  // SELECT (getClientById) avoids RETURNING entirely.
+  const id = randomUUID();
+
+  const { error } = await supabase.from("clients").insert({
+    id,
+    organization_id: organizationId,
+    created_by: createdBy,
+    ...toClientRowInput(input),
+  });
 
   if (error) throw error;
 
-  await syncClientServices(supabase, organizationId, data.id, input.serviceIds);
+  await syncClientServices(supabase, organizationId, id, input.serviceIds);
 
-  const client = await getClientById(supabase, data.id);
+  const client = await getClientById(supabase, id);
   if (!client) throw new Error("Cliente criado, mas não foi possível recarregá-lo.");
   return client;
 }

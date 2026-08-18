@@ -17,7 +17,7 @@ interface MemberRow {
 const MEMBER_SELECT = `
   id, user_id, invited_email, status, client_access_mode, created_at,
   role:roles ( id, key, name ),
-  user:users ( full_name, email ),
+  user:users!memberships_user_id_fkey ( full_name, email ),
   member_client_access ( client_id )
 `;
 

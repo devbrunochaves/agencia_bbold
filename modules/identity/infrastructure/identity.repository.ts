@@ -128,7 +128,7 @@ export async function listActiveMembers(
 ): Promise<OrganizationMember[]> {
   const { data, error } = await supabase
     .from("memberships")
-    .select("user_id, role:roles ( name ), user:users ( full_name, email )")
+    .select("user_id, role:roles ( name ), user:users!memberships_user_id_fkey ( full_name, email )")
     .eq("organization_id", organizationId)
     .eq("status", "active");
 

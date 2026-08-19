@@ -26,25 +26,31 @@ const config: Config = {
         },
         // BBOLD Flow — internal system palette. Kept separate from the
         // institutional site tokens above so the two products never bleed
-        // into each other.
+        // into each other. Light/off-white theme (V1 official) — warm
+        // off-white background, warm white surfaces, near-black text,
+        // BBOLD yellow reserved for accents rather than a page-wide base.
         flow: {
-          bg: "#0B0B0C",
-          surface: "#111214",
-          "surface-hover": "#17181B",
-          panel: "#111214",
-          "panel-alt": "#161719",
-          border: "#232427",
-          "border-strong": "#33353A",
+          bg: "#F7F6F1",
+          surface: "#FFFFFF",
+          "surface-hover": "#F1EFE7",
+          panel: "#FFFFFF",
+          "panel-alt": "#F5F3EC",
+          border: "#E7E4DA",
+          "border-strong": "#D6D2C4",
           yellow: "#FFD400",
           "yellow-dark": "#E0B900",
-          success: "#22C55E",
-          danger: "#EF4444",
-          warning: "#FFD400",
-          info: "#3B82F6",
-          waiting: "#A855F7",
-          "text-primary": "#F5F5F5",
-          "text-secondary": "#C7C8CC",
-          "text-muted": "#9A9CA3",
+          // Text/icon-safe accent — same brand hue as `yellow`, darkened to
+          // pass contrast as running text/small icons on the light surfaces
+          // above (raw #FFD400 text on off-white fails WCAG AA).
+          "yellow-ink": "#8A6D00",
+          success: "#16A34A",
+          danger: "#DC2626",
+          warning: "#D97706",
+          info: "#2563EB",
+          waiting: "#9333EA",
+          "text-primary": "#1C1A16",
+          "text-secondary": "#57534A",
+          "text-muted": "#8A8578",
         },
       },
       fontFamily: {
@@ -56,8 +62,8 @@ const config: Config = {
         flow: "1600px",
       },
       boxShadow: {
-        flow: "0 1px 2px rgba(0,0,0,0.4)",
-        "flow-lg": "0 20px 40px rgba(0,0,0,0.55)",
+        flow: "0 1px 2px rgba(28,26,22,0.05)",
+        "flow-lg": "0 12px 32px rgba(28,26,22,0.10)",
       },
       transitionDuration: {
         DEFAULT: "180ms",

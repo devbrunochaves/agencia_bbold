@@ -24,7 +24,7 @@ export default function TaskTable({
         <button
           type="button"
           onClick={() => onEdit(t)}
-          className="text-left font-medium text-flow-text-primary hover:text-flow-yellow"
+          className="text-left font-medium text-flow-text-primary hover:text-flow-yellow-ink"
         >
           {t.title}
         </button>

@@ -38,7 +38,7 @@ export default function QuadroTab({
                     <button
                       type="button"
                       onClick={() => onEdit(task)}
-                      className="text-left text-sm text-flow-text-primary hover:text-flow-yellow"
+                      className="text-left text-sm text-flow-text-primary hover:text-flow-yellow-ink"
                     >
                       {task.title}
                     </button>

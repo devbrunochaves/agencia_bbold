@@ -40,7 +40,7 @@ export default function FinancialCategoriesCard({ categories }: { categories: Fi
   return (
     <Card className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-flow-panel-alt text-flow-yellow">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-flow-panel-alt text-flow-yellow-ink">
           <Tags size={18} strokeWidth={1.75} />
         </div>
         <div>

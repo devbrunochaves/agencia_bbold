@@ -49,10 +49,10 @@ export default function Sidebar({
     >
       <div className={`flex items-center justify-between px-5 pb-6 pt-7 ${collapsed ? "px-0 justify-center" : ""}`}>
         {collapsed ? (
-          <p className="text-lg font-bold text-flow-yellow">B</p>
+          <p className="text-lg font-bold text-flow-yellow-ink">B</p>
         ) : (
           <div>
-            <p className="text-xs font-semibold tracking-[0.3em] text-flow-yellow">BBOLD</p>
+            <p className="text-xs font-semibold tracking-[0.3em] text-flow-yellow-ink">BBOLD</p>
             <p className="text-lg font-semibold leading-tight text-flow-text-primary">Flow</p>
           </div>
         )}

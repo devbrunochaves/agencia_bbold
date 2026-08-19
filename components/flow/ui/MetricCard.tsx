@@ -7,7 +7,7 @@ const iconToneClass: Record<MetricTone, string> = {
   neutral: "bg-flow-panel-alt text-flow-text-muted",
   success: "bg-flow-success/10 text-flow-success",
   danger: "bg-flow-danger/10 text-flow-danger",
-  warning: "bg-flow-yellow/10 text-flow-yellow",
+  warning: "bg-flow-warning/10 text-flow-warning",
   info: "bg-flow-info/10 text-flow-info",
   waiting: "bg-flow-waiting/10 text-flow-waiting",
 };

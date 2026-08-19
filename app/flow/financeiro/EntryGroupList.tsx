@@ -31,7 +31,7 @@ export default function EntryGroupList({
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="py-2 text-left text-xs font-medium text-flow-yellow hover:underline"
+          className="py-2 text-left text-xs font-medium text-flow-yellow-ink hover:underline"
         >
           {expanded ? "Ver menos" : `Ver mais (${entries.length - VISIBLE_ROWS})`}
         </button>

@@ -41,7 +41,7 @@ export default function EntryRow({
   return (
     <div className="grid grid-cols-[1fr_auto_auto_auto_auto] items-center gap-4 py-2.5 text-sm">
       <button type="button" onClick={() => onEdit(entry)} className="min-w-0 text-left">
-        <p className="truncate text-flow-text-primary hover:text-flow-yellow">{entry.description}</p>
+        <p className="truncate text-flow-text-primary hover:text-flow-yellow-ink">{entry.description}</p>
         <p className="truncate text-xs text-flow-text-muted">{entry.clientName ?? entry.categoryName}</p>
       </button>
       <span className="text-xs text-flow-text-muted">

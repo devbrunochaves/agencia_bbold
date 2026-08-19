@@ -15,7 +15,7 @@ export default function AppShell({
   permissions: string[];
 }) {
   return (
-    <div className="dark flex h-screen min-w-[1024px] overflow-x-auto overflow-y-hidden bg-flow-bg text-flow-text-primary">
+    <div className="flex h-screen min-w-[1024px] overflow-x-auto overflow-y-hidden bg-flow-bg text-flow-text-primary">
       <Sidebar
         permissions={permissions}
         userName={userName}

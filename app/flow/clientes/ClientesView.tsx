@@ -111,7 +111,7 @@ export default function ClientesView({
             setEditingClient(c);
             setDrawerOpen(true);
           }}
-          className="text-left font-medium text-flow-text-primary hover:text-flow-yellow"
+          className="text-left font-medium text-flow-text-primary hover:text-flow-yellow-ink"
         >
           {c.name}
         </button>

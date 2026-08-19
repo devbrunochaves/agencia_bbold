@@ -50,7 +50,7 @@ export default function ConfiguracoesView({
           {comingSoonSections.map((section) => (
             <CardComponent key={section.title} className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-flow-panel-alt text-flow-yellow">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-flow-panel-alt text-flow-yellow-ink">
                   <section.icon size={18} strokeWidth={1.75} />
                 </div>
                 <Badge tone="neutral">Em breve</Badge>

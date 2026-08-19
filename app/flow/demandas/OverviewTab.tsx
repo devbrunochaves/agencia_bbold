@@ -37,7 +37,7 @@ export default function OverviewTab({
 
   const blocks = [
     { key: "atrasadas", label: "Atrasadas", tasks: overdue, tone: "text-flow-danger" },
-    { key: "hoje", label: "Hoje", tasks: dueToday, tone: "text-flow-yellow" },
+    { key: "hoje", label: "Hoje", tasks: dueToday, tone: "text-flow-yellow-ink" },
     { key: "proximos", label: "Próximos dias", tasks: upcoming, tone: "text-flow-info" },
     { key: "sem-data", label: "Sem data", tasks: noDate, tone: "text-flow-text-muted" },
   ];

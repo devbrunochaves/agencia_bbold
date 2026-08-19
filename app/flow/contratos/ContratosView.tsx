@@ -115,7 +115,7 @@ export default function ContratosView({
         <button
           type="button"
           onClick={() => router.push(`/flow/contratos/novo?id=${c.id}`)}
-          className="text-left font-medium text-flow-text-primary hover:text-flow-yellow"
+          className="text-left font-medium text-flow-text-primary hover:text-flow-yellow-ink"
         >
           {c.title}
         </button>

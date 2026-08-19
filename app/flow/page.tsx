@@ -299,7 +299,7 @@ export default async function FlowDashboardPage({
                   {contracts.awaitingSignatureCount > 0 && (
                     <p>
                       {contracts.awaitingSignatureCount} enviados aguardando assinatura —{" "}
-                      <Link href="/flow/contratos?status=sent" className="text-flow-yellow hover:underline">
+                      <Link href="/flow/contratos?status=sent" className="text-flow-yellow-ink hover:underline">
                         ver contratos
                       </Link>
                     </p>

@@ -69,7 +69,7 @@ export default function FolderPanel({
           onClick={() => onSelectClient(null)}
           className={`mb-2 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm font-medium transition-colors ${
             activeClientId === null
-              ? "bg-flow-panel-alt text-flow-yellow"
+              ? "bg-flow-panel-alt text-flow-yellow-ink"
               : "text-flow-text-secondary hover:bg-flow-panel-alt hover:text-flow-text-primary"
           }`}
         >
@@ -90,7 +90,7 @@ export default function FolderPanel({
                   onClick={() => onSelectClient(isActive ? null : client.id)}
                   className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors ${
                     isActive
-                      ? "bg-flow-panel-alt text-flow-yellow"
+                      ? "bg-flow-panel-alt text-flow-yellow-ink"
                       : "text-flow-text-secondary hover:bg-flow-panel-alt hover:text-flow-text-primary"
                   }`}
                 >
